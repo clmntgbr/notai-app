@@ -2,8 +2,8 @@
 
 import * as React from "react"
 
-import { ClientSwitcher } from "@/components/dashboard/client-switcher"
-import { NavUser } from "@/components/dashboard/nav-user"
+import { ClientSwitcher } from "@/components/client-switcher"
+import { SidebarUser } from "@/components/sidebar-user"
 import {
   Sidebar,
   SidebarContent,
@@ -21,7 +21,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <ClientSwitcher />
       </SidebarHeader>
       <SidebarContent />
-      <SidebarFooter>{user ? <NavUser user={user} /> : null}</SidebarFooter>
+      <SidebarFooter>{user ? <SidebarUser user={user} /> : null}</SidebarFooter>
     </Sidebar>
   )
 }

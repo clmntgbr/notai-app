@@ -1,0 +1,95 @@
+---
+description: Generic React architecture — data layer, realtime, providers, component structure
+alwaysApply: true
+---
+
+# React architecture
+
+## Data ownership
+
+| Layer | Role |
+|-------|------|
+| **Server-state library** (React Query / TanStack Query) | Source of truth for remote data |
+| **Realtime** (WebSocket, Centrifugo, SSE, …) | Sync / invalidation signal only — never the confirmation of a local user command |
+| **React context / providers** | UI, auth session, and small ambient context (e.g. active tenant id) — **not** entity lists or caches of API resources |
+
+Never store the same remote resource in both a provider and the query cache.
+
+## User actions vs realtime
+
+```
+Current-user action (create / update / switch context)
+  → HTTP (or RPC) mutation — response is source of truth
+  → update cache immediately (setQueryData / invalidate / fetchQuery)
+  → UI reflects server state
+
+Event from elsewhere (other tab, other user, async job)
+  → realtime handler
+  → targeted invalidateQueries (or setQueryData if payload is complete)
+```
+
+**Do not** wait for a realtime event before refreshing after the current user's own mutation.
+
+Invalidate the **narrowest** query keys needed (lists vs detail). Avoid broad prefixes that refetch unrelated detail queries.
+
+## Query keys
+
+- Centralize keys in one module (`queryKeys`)
+- Nest by resource and scope (tenant / parent id when relevant)
+- Same key + same hook in multiple components ⇒ shared cache, one network call
+
+```ts
+// Pattern
+resource.all
+resource.lists() / resource.list(filters?)
+resource.detail(id)
+resource.child.all(parentId)   // scoped under parent when multi-tenant
+```
+
+## API access from the browser
+
+- Call an app-owned layer (BFF `/api/...`, SDK, or typed client) — not raw backend URLs sprinkled in components
+- Keep `api.ts` + `hooks.ts` + `types.ts` per domain under `lib/` (or equivalent)
+- Components consume hooks; they do not own fetch/error plumbing
+
+## Realtime client
+
+- Connect only when authenticated / when the feature needs it
+- Failure to connect = quiet degrade (app stays usable via HTTP)
+- Handlers: map event → cache update. No domain workflows inside the socket callback beyond that
+
+## Components
+
+- **Do not** define nested functions that return JSX inside a large component file
+- Split UI into **small components in folders**; the parent only composes and wires hooks
+- Colocate feature UI under a folder; put shared primitives in `components/ui/` (or design-system)
+
+```
+components/feature-name/
+  index.tsx                 # composition + data hooks
+  feature-header.tsx
+  feature-list.tsx
+  feature-form.tsx
+```
+
+```tsx
+// ❌ BAD
+function Page() {
+  function renderHeader() { return <header>...</header> }
+  function renderList() { return <ul>...</ul> }
+  return <>{renderHeader()}{renderList()}</>
+}
+
+// ✅ GOOD
+function Page() {
+  return (
+    <>
+      <FeatureHeader />
+      <FeatureList />
+    </>
+  )
+}
+```
+
+- Logic reused across UI → custom hooks (`use-*.ts`), not inline in presentational files
+- Code, comments, and identifiers in English

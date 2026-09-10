@@ -4,6 +4,7 @@ import {
   Building2Icon,
   CheckIcon,
   ChevronsUpDownIcon,
+  Loader2Icon,
   PlusIcon,
 } from "lucide-react"
 import * as React from "react"
@@ -43,7 +44,8 @@ export function ClientSwitcher() {
     null
 
   const isLoading = clientsQuery.isLoading
-  const isSubmitting = isSwitching || createClient.isPending
+  const isCreatingClient = createClient.isPending
+  const isSubmitting = isSwitching || isCreatingClient
 
   const handleSwitch = React.useCallback(
     async (clientId: string) => {
@@ -140,9 +142,12 @@ export function ClientSwitcher() {
             <button
               type="submit"
               disabled={isSubmitting || !newClientName.trim()}
-              className="rounded-md bg-sidebar-primary px-2 py-1.5 text-xs font-medium text-sidebar-primary-foreground disabled:opacity-50"
+              className="inline-flex items-center justify-center gap-2 rounded-md bg-sidebar-primary px-2 py-1.5 text-xs font-medium text-sidebar-primary-foreground disabled:opacity-50"
             >
-              Create client
+              {isCreatingClient ? (
+                <Loader2Icon className="size-3.5 animate-spin" />
+              ) : null}
+              {isCreatingClient ? "Creating…" : "Create client"}
             </button>
             {error ? <p className="text-xs text-destructive">{error}</p> : null}
           </form>
@@ -156,7 +161,7 @@ export function ClientSwitcher() {
       <SidebarMenuItem>
         <DropdownMenu
           onOpenChange={(open) => {
-            if (!open) {
+            if (!open && !isCreatingClient) {
               setIsCreating(false)
               setNewClientName("")
               setError(null)
@@ -205,20 +210,28 @@ export function ClientSwitcher() {
             ))}
             <DropdownMenuSeparator />
             {isCreating ? (
-              <form onSubmit={handleCreate} className="flex flex-col gap-2 p-2">
+              <form
+                onSubmit={handleCreate}
+                className="flex flex-col gap-2 p-2"
+                onKeyDown={(event) => event.stopPropagation()}
+              >
                 <Input
                   autoFocus
                   value={newClientName}
                   onChange={(event) => setNewClientName(event.target.value)}
+                  onKeyDown={(event) => event.stopPropagation()}
                   placeholder="Client name"
                   disabled={isSubmitting}
                 />
                 <button
                   type="submit"
                   disabled={isSubmitting || !newClientName.trim()}
-                  className="rounded-md bg-sidebar-primary px-2 py-1.5 text-xs font-medium text-sidebar-primary-foreground disabled:opacity-50"
+                  className="inline-flex items-center justify-center gap-2 rounded-md bg-sidebar-primary px-2 py-1.5 text-xs font-medium text-sidebar-primary-foreground disabled:opacity-50"
                 >
-                  Create client
+                  {isCreatingClient ? (
+                    <Loader2Icon className="size-3.5 animate-spin" />
+                  ) : null}
+                  {isCreatingClient ? "Creating…" : "Create client"}
                 </button>
               </form>
             ) : (

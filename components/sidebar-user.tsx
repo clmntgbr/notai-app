@@ -25,7 +25,7 @@ import {
   LogOutIcon,
 } from "lucide-react"
 
-export function NavUser({ user }: { user: User }) {
+export function SidebarUser({ user }: { user: User }) {
   const { isMobile } = useSidebar()
 
   return (

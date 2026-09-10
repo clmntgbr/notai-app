@@ -17,18 +17,13 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer"
-import { ImageIcon, XIcon } from "lucide-react"
+import { useUploadCampaignContents } from "@/lib/content/hooks"
+import {
+  ACCEPTED_CONTENT_TYPES,
+  MAX_CONTENT_FILES,
+} from "@/lib/content/types"
+import { ImageIcon, Loader2Icon, XIcon } from "lucide-react"
 import * as React from "react"
-
-const MAX_IMAGES = 20
-
-const ACCEPTED_IMAGE_TYPES = [
-  "image/jpeg",
-  "image/jpg",
-  "image/png",
-  "image/webp",
-  "image/gif",
-] as const
 
 export type SelectedImage = {
   id: string
@@ -49,8 +44,8 @@ function fileExtensionLabel(file: File) {
 }
 
 function isAcceptedImage(file: File) {
-  return ACCEPTED_IMAGE_TYPES.includes(
-    file.type as (typeof ACCEPTED_IMAGE_TYPES)[number]
+  return ACCEPTED_CONTENT_TYPES.includes(
+    file.type as (typeof ACCEPTED_CONTENT_TYPES)[number]
   )
 }
 
@@ -65,6 +60,7 @@ export interface ImageUploadDrawerProps {
   onOpenChange: (open: boolean) => void
   images: SelectedImage[]
   onImagesChange: (images: SelectedImage[]) => void
+  campaignId?: string | null
 }
 
 export function ImageUploadDrawer({
@@ -72,8 +68,18 @@ export function ImageUploadDrawer({
   onOpenChange,
   images,
   onImagesChange,
+  campaignId,
 }: ImageUploadDrawerProps) {
+  const uploadContents = useUploadCampaignContents()
+  const [error, setError] = React.useState<string | null>(null)
+  const [fileProgress, setFileProgress] = React.useState<Record<number, number>>(
+    {}
+  )
+
+  const isUploading = uploadContents.isPending
+
   function handleRemove(id: string) {
+    if (isUploading) return
     const next = images.filter((image) => image.id !== id)
     const removed = images.find((image) => image.id === id)
     if (removed) URL.revokeObjectURL(removed.previewUrl)
@@ -82,30 +88,46 @@ export function ImageUploadDrawer({
   }
 
   function handleCancel() {
-    console.log(
-      "image upload cancelled",
-      images.map((image) => image.file.name)
-    )
+    if (isUploading) return
     revokePreviews(images)
     onImagesChange([])
+    setError(null)
+    setFileProgress({})
     onOpenChange(false)
   }
 
-  function handleUpload() {
-    console.log(
-      "image upload",
-      images.map((image) => ({
-        name: image.file.name,
-        type: image.file.type,
-        size: image.file.size,
-      }))
-    )
+  async function handleUpload() {
+    if (images.length === 0 || isUploading) return
+
+    try {
+      setError(null)
+      setFileProgress({})
+      await uploadContents.mutateAsync({
+        campaignId: campaignId ?? "",
+        files: images.map((image) => image.file),
+        onFileProgress: (fileIndex, percent) => {
+          setFileProgress((current) => ({
+            ...current,
+            [fileIndex]: percent,
+          }))
+        },
+      })
+      revokePreviews(images)
+      onImagesChange([])
+      setFileProgress({})
+      onOpenChange(false)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to upload images")
+    }
   }
 
   function handleOpenChange(nextOpen: boolean) {
+    if (isUploading) return
     if (!nextOpen) {
       revokePreviews(images)
       onImagesChange([])
+      setError(null)
+      setFileProgress({})
     }
     onOpenChange(nextOpen)
   }
@@ -129,71 +151,95 @@ export function ImageUploadDrawer({
                 </p>
               ) : (
                 <div className="grid w-full grid-cols-[repeat(auto-fill,minmax(9rem,1fr))] gap-4">
-                  {images.map((image) => (
-                    <Attachment
-                      key={image.id}
-                      orientation="vertical"
-                      className="w-full! max-w-none has-data-[slot=attachment-content]:w-full!"
-                    >
-                      <AttachmentMedia variant="image">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={image.previewUrl} alt={image.file.name} />
-                      </AttachmentMedia>
-                      <AttachmentContent>
-                        <AttachmentTitle>{image.file.name}</AttachmentTitle>
-                        <AttachmentDescription>
-                          {fileExtensionLabel(image.file)} ·{" "}
-                          {formatBytes(image.file.size)}
-                        </AttachmentDescription>
-                      </AttachmentContent>
-                      <AttachmentActions className="group-data-[orientation=vertical]/attachment:-top-2.5 group-data-[orientation=vertical]/attachment:-end-2.5">
-                        <AttachmentAction
-                          type="button"
-                          variant="outline"
-                          size="icon-xs"
-                          aria-label={`Remove ${image.file.name}`}
-                          className="size-7 rounded-full border border-border bg-white text-foreground shadow-none hover:bg-white"
-                          onClick={(event) => {
-                            event.preventDefault()
-                            event.stopPropagation()
-                            handleRemove(image.id)
-                          }}
-                        >
-                          <XIcon className="size-3.5" />
-                        </AttachmentAction>
-                      </AttachmentActions>
-                      <AttachmentTrigger asChild>
-                        <a
-                          href={image.previewUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          aria-label={`Open ${image.file.name}`}
-                        />
-                      </AttachmentTrigger>
-                    </Attachment>
-                  ))}
+                  {images.map((image, index) => {
+                    const progress = fileProgress[index]
+                    const state =
+                      isUploading && progress !== undefined && progress < 100
+                        ? "uploading"
+                        : isUploading
+                          ? "processing"
+                          : "done"
+
+                    return (
+                      <Attachment
+                        key={image.id}
+                        orientation="vertical"
+                        state={state}
+                        className="!w-full max-w-none has-data-[slot=attachment-content]:!w-full"
+                      >
+                        <AttachmentMedia variant="image">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={image.previewUrl}
+                            alt={image.file.name}
+                          />
+                        </AttachmentMedia>
+                        <AttachmentContent>
+                          <AttachmentTitle>{image.file.name}</AttachmentTitle>
+                          <AttachmentDescription>
+                            {isUploading && progress !== undefined
+                              ? `Uploading… ${progress}%`
+                              : `${fileExtensionLabel(image.file)} · ${formatBytes(image.file.size)}`}
+                          </AttachmentDescription>
+                        </AttachmentContent>
+                        {!isUploading ? (
+                          <AttachmentActions className="group-data-[orientation=vertical]/attachment:-top-2.5 group-data-[orientation=vertical]/attachment:-end-2.5">
+                            <AttachmentAction
+                              type="button"
+                              variant="outline"
+                              size="icon-xs"
+                              aria-label={`Remove ${image.file.name}`}
+                              className="size-7 rounded-full border border-border bg-white text-foreground shadow-none hover:bg-white"
+                              onClick={(event) => {
+                                event.preventDefault()
+                                event.stopPropagation()
+                                handleRemove(image.id)
+                              }}
+                            >
+                              <XIcon className="size-3.5" />
+                            </AttachmentAction>
+                          </AttachmentActions>
+                        ) : null}
+                        <AttachmentTrigger asChild>
+                          <a
+                            href={image.previewUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            aria-label={`Open ${image.file.name}`}
+                          />
+                        </AttachmentTrigger>
+                      </Attachment>
+                    )
+                  })}
                 </div>
               )}
             </div>
           </div>
 
           <div className="shrink-0 border-t bg-background px-6 py-4">
+            {error ? (
+              <p className="mb-3 text-xs text-destructive">{error}</p>
+            ) : null}
             <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-end">
               <Button
                 type="button"
                 variant="outline"
                 className="w-full sm:w-auto"
                 onClick={handleCancel}
+                disabled={isUploading}
               >
                 Cancel
               </Button>
               <Button
                 type="button"
                 className="w-full sm:w-auto"
-                disabled={images.length === 0}
-                onClick={handleUpload}
+                disabled={images.length === 0 || isUploading}
+                onClick={() => void handleUpload()}
               >
-                Upload
+                {isUploading ? (
+                  <Loader2Icon className="size-4 animate-spin" />
+                ) : null}
+                {isUploading ? "Uploading…" : "Upload"}
               </Button>
             </div>
           </div>
@@ -205,14 +251,21 @@ export function ImageUploadDrawer({
 
 export interface ImageUploadButtonProps {
   className?: string
+  campaignId?: string | null
+  disabled?: boolean
 }
 
-export function ImageUploadButton({ className }: ImageUploadButtonProps) {
+export function ImageUploadButton({
+  className,
+  campaignId = "",
+  disabled,
+}: ImageUploadButtonProps) {
   const inputRef = React.useRef<HTMLInputElement>(null)
   const [open, setOpen] = React.useState(false)
   const [images, setImages] = React.useState<SelectedImage[]>([])
 
   function handlePick() {
+    if (disabled) return
     inputRef.current?.click()
   }
 
@@ -222,7 +275,7 @@ export function ImageUploadButton({ className }: ImageUploadButtonProps) {
 
     if (files.length === 0) return
 
-    const limited = files.slice(0, MAX_IMAGES)
+    const limited = files.slice(0, MAX_CONTENT_FILES)
     const next: SelectedImage[] = limited.map((file) => ({
       id: `${file.name}-${file.size}-${file.lastModified}-${crypto.randomUUID()}`,
       file,
@@ -238,7 +291,7 @@ export function ImageUploadButton({ className }: ImageUploadButtonProps) {
       <input
         ref={inputRef}
         type="file"
-        accept={ACCEPTED_IMAGE_TYPES.join(",")}
+        accept={ACCEPTED_CONTENT_TYPES.join(",")}
         multiple
         className="hidden"
         onChange={handleFilesSelected}
@@ -249,6 +302,8 @@ export function ImageUploadButton({ className }: ImageUploadButtonProps) {
         variant="outline"
         className={className}
         onClick={handlePick}
+        disabled={disabled}
+        title="Upload images"
       >
         <ImageIcon className="size-4" />
         Upload images
@@ -258,9 +313,10 @@ export function ImageUploadButton({ className }: ImageUploadButtonProps) {
         onOpenChange={setOpen}
         images={images}
         onImagesChange={setImages}
+        campaignId={campaignId}
       />
     </>
   )
 }
 
-export { MAX_IMAGES }
+export { MAX_CONTENT_FILES as MAX_IMAGES }

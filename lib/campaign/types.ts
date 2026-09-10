@@ -1,7 +1,11 @@
+export type BackgroundStatus = "none" | "pending" | "ready" | "failed"
+
 export interface Campaign {
   id: string
   clientId: string
   name: string
+  backgroundStatus: BackgroundStatus
+  backgroundThumbnailUrl?: string
   createdAt: string
   updatedAt: string
 }
@@ -10,27 +14,27 @@ export interface CampaignInput {
   name: string
 }
 
-export interface CampaignState {
-  campaigns: Campaign[]
-  isLoading: boolean
-  error: string | null
-  total: number
-  page: number
-  limit: number
-  totalPages: number
+export interface PresignBackgroundInput {
+  filename: string
+  contentType?: string
 }
 
-export type CampaignAction =
-  | {
-      type: "GET_CAMPAIGNS"
-      payload: {
-        members: Campaign[]
-        total: number
-        page: number
-        limit: number
-        totalPages: number
-      }
-    }
-  | { type: "GET_CAMPAIGNS_ERROR"; payload: string }
-  | { type: "GET_CAMPAIGNS_LOADING"; payload: boolean }
-  | { type: "CLEAR_CAMPAIGNS" }
+export interface PresignBackgroundResponse {
+  url: string
+}
+
+export const ACCEPTED_BACKGROUND_TYPES = [
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/webp",
+] as const
+
+export const ACCEPTED_BACKGROUND_EXTENSIONS = [
+  ".jpg",
+  ".jpeg",
+  ".png",
+  ".webp",
+] as const
+
+export const MAX_BACKGROUND_BYTES = 5 * 1024 * 1024

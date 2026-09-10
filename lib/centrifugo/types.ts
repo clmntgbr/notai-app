@@ -7,6 +7,7 @@ export type RealtimeVerb =
   | "current_client_changed"
   | "member_added"
   | "member_removed"
+  | "background_updated"
 
 export type RealtimeEventType = `${RealtimeResource}.${RealtimeVerb}`
 
@@ -17,6 +18,7 @@ export interface UserStreamEvent {
   clientId?: string
   campaignId?: string
   name?: string
+  backgroundStatus?: string
 }
 
 const RESOURCES = new Set<string>(["user", "client", "campaign"])
@@ -28,6 +30,7 @@ const VERBS = new Set<string>([
   "current_client_changed",
   "member_added",
   "member_removed",
+  "background_updated",
 ])
 
 export function canonicalizeRealtimeType(type: string): string {
@@ -53,3 +56,20 @@ export function isUserStreamEvent(data: unknown): data is UserStreamEvent {
   if (typeof type !== "string") return false
   return parseRealtimeType(type) !== null
 }
+
+export function eventTypeEquals(
+  event: UserStreamEvent,
+  type: RealtimeEventType
+): boolean {
+  return canonicalizeRealtimeType(event.type) === type
+}
+
+/** Thumbnail processing finished (ready) or failed — refresh campaign cache. */
+export function shouldRefreshCampaignBackground(event: UserStreamEvent): boolean {
+  return (
+    eventTypeEquals(event, "campaign.background_updated") &&
+    typeof event.clientId === "string" &&
+    typeof event.campaignId === "string"
+  )
+}
+

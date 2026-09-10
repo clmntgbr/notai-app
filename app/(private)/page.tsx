@@ -1,7 +1,6 @@
 "use client"
 
 import { Campaigns } from "@/components/campaigns"
-import { Campaigns2 } from "@/components/campaigns2"
 import { SectionCards } from "@/components/section-cards"
 import { AppSidebar } from "@/components/sidebar"
 import { SidebarHeader } from "@/components/sidebar-header"
@@ -27,7 +26,6 @@ export default function Page() {
               <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
                 <SectionCards />
                 <Campaigns />
-                <Campaigns2 />
               </div>
             </div>
           </div>

@@ -7,11 +7,37 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import {
   createCampaign,
   deleteCampaign,
+  deleteCampaignBackground,
   getCampaign,
   listCampaigns,
   updateCampaign,
+  uploadCampaignBackground,
 } from "./api"
 import { CampaignInput } from "./types"
+
+async function invalidateCampaignQueries(
+  queryClient: ReturnType<typeof useQueryClient>,
+  clientId: string | null | undefined,
+  campaignId?: string
+) {
+  if (!clientId) return
+
+  const tasks = [
+    queryClient.invalidateQueries({
+      queryKey: queryKeys.campaigns.all(clientId),
+    }),
+  ]
+
+  if (campaignId) {
+    tasks.push(
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.campaigns.detail(clientId, campaignId),
+      })
+    )
+  }
+
+  await Promise.all(tasks)
+}
 
 export function useCampaigns(params?: PaginateParams) {
   const { currentClientId } = useUser()
@@ -37,6 +63,8 @@ export function useCampaignDetail(
     ),
     queryFn: () => getCampaign(campaignId!),
     enabled: Boolean(campaignId) && Boolean(resolvedClientId),
+    refetchInterval: (query) =>
+      query.state.data?.backgroundStatus === "pending" ? 2000 : false,
   })
 }
 
@@ -48,10 +76,7 @@ export function useCreateCampaign() {
     mutationFn: createCampaign,
     onSuccess: async (campaign) => {
       const clientId = campaign.clientId || currentClientId
-      if (!clientId) return
-      await queryClient.invalidateQueries({
-        queryKey: queryKeys.campaigns.all(clientId),
-      })
+      await invalidateCampaignQueries(queryClient, clientId, campaign.id)
     },
   })
 }
@@ -67,9 +92,7 @@ export function useUpdateCampaign() {
         queryKeys.campaigns.detail(campaign.clientId, campaign.id),
         campaign
       )
-      await queryClient.invalidateQueries({
-        queryKey: queryKeys.campaigns.all(campaign.clientId),
-      })
+      await invalidateCampaignQueries(queryClient, campaign.clientId, campaign.id)
     },
   })
 }
@@ -81,10 +104,43 @@ export function useDeleteCampaign() {
   return useMutation({
     mutationFn: deleteCampaign,
     onSuccess: async () => {
-      if (!currentClientId) return
-      await queryClient.invalidateQueries({
-        queryKey: queryKeys.campaigns.all(currentClientId),
-      })
+      await invalidateCampaignQueries(queryClient, currentClientId)
+    },
+  })
+}
+
+export function useUploadCampaignBackground() {
+  const queryClient = useQueryClient()
+  const { currentClientId } = useUser()
+
+  return useMutation({
+    mutationFn: ({
+      campaignId,
+      file,
+      onProgress,
+    }: {
+      campaignId: string
+      file: File
+      onProgress?: (percent: number) => void
+    }) => uploadCampaignBackground(campaignId, file, onProgress),
+    onSuccess: async (_void, variables) => {
+      await invalidateCampaignQueries(
+        queryClient,
+        currentClientId,
+        variables.campaignId
+      )
+    },
+  })
+}
+
+export function useDeleteCampaignBackground() {
+  const queryClient = useQueryClient()
+  const { currentClientId } = useUser()
+
+  return useMutation({
+    mutationFn: deleteCampaignBackground,
+    onSuccess: async (_void, campaignId) => {
+      await invalidateCampaignQueries(queryClient, currentClientId, campaignId)
     },
   })
 }

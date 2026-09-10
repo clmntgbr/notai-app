@@ -103,7 +103,12 @@ export function useDeleteCampaign() {
 
   return useMutation({
     mutationFn: deleteCampaign,
-    onSuccess: async () => {
+    onSuccess: async (_void, campaignId) => {
+      if (currentClientId) {
+        queryClient.removeQueries({
+          queryKey: queryKeys.campaigns.detail(currentClientId, campaignId),
+        })
+      }
       await invalidateCampaignQueries(queryClient, currentClientId)
     },
   })

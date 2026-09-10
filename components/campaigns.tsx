@@ -49,7 +49,7 @@ export function Campaigns() {
                 className="flex w-full items-center gap-3 px-3 py-2.5 text-left hover:bg-muted/50"
                 onClick={() => openEdit(campaign)}
               >
-                <div className="bg-muted flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md border">
+                <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md border bg-muted">
                   {campaign.backgroundThumbnailUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
@@ -64,9 +64,8 @@ export function Campaigns() {
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium">{campaign.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    Background: {campaign.backgroundStatus}
+                  <p className="truncate text-sm font-medium">
+                    {campaign.name}
                   </p>
                 </div>
               </button>
@@ -75,11 +74,7 @@ export function Campaigns() {
         </ul>
       )}
 
-      <CampaignDrawer
-        open={open}
-        onOpenChange={setOpen}
-        campaign={selected}
-      />
+      <CampaignDrawer open={open} onOpenChange={setOpen} campaign={selected} />
     </div>
   )
 }

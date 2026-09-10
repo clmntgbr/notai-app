@@ -76,7 +76,7 @@ export function CampaignBackgroundUpload({
     <div className="space-y-3">
       <div
         className={cn(
-          "relative flex min-h-40 w-full flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 transition-colors",
+          "relative flex h-56 w-full flex-col items-center justify-center overflow-hidden rounded-lg border-2 border-dashed p-6 transition-colors",
           isDragging
             ? "border-primary bg-muted/60"
             : "border-muted-foreground/30 bg-muted/30 hover:bg-muted/50",
@@ -103,7 +103,7 @@ export function CampaignBackgroundUpload({
       >
         <label
           htmlFor="campaign-background-file"
-          className="flex w-full cursor-pointer flex-col items-center justify-center text-center"
+          className="flex h-full w-full cursor-pointer flex-col items-center justify-center text-center"
         >
           {isUploading ? (
             <div className="max-w-md space-y-2">
@@ -135,12 +135,12 @@ export function CampaignBackgroundUpload({
           ) : null}
 
           {showPreview ? (
-            <div className="w-full space-y-2">
+            <div className="flex h-full w-full flex-col items-center justify-center gap-2">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={previewUrl!}
                 alt="Campaign background"
-                className="mx-auto max-h-28 w-full object-contain opacity-90"
+                className="max-h-32 w-full object-contain opacity-90"
               />
               <div className="space-y-1">
                 <p className="text-sm font-semibold">

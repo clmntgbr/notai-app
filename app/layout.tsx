@@ -1,14 +1,13 @@
 import { ThemeProvider } from "@/components/theme-provider"
-import { CampaignProvider } from "@/lib/campaign/provider"
 import { ClientProvider } from "@/lib/client/provider"
-import { UserProvider } from "@/lib/user/provider"
+import { QueryProvider } from "@/lib/query/provider"
 import { cn } from "@/lib/utils"
 import { ClerkProvider } from "@clerk/nextjs"
 import { Metadata } from "next"
 import { Geist_Mono, Inter } from "next/font/google"
 import "./globals.css"
 
-const inter = Inter({subsets:['latin'],variable:'--font-sans'})
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans" })
 
 const fontMono = Geist_Mono({
   subsets: ["latin"],
@@ -39,11 +38,9 @@ export default function RootLayout({
       <body>
         <ClerkProvider>
           <ThemeProvider>
-            <UserProvider>
-              <ClientProvider>
-                <CampaignProvider>{children}</CampaignProvider>
-              </ClientProvider>
-            </UserProvider>
+            <QueryProvider>
+              <ClientProvider>{children}</ClientProvider>
+            </QueryProvider>
           </ThemeProvider>
         </ClerkProvider>
       </body>

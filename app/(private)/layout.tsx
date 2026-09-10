@@ -1,7 +1,5 @@
-import { CampaignProvider } from "@/lib/campaign/provider"
-import { ClientProvider } from "@/lib/client/provider"
+import { UserCentrifugeListener } from "@/lib/centrifugo/user-centrifuge-listener"
 import { ThemeProvider } from "@/lib/theme/theme-provider"
-import { UserProvider } from "@/lib/user/provider"
 
 export default function PrivateLayout({
   children,
@@ -15,13 +13,8 @@ export default function PrivateLayout({
       enableSystem
       disableTransitionOnChange
     >
-      <UserProvider>
-        <ClientProvider>
-          <CampaignProvider>
-            <div className="mx-auto px-0">{children}</div>
-          </CampaignProvider>
-        </ClientProvider>
-      </UserProvider>
+      <UserCentrifugeListener />
+      <div className="mx-auto px-0">{children}</div>
     </ThemeProvider>
   )
 }

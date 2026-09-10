@@ -23,35 +23,40 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { useClient } from "@/lib/client/context"
+import { useClientContext } from "@/lib/client/context"
+import { useClients, useCreateClient } from "@/lib/client/hooks"
 
 export function ClientSwitcher() {
   const { isMobile } = useSidebar()
-  const { clients, currentClient, isLoading, switchClient, createClient } =
-    useClient()
+  const { currentClientId, switchClient, isSwitching } = useClientContext()
+  const clientsQuery = useClients()
+  const createClient = useCreateClient()
 
   const [isCreating, setIsCreating] = React.useState(false)
   const [newClientName, setNewClientName] = React.useState("")
-  const [isSubmitting, setIsSubmitting] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
 
-  const activeClient = currentClient ?? clients[0] ?? null
+  const clients = clientsQuery.data?.members ?? []
+  const activeClient =
+    clients.find((client) => client.id === currentClientId) ??
+    clients.find((client) => client.isActive) ??
+    null
+
+  const isLoading = clientsQuery.isLoading
+  const isSubmitting = isSwitching || createClient.isPending
 
   const handleSwitch = React.useCallback(
     async (clientId: string) => {
-      if (clientId === currentClient?.id || isSubmitting) return
+      if (clientId === currentClientId || isSubmitting) return
 
       try {
-        setIsSubmitting(true)
         setError(null)
         await switchClient(clientId)
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to switch client")
-      } finally {
-        setIsSubmitting(false)
       }
     },
-    [currentClient?.id, isSubmitting, switchClient]
+    [currentClientId, isSubmitting, switchClient]
   )
 
   React.useEffect(() => {
@@ -66,7 +71,7 @@ export function ClientSwitcher() {
       }
 
       const client = clients[index - 1]
-      if (!client || client.id === currentClient?.id) {
+      if (!client || client.id === currentClientId) {
         return
       }
 
@@ -76,7 +81,7 @@ export function ClientSwitcher() {
 
     window.addEventListener("keydown", onKeyDown)
     return () => window.removeEventListener("keydown", onKeyDown)
-  }, [clients, currentClient?.id, handleSwitch])
+  }, [clients, currentClientId, handleSwitch])
 
   async function handleCreate(event: React.FormEvent) {
     event.preventDefault()
@@ -84,15 +89,12 @@ export function ClientSwitcher() {
     if (!name || isSubmitting) return
 
     try {
-      setIsSubmitting(true)
       setError(null)
-      await createClient({ name })
+      await createClient.mutateAsync({ name })
       setNewClientName("")
       setIsCreating(false)
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create client")
-    } finally {
-      setIsSubmitting(false)
     }
   }
 
@@ -171,9 +173,7 @@ export function ClientSwitcher() {
                 <Building2Icon className="size-4" />
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">
-                  {activeClient.name}
-                </span>
+                <span className="truncate font-medium">{activeClient.name}</span>
               </div>
               <ChevronsUpDownIcon className="ml-auto" />
             </SidebarMenuButton>
@@ -187,7 +187,7 @@ export function ClientSwitcher() {
             <DropdownMenuLabel className="text-xs text-muted-foreground">
               Clients
             </DropdownMenuLabel>
-            {clients.map((client, index) => (
+            {clients.map((client) => (
               <DropdownMenuItem
                 key={client.id}
                 onClick={() => handleSwitch(client.id)}
@@ -198,10 +198,8 @@ export function ClientSwitcher() {
                   <Building2Icon className="size-3.5 shrink-0" />
                 </div>
                 <span className="flex-1 truncate">{client.name}</span>
-                {client.isActive ? (
+                {client.id === currentClientId || client.isActive ? (
                   <CheckIcon className="size-4 text-sidebar-primary" />
-                ) : index < 9 ? (
-                  <></>
                 ) : null}
               </DropdownMenuItem>
             ))}

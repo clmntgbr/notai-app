@@ -1,17 +1,28 @@
 "use client"
 
-import { useCampaign } from "@/lib/campaign/context"
-import { useClient } from "@/lib/client/context"
-import { useUser } from "@/lib/user/context"
+import { useCampaigns } from "@/lib/campaign/hooks"
+import { useClients } from "@/lib/client/hooks"
+import { useClientContext } from "@/lib/client/context"
+import { useUser } from "@/lib/user/hooks"
 
 export default function Page() {
   const { user } = useUser()
-  const { clients, currentClient } = useClient()
-  const { campaigns } = useCampaign()
+  const { currentClientId } = useClientContext()
+  const clientsQuery = useClients()
+  const campaignsQuery = useCampaigns()
 
   return (
-    <>
-      <pre>{JSON.stringify({ user, currentClient, clients, campaigns }, null, 2)}</pre>
-    </>
+    <pre>
+      {JSON.stringify(
+        {
+          user,
+          currentClientId,
+          clients: clientsQuery.data?.members ?? [],
+          campaigns: campaignsQuery.data?.members ?? [],
+        },
+        null,
+        2
+      )}
+    </pre>
   )
 }

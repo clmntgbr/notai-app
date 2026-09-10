@@ -1,26 +1,21 @@
 "use client"
 
 import { createContext, useContext } from "react"
-import { PaginateParams } from "@/lib/paginate"
-import { Client, ClientInput, ClientState } from "./types"
 
-export interface ClientContextType extends ClientState {
-  fetchClients: (params?: PaginateParams) => Promise<void>
-  createClient: (input: ClientInput) => Promise<Client>
-  updateClient: (id: string, input: ClientInput) => Promise<Client>
-  deleteClient: (id: string) => Promise<void>
-  removeMember: (clientId: string, userId: string) => Promise<void>
+export interface ClientContextValue {
+  currentClientId: string | null
   switchClient: (clientId: string) => Promise<void>
+  isSwitching: boolean
 }
 
-export const ClientContext = createContext<ClientContextType | undefined>(
+export const ClientContext = createContext<ClientContextValue | undefined>(
   undefined
 )
 
-export const useClient = () => {
+export function useClientContext() {
   const context = useContext(ClientContext)
   if (!context) {
-    throw new Error("useClient must be used within ClientProvider")
+    throw new Error("useClientContext must be used within ClientProvider")
   }
   return context
 }

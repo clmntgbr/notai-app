@@ -14,7 +14,6 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
@@ -202,7 +201,7 @@ export function ClientSwitcher() {
                 {client.isActive ? (
                   <CheckIcon className="size-4 text-sidebar-primary" />
                 ) : index < 9 ? (
-                  <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
+                  <></>
                 ) : null}
               </DropdownMenuItem>
             ))}

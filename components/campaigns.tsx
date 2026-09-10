@@ -1,7 +1,6 @@
 "use client"
 
 import { CampaignDrawer } from "@/components/campaign/campaign-drawer"
-import { ImageUploadButton } from "@/components/image-upload/image-upload-button"
 import { Button } from "@/components/ui/button"
 import { useCampaigns } from "@/lib/campaign/hooks"
 import { Campaign } from "@/lib/campaign/types"
@@ -13,8 +12,6 @@ export function Campaigns() {
   const campaigns = data?.members ?? []
   const [open, setOpen] = React.useState(false)
   const [selected, setSelected] = React.useState<Campaign | null>(null)
-
-  const defaultCampaignId = campaigns[0]?.id ?? ""
 
   function openCreate() {
     setSelected(null)
@@ -30,13 +27,10 @@ export function Campaigns() {
     <div className="space-y-3 px-4 lg:px-6">
       <div className="flex items-center justify-between gap-2">
         <h2 className="text-base font-medium">Campaigns</h2>
-        <div className="flex items-center gap-2">
-          <ImageUploadButton campaignId={defaultCampaignId} />
-          <Button type="button" size="sm" onClick={openCreate}>
-            <PlusIcon className="size-4" />
-            New campaign
-          </Button>
-        </div>
+        <Button type="button" size="sm" onClick={openCreate}>
+          <PlusIcon className="size-4" />
+          New campaign
+        </Button>
       </div>
 
       {isLoading ? (

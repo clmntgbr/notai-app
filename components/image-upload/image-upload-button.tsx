@@ -18,10 +18,7 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer"
 import { useUploadCampaignContents } from "@/lib/content/hooks"
-import {
-  ACCEPTED_CONTENT_TYPES,
-  MAX_CONTENT_FILES,
-} from "@/lib/content/types"
+import { ACCEPTED_CONTENT_TYPES, MAX_CONTENT_FILES } from "@/lib/content/types"
 import { ImageIcon, Loader2Icon, XIcon } from "lucide-react"
 import * as React from "react"
 
@@ -72,9 +69,9 @@ export function ImageUploadDrawer({
 }: ImageUploadDrawerProps) {
   const uploadContents = useUploadCampaignContents()
   const [error, setError] = React.useState<string | null>(null)
-  const [fileProgress, setFileProgress] = React.useState<Record<number, number>>(
-    {}
-  )
+  const [fileProgress, setFileProgress] = React.useState<
+    Record<number, number>
+  >({})
 
   const isUploading = uploadContents.isPending
 
@@ -103,7 +100,7 @@ export function ImageUploadDrawer({
       setError(null)
       setFileProgress({})
       await uploadContents.mutateAsync({
-        campaignId: campaignId ?? "",
+        campaignId,
         files: images.map((image) => image.file),
         onFileProgress: (fileIndex, percent) => {
           setFileProgress((current) => ({
@@ -165,14 +162,11 @@ export function ImageUploadDrawer({
                         key={image.id}
                         orientation="vertical"
                         state={state}
-                        className="!w-full max-w-none has-data-[slot=attachment-content]:!w-full"
+                        className="w-full! max-w-none has-data-[slot=attachment-content]:w-full!"
                       >
                         <AttachmentMedia variant="image">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={image.previewUrl}
-                            alt={image.file.name}
-                          />
+                          <img src={image.previewUrl} alt={image.file.name} />
                         </AttachmentMedia>
                         <AttachmentContent>
                           <AttachmentTitle>{image.file.name}</AttachmentTitle>
@@ -183,7 +177,7 @@ export function ImageUploadDrawer({
                           </AttachmentDescription>
                         </AttachmentContent>
                         {!isUploading ? (
-                          <AttachmentActions className="group-data-[orientation=vertical]/attachment:-top-2.5 group-data-[orientation=vertical]/attachment:-end-2.5">
+                          <AttachmentActions className="group-data-[orientation=vertical]/attachment:-end-2.5 group-data-[orientation=vertical]/attachment:-top-2.5">
                             <AttachmentAction
                               type="button"
                               variant="outline"
@@ -257,7 +251,7 @@ export interface ImageUploadButtonProps {
 
 export function ImageUploadButton({
   className,
-  campaignId = "",
+  campaignId = null,
   disabled,
 }: ImageUploadButtonProps) {
   const inputRef = React.useRef<HTMLInputElement>(null)

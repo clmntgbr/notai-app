@@ -5,6 +5,7 @@ import { UserState } from "./types"
 
 export interface UserContextType extends UserState {
   fetchUser: () => Promise<void>
+  switchClient: (clientId: string) => Promise<void>
 }
 
 export const UserContext = createContext<UserContextType | undefined>(undefined)

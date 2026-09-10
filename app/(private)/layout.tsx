@@ -1,3 +1,5 @@
+import { CampaignProvider } from "@/lib/campaign/provider"
+import { ClientProvider } from "@/lib/client/provider"
 import { ThemeProvider } from "@/lib/theme/theme-provider"
 import { UserProvider } from "@/lib/user/provider"
 
@@ -14,7 +16,11 @@ export default function PrivateLayout({
       disableTransitionOnChange
     >
       <UserProvider>
-        <div className="mx-auto px-0">{children}</div>
+        <ClientProvider>
+          <CampaignProvider>
+            <div className="mx-auto px-0">{children}</div>
+          </CampaignProvider>
+        </ClientProvider>
       </UserProvider>
     </ThemeProvider>
   )

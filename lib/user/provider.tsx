@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useReducer } from "react"
-import { getUser } from "./api"
+import { getUser, setCurrentClient } from "./api"
 import { UserContext } from "./context"
 import { userReducer } from "./reducer"
 import { UserState } from "./types"
@@ -27,6 +27,21 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
+  const switchClient = useCallback(async (clientId: string) => {
+    try {
+      dispatch({ type: "GET_USER_LOADING", payload: true })
+      const user = await setCurrentClient(clientId)
+      dispatch({ type: "GET_USER", payload: user })
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to set current client"
+      dispatch({ type: "GET_USER_ERROR", payload: message })
+      throw error
+    } finally {
+      dispatch({ type: "GET_USER_LOADING", payload: false })
+    }
+  }, [])
+
   useEffect(() => {
     fetchUser()
   }, [fetchUser])
@@ -36,6 +51,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       value={{
         ...state,
         fetchUser,
+        switchClient,
       }}
     >
       {children}

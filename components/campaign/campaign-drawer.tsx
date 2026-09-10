@@ -5,10 +5,7 @@ import { DeleteCampaignDialog } from "@/components/campaign/delete-campaign-dial
 import { Button } from "@/components/ui/button"
 import {
   Drawer,
-  DrawerClose,
   DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer"
@@ -24,7 +21,7 @@ import {
   useUploadCampaignBackground,
 } from "@/lib/campaign/hooks"
 import { Campaign } from "@/lib/campaign/types"
-import { Loader2Icon } from "lucide-react"
+import { Loader2Icon, Trash2Icon } from "lucide-react"
 import * as React from "react"
 
 export interface CampaignDrawerProps {
@@ -84,6 +81,10 @@ export function CampaignDrawer({
   const thumbnailUrl =
     localPreviewUrl || activeCampaign?.backgroundThumbnailUrl || null
 
+  function handleClose() {
+    onOpenChange(false)
+  }
+
   async function uploadFile(campaignId: string, file: File) {
     setUploadProgress(0)
     await uploadBackground.mutateAsync({
@@ -118,7 +119,7 @@ export function CampaignDrawer({
           }
         }
 
-        onOpenChange(false)
+        handleClose()
         return
       }
 
@@ -133,7 +134,7 @@ export function CampaignDrawer({
         }
       }
 
-      onOpenChange(false)
+      handleClose()
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save campaign")
     }
@@ -171,7 +172,7 @@ export function CampaignDrawer({
       setError(null)
       await deleteCampaign.mutateAsync(activeCampaign.id)
       setDeleteDialogOpen(false)
-      onOpenChange(false)
+      handleClose()
     } catch (err) {
       const message =
         err instanceof ApiError && err.status === 409
@@ -187,94 +188,119 @@ export function CampaignDrawer({
   return (
     <>
       <Drawer open={open} onOpenChange={onOpenChange} direction="right">
-        <DrawerContent className="data-[vaul-drawer-direction=right]:w-full sm:max-w-2xl data-[vaul-drawer-direction=right]:sm:max-w-2xl">
-          <form onSubmit={handleSubmit} className="flex h-full flex-col">
-            <DrawerHeader>
-              <DrawerTitle>
-                {isEdit ? "Edit campaign" : "New campaign"}
-              </DrawerTitle>
-              <DrawerDescription>
-                {isEdit
-                  ? "Update the name or replace the background image."
-                  : "Create a campaign and optionally upload a background."}
-              </DrawerDescription>
-            </DrawerHeader>
+        <DrawerContent
+          className="flex h-full w-[80vw]! max-w-[80vw]! flex-col"
+          style={{ width: "80vw", maxWidth: "80vw" }}
+        >
+          <DrawerHeader className="sr-only">
+            <DrawerTitle>
+              {isEdit ? "Edit campaign" : "New campaign"}
+            </DrawerTitle>
+          </DrawerHeader>
 
-            <div className="flex flex-1 flex-col gap-4 overflow-y-auto px-4">
-              <div className="space-y-2">
-                <Label htmlFor="campaign-name">Name</Label>
-                <Input
-                  id="campaign-name"
-                  value={name}
-                  onChange={(event) => setName(event.target.value)}
-                  placeholder="Campaign name"
-                  disabled={isSaving}
-                  autoFocus
-                />
+          <div className="flex min-h-0 flex-1 flex-col">
+            <form
+              id="campaign-form"
+              onSubmit={handleSubmit}
+              className="flex min-h-0 flex-1 flex-col"
+            >
+              <div className="min-h-0 flex-1 overflow-auto px-6 py-8">
+                <div className="grid grid-cols-1 gap-10 md:grid-cols-3">
+                  <div className="space-y-1">
+                    <h2 className="font-semibold">General</h2>
+                    <p className="text-sm text-muted-foreground">
+                      {isEdit
+                        ? "Update the campaign name or replace the background image."
+                        : "Define the campaign name and optionally upload a background."}
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col gap-6 md:col-span-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="campaign-name">
+                        Name
+                        <span className="ml-1 text-destructive">*</span>
+                      </Label>
+                      <Input
+                        id="campaign-name"
+                        value={name}
+                        onChange={(event) => setName(event.target.value)}
+                        disabled={isSaving}
+                        autoFocus
+                        className="h-9"
+                      />
+                    </div>
+
+                    <CampaignBackgroundUpload
+                      status={pendingFile ? "ready" : status}
+                      thumbnailUrl={thumbnailUrl}
+                      disabled={isSaving}
+                      isUploading={uploadBackground.isPending}
+                      uploadProgress={uploadProgress}
+                      error={null}
+                      onSelectFile={handleSelectFile}
+                      onRemove={
+                        isEdit && status !== "none" && !pendingFile
+                          ? () => void handleRemoveBackground()
+                          : pendingFile
+                            ? () => {
+                                setPendingFile(null)
+                                if (localPreviewUrl) {
+                                  URL.revokeObjectURL(localPreviewUrl)
+                                  setLocalPreviewUrl(null)
+                                }
+                              }
+                            : undefined
+                      }
+                    />
+
+                    {error ? (
+                      <p className="text-xs text-destructive">{error}</p>
+                    ) : null}
+                  </div>
+                </div>
               </div>
 
-              <div className="space-y-2">
-                <CampaignBackgroundUpload
-                  status={pendingFile ? "ready" : status}
-                  thumbnailUrl={thumbnailUrl}
-                  disabled={isSaving}
-                  isUploading={uploadBackground.isPending}
-                  uploadProgress={uploadProgress}
-                  error={null}
-                  onSelectFile={handleSelectFile}
-                  onRemove={
-                    isEdit && status !== "none" && !pendingFile
-                      ? () => void handleRemoveBackground()
-                      : pendingFile
-                        ? () => {
-                            setPendingFile(null)
-                            if (localPreviewUrl) {
-                              URL.revokeObjectURL(localPreviewUrl)
-                              setLocalPreviewUrl(null)
-                            }
-                          }
-                        : undefined
-                  }
-                />
+              <div className="shrink-0 border-t bg-background px-6 py-4">
+                <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    {isEdit ? (
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        disabled={isSaving}
+                        onClick={() => setDeleteDialogOpen(true)}
+                      >
+                        <Trash2Icon className="h-4 w-4" />
+                        Delete
+                      </Button>
+                    ) : null}
+                  </div>
+                  <div className="flex flex-col-reverse gap-3 sm:flex-row">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full sm:w-auto"
+                      onClick={handleClose}
+                      disabled={isSaving}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      className="w-full sm:w-auto"
+                      disabled={isSaving || !name.trim()}
+                    >
+                      {isEdit ? "Update" : "Create"}
+                      {isSaving && !deleteCampaign.isPending ? (
+                        <Loader2Icon className="ml-2 h-4 w-4 animate-spin" />
+                      ) : null}
+                    </Button>
+                  </div>
+                </div>
               </div>
-
-              {error ? (
-                <p className="text-xs text-destructive">{error}</p>
-              ) : null}
-            </div>
-
-            <DrawerFooter className="flex-row items-center gap-2">
-              {isEdit ? (
-                <Button
-                  type="button"
-                  variant="destructive"
-                  disabled={isSaving}
-                  onClick={() => setDeleteDialogOpen(true)}
-                >
-                  Delete
-                </Button>
-              ) : (
-                <div />
-              )}
-              <div className="ml-auto flex gap-2">
-                <DrawerClose asChild>
-                  <Button type="button" variant="outline" disabled={isSaving}>
-                    Cancel
-                  </Button>
-                </DrawerClose>
-                <Button type="submit" disabled={isSaving || !name.trim()}>
-                  {isSaving && !deleteCampaign.isPending ? (
-                    <Loader2Icon className="size-4 animate-spin" />
-                  ) : null}
-                  {isSaving && !deleteCampaign.isPending
-                    ? "Saving…"
-                    : isEdit
-                      ? "Save changes"
-                      : "Create"}
-                </Button>
-              </div>
-            </DrawerFooter>
-          </form>
+            </form>
+          </div>
         </DrawerContent>
       </Drawer>
 

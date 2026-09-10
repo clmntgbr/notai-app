@@ -2,13 +2,13 @@
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { cn } from "@/lib/utils"
 import {
   ACCEPTED_BACKGROUND_EXTENSIONS,
   ACCEPTED_BACKGROUND_TYPES,
   BackgroundStatus,
   MAX_BACKGROUND_BYTES,
 } from "@/lib/campaign/types"
+import { cn } from "@/lib/utils"
 import { CloudUploadIcon, Loader2Icon, XIcon } from "lucide-react"
 import * as React from "react"
 
@@ -143,13 +143,6 @@ export function CampaignBackgroundUpload({
                 className="max-h-32 w-full object-contain opacity-90"
               />
               <div className="space-y-1">
-                <p className="text-sm font-semibold">
-                  {status === "pending"
-                    ? "Processing…"
-                    : status === "failed"
-                      ? "Upload failed"
-                      : "Background ready"}
-                </p>
                 <p className="text-xs text-muted-foreground">
                   {status === "failed"
                     ? "Click to upload a new image"

@@ -20,11 +20,11 @@ export function RecentContents() {
   }
 
   return (
-    <Card className="@container/card gap-0 space-y-0">
-      <CardHeader>
-        <CardTitle className="sr-only">Recent contents</CardTitle>
+    <Card className="@container/card gap-4 px-4">
+      <CardHeader className="px-0">
+        <CardTitle>Last contents</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-0">
         {isLoading ? (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Loader2Icon className="size-4 animate-spin" />

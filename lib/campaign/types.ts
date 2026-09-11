@@ -1,5 +1,12 @@
 export type BackgroundStatus = "none" | "pending" | "ready" | "failed"
 
+export interface CampaignContentCounts {
+  failed: number
+  human: number
+  aiGenerated: number
+  uncertain: number
+}
+
 export interface Campaign {
   id: string
   clientId: string
@@ -8,6 +15,7 @@ export interface Campaign {
   backgroundThumbnailUrl?: string
   startAt?: string | null
   endAt?: string | null
+  contentCounts?: CampaignContentCounts
   createdAt: string
   updatedAt: string
 }

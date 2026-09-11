@@ -1,5 +1,6 @@
 "use client"
 
+import { CampaignContentCountBadges } from "@/components/campaign/campaign-content-count-badges"
 import {
   Attachment,
   AttachmentContent,
@@ -8,10 +9,17 @@ import {
   AttachmentTitle,
   AttachmentTrigger,
 } from "@/components/ui/attachment"
-import { Campaign } from "@/lib/campaign/types"
+import { Campaign, CampaignContentCounts } from "@/lib/campaign/types"
 import { format } from "date-fns"
 import { ImageIcon } from "lucide-react"
 import Link from "next/link"
+
+const EMPTY_COUNTS: CampaignContentCounts = {
+  failed: 0,
+  human: 0,
+  aiGenerated: 0,
+  uncertain: 0,
+}
 
 function scheduleLabel(campaign: Campaign): string {
   const start = campaign.startAt
@@ -31,11 +39,12 @@ export interface CampaignAttachmentProps {
 
 export function CampaignAttachment({ campaign }: CampaignAttachmentProps) {
   const hasThumbnail = Boolean(campaign.backgroundThumbnailUrl)
+  const counts = campaign.contentCounts ?? EMPTY_COUNTS
 
   return (
     <Attachment
       orientation="vertical"
-      className="w-72! max-w-none has-data-[slot=attachment-content]:w-56!"
+      className="w-78! max-w-none has-data-[slot=attachment-content]:w-78!"
     >
       <AttachmentMedia variant={hasThumbnail ? "image" : "icon"}>
         {hasThumbnail ? (
@@ -48,6 +57,7 @@ export function CampaignAttachment({ campaign }: CampaignAttachmentProps) {
       <AttachmentContent>
         <AttachmentTitle>{campaign.name}</AttachmentTitle>
         <AttachmentDescription>{scheduleLabel(campaign)}</AttachmentDescription>
+        <CampaignContentCountBadges counts={counts} />
       </AttachmentContent>
       <AttachmentTrigger asChild>
         <Link

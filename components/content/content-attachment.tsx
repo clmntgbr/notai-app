@@ -98,7 +98,7 @@ export function ContentAttachment({ content }: ContentAttachmentProps) {
       </AttachmentMedia>
       <AttachmentContent>
         <AttachmentTitle>{content.filename}</AttachmentTitle>
-        <AttachmentDescription>{descriptionFor(content)}</AttachmentDescription>
+        <AttachmentDescription>{content.campaign?.name}</AttachmentDescription>
       </AttachmentContent>
       <AttachmentActions className="ms-auto self-center pe-1">
         <ContentStatusBadge content={content} />

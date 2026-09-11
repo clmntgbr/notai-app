@@ -1,3 +1,5 @@
+import type { BackgroundStatus } from "@/lib/campaign/types"
+
 export type ContentStatus =
   | "pending_upload"
   | "uploaded"
@@ -15,6 +17,16 @@ export interface ContentStats {
   uncertain: number
 }
 
+/** Nested campaign on a content item. Omitted when the campaign is the client default. */
+export interface ContentCampaign {
+  id: string
+  name: string
+  backgroundStatus: BackgroundStatus
+  backgroundThumbnailUrl?: string
+  startAt?: string | null
+  endAt?: string | null
+}
+
 export interface Content {
   id: string
   campaignId: string
@@ -25,6 +37,8 @@ export interface Content {
   label?: ContentLabel | null
   sizeBytes?: number | null
   thumbnailUrl?: string
+  /** Present only when the content is not on the default campaign. */
+  campaign?: ContentCampaign
   createdAt: string
   updatedAt: string
 }

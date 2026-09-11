@@ -31,6 +31,14 @@ export function AppBreadcrumb() {
   const isHome = pathname === "/"
   const isCampaignDetail =
     Boolean(params.id) && pathname.startsWith("/campaign/")
+  const isCampaignsList = pathname === "/campaigns"
+  const isContentsList = pathname === "/contents"
+
+  const sectionLabel = isCampaignsList
+    ? "Campaigns"
+    : isContentsList
+      ? "Contents"
+      : null
 
   return (
     <Breadcrumb>
@@ -44,6 +52,15 @@ export function AppBreadcrumb() {
             </BreadcrumbLink>
           )}
         </BreadcrumbItem>
+
+        {sectionLabel ? (
+          <>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>{sectionLabel}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </>
+        ) : null}
 
         {isCampaignDetail && params.id ? (
           <>

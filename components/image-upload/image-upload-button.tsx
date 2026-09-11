@@ -182,7 +182,7 @@ export function ImageUploadDrawer({
                           </AttachmentDescription>
                         </AttachmentContent>
                         {!isUploading ? (
-                          <AttachmentActions className="group-data-[orientation=vertical]/attachment:-end-2.5 group-data-[orientation=vertical]/attachment:-top-2.5">
+                          <AttachmentActions className="group-data-[orientation=vertical]/attachment:-inset-e-2.5 group-data-[orientation=vertical]/attachment:-top-2.5">
                             <AttachmentAction
                               type="button"
                               variant="outline"

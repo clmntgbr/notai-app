@@ -58,7 +58,12 @@ export function CampaignContentCountBadges({
   className,
 }: CampaignContentCountBadgesProps) {
   return (
-    <div className={cn("relative z-20 mt-1.5 flex flex-wrap justify-center gap-1.5", className)}>
+    <div
+      className={cn(
+        "relative z-20 mt-1.5 flex flex-wrap justify-center gap-1.5 pt-2",
+        className
+      )}
+    >
       {COUNT_BADGES.map(({ key, label, icon: Icon, className: tone }) => (
         <span key={key} className={cn(badgeClassName, tone)} title={label}>
           <Icon className="size-3" />

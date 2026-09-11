@@ -34,6 +34,8 @@ export const queryKeys = {
     ) => [...queryKeys.contents.lists(clientId), params ?? {}] as const,
     detail: (clientId: string, contentId: string) =>
       [...queryKeys.contents.all(clientId), contentId] as const,
+    stats: (clientId: string) =>
+      [...queryKeys.contents.all(clientId), "stats"] as const,
   },
 
   checks: {

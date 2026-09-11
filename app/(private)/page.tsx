@@ -1,4 +1,5 @@
-import { Campaigns } from "@/components/campaigns"
+import { Campaigns } from "@/components/campaign/campaigns"
+import { ContentStatsChart } from "@/components/content/content-stats-chart"
 import { RecentContents } from "@/components/content/recent-contents"
 import { SectionCards } from "@/components/section-cards"
 
@@ -8,6 +9,7 @@ export default function Page() {
       <SectionCards />
       <div className="grid grid-cols-1 gap-4 px-4 lg:grid-cols-2 lg:px-6">
         <RecentContents />
+        <ContentStatsChart />
       </div>
       <div className="grid grid-cols-1 gap-4 px-4 lg:px-6">
         <Campaigns />

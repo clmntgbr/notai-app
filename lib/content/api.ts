@@ -3,6 +3,7 @@ import { uploadToPresignedUrl } from "@/lib/campaign/api"
 import { Paginated, PaginateParams } from "@/lib/paginate"
 import {
   Content,
+  ContentStats,
   PresignContentsInput,
   PresignContentsResponse,
 } from "./types"
@@ -43,6 +44,18 @@ export const getContent = async (id: string): Promise<Content> => {
 
   if (!response.ok) {
     throw await parseApiError(response, "Failed to fetch content")
+  }
+
+  return response.json()
+}
+
+export const getContentStats = async (): Promise<ContentStats> => {
+  const response = await fetch("/api/contents/stats", {
+    method: "GET",
+  })
+
+  if (!response.ok) {
+    throw await parseApiError(response, "Failed to fetch content stats")
   }
 
   return response.json()

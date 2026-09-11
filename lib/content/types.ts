@@ -6,6 +6,13 @@ export type ContentStatus =
   | "flagged"
   | "failed"
 
+export interface ContentStats {
+  failed: number
+  human: number
+  aiGenerated: number
+  uncertain: number
+}
+
 export interface Content {
   id: string
   campaignId: string

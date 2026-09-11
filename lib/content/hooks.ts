@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import {
   deleteContent,
   getContent,
+  getContentStats,
   listContents,
   ListContentsParams,
   uploadContents,
@@ -73,6 +74,16 @@ export function useContentDetail(contentId: string | null | undefined) {
       const status = query.state.data?.status
       return status && isContentProcessing(status) ? 2000 : false
     },
+  })
+}
+
+export function useContentStats() {
+  const { currentClientId } = useUser()
+
+  return useQuery({
+    queryKey: queryKeys.contents.stats(currentClientId ?? "none"),
+    queryFn: getContentStats,
+    enabled: Boolean(currentClientId),
   })
 }
 

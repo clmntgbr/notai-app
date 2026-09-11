@@ -1,3 +1,4 @@
+import { AppShell } from "@/components/app-shell"
 import { UserCentrifugeListener } from "@/lib/centrifugo/user-centrifuge-listener"
 import { ThemeProvider } from "@/lib/theme/theme-provider"
 
@@ -14,7 +15,7 @@ export default function PrivateLayout({
       disableTransitionOnChange
     >
       <UserCentrifugeListener />
-      <div className="mx-auto px-0">{children}</div>
+      <AppShell>{children}</AppShell>
     </ThemeProvider>
   )
 }

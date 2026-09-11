@@ -1,3 +1,9 @@
-export default function CampaignPage({ params }: { params: { id: string } }) {
-  return <div>CampaignPage</div>
+import { CampaignDetail } from "@/components/campaign/campaign-detail"
+
+export default function CampaignPage() {
+  return (
+    <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+      <CampaignDetail />
+    </div>
+  )
 }

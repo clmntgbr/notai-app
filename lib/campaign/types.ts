@@ -6,12 +6,16 @@ export interface Campaign {
   name: string
   backgroundStatus: BackgroundStatus
   backgroundThumbnailUrl?: string
+  startAt?: string | null
+  endAt?: string | null
   createdAt: string
   updatedAt: string
 }
 
 export interface CampaignInput {
   name: string
+  startAt?: string | null
+  endAt?: string | null
 }
 
 export interface PresignBackgroundInput {

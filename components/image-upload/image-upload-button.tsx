@@ -17,6 +17,11 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer"
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card"
 import { useUploadContents } from "@/lib/content/hooks"
 import { ACCEPTED_CONTENT_TYPES, MAX_CONTENT_FILES } from "@/lib/content/types"
 import { ImageIcon, Loader2Icon, XIcon } from "lucide-react"
@@ -290,18 +295,28 @@ export function ImageUploadButton({
         className="hidden"
         onChange={handleFilesSelected}
       />
-      <Button
-        type="button"
-        size="sm"
-        variant="outline"
-        className={className}
-        onClick={handlePick}
-        disabled={disabled}
-        title="Upload images"
-      >
-        <ImageIcon className="size-4" />
-        Upload images
-      </Button>
+      <HoverCard openDelay={10} closeDelay={100}>
+        <HoverCardTrigger asChild>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            className={className}
+            onClick={handlePick}
+            disabled={disabled}
+          >
+            <ImageIcon className="size-4" />
+            Upload images
+          </Button>
+        </HoverCardTrigger>
+        <HoverCardContent align="end" className="flex w-64 flex-col gap-0.5">
+          <div className="font-semibold">Upload images</div>
+          <div>
+            Select up to {MAX_CONTENT_FILES} images (JPG, PNG, WebP, GIF). They
+            will be uploaded without a campaign.
+          </div>
+        </HoverCardContent>
+      </HoverCard>
       <ImageUploadDrawer
         open={open}
         onOpenChange={setOpen}

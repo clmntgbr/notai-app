@@ -3,6 +3,7 @@
 import { CampaignBackgroundUpload } from "@/components/campaign/background-upload"
 import { DeleteCampaignDialog } from "@/components/campaign/delete-campaign-dialog"
 import { Button } from "@/components/ui/button"
+import { DateTimePicker } from "@/components/ui/date-time-picker"
 import {
   Drawer,
   DrawerContent,
@@ -23,6 +24,22 @@ import {
 import { Campaign } from "@/lib/campaign/types"
 import { Loader2Icon, Trash2Icon } from "lucide-react"
 import * as React from "react"
+
+function parseOptionalDate(value?: string | null): Date | undefined {
+  if (!value) return undefined
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? undefined : date
+}
+
+function toIsoOrNull(value?: Date): string | null {
+  return value ? value.toISOString() : null
+}
+
+function sameInstant(left?: string | null, right?: string | null): boolean {
+  if (!left && !right) return true
+  if (!left || !right) return false
+  return new Date(left).getTime() === new Date(right).getTime()
+}
 
 export interface CampaignDrawerProps {
   open: boolean
@@ -46,6 +63,8 @@ export function CampaignDrawer({
   const deleteBackground = useDeleteCampaignBackground()
 
   const [name, setName] = React.useState("")
+  const [startAt, setStartAt] = React.useState<Date | undefined>(undefined)
+  const [endAt, setEndAt] = React.useState<Date | undefined>(undefined)
   const [error, setError] = React.useState<string | null>(null)
   const [uploadProgress, setUploadProgress] = React.useState(0)
   const [pendingFile, setPendingFile] = React.useState<File | null>(null)
@@ -53,16 +72,31 @@ export function CampaignDrawer({
     null
   )
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false)
+  const hydratedFromDetailRef = React.useRef(false)
 
   React.useEffect(() => {
-    if (!open) return
+    if (!open) {
+      hydratedFromDetailRef.current = false
+      return
+    }
     setName(campaign?.name ?? "")
+    setStartAt(parseOptionalDate(campaign?.startAt))
+    setEndAt(parseOptionalDate(campaign?.endAt))
     setError(null)
     setUploadProgress(0)
     setPendingFile(null)
     setLocalPreviewUrl(null)
     setDeleteDialogOpen(false)
-  }, [open, campaign?.id, campaign?.name])
+    hydratedFromDetailRef.current = false
+  }, [open, campaign?.id, campaign?.name, campaign?.startAt, campaign?.endAt])
+
+  React.useEffect(() => {
+    if (!open || !detailQuery.data || hydratedFromDetailRef.current) return
+    hydratedFromDetailRef.current = true
+    setName(detailQuery.data.name)
+    setStartAt(parseOptionalDate(detailQuery.data.startAt))
+    setEndAt(parseOptionalDate(detailQuery.data.endAt))
+  }, [open, detailQuery.data])
 
   React.useEffect(() => {
     return () => {
@@ -99,14 +133,31 @@ export function CampaignDrawer({
     const trimmed = name.trim()
     if (!trimmed || isSaving) return
 
+    if (startAt && endAt && endAt.getTime() < startAt.getTime()) {
+      setError("End must be after start")
+      return
+    }
+
+    const startAtIso = toIsoOrNull(startAt)
+    const endAtIso = toIsoOrNull(endAt)
+
     try {
       setError(null)
 
       if (isEdit && activeCampaign) {
-        if (trimmed !== activeCampaign.name) {
+        const nameChanged = trimmed !== activeCampaign.name
+        const scheduleChanged =
+          !sameInstant(activeCampaign.startAt, startAtIso) ||
+          !sameInstant(activeCampaign.endAt, endAtIso)
+
+        if (nameChanged || scheduleChanged) {
           await updateCampaign.mutateAsync({
             id: activeCampaign.id,
-            input: { name: trimmed },
+            input: {
+              name: trimmed,
+              startAt: startAtIso,
+              endAt: endAtIso,
+            },
           })
         }
 
@@ -123,7 +174,11 @@ export function CampaignDrawer({
         return
       }
 
-      const created = await createCampaign.mutateAsync({ name: trimmed })
+      const created = await createCampaign.mutateAsync({
+        name: trimmed,
+        startAt: startAtIso,
+        endAt: endAtIso,
+      })
 
       if (pendingFile) {
         await uploadFile(created.id, pendingFile)
@@ -229,6 +284,30 @@ export function CampaignDrawer({
                         autoFocus
                         className="h-9"
                       />
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label>Campaign start date</Label>
+                        <DateTimePicker
+                          dateId="campaign-start-date"
+                          timeId="campaign-start-time"
+                          value={startAt}
+                          onChange={setStartAt}
+                          disabled={isSaving}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Campaign end date</Label>
+                        <DateTimePicker
+                          dateId="campaign-end-date"
+                          timeId="campaign-end-time"
+                          value={endAt}
+                          onChange={setEndAt}
+                          disabled={isSaving}
+                        />
+                      </div>
                     </div>
 
                     <CampaignBackgroundUpload

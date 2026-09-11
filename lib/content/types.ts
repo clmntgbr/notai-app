@@ -6,6 +6,8 @@ export type ContentStatus =
   | "flagged"
   | "failed"
 
+export type ContentLabel = "human" | "ai_generated" | "uncertain"
+
 export interface ContentStats {
   failed: number
   human: number
@@ -20,6 +22,7 @@ export interface Content {
   filename: string
   contentType: string
   status: ContentStatus
+  label?: ContentLabel | null
   sizeBytes?: number | null
   thumbnailUrl?: string
   createdAt: string

@@ -1,7 +1,9 @@
 "use client"
 
+import { ContentStatusBadge } from "@/components/content/content-status-badge"
 import {
   Attachment,
+  AttachmentActions,
   AttachmentContent,
   AttachmentDescription,
   AttachmentMedia,
@@ -36,19 +38,23 @@ function toAttachmentState(
 }
 
 function descriptionFor(content: Content) {
+  if (content.label) {
+    return content.contentType || "Analyzed"
+  }
+
   switch (content.status) {
     case "pending_upload":
       return "Waiting for upload"
     case "uploaded":
-      return `Uploaded`
+      return "Uploaded"
     case "analyzing":
-      return "Analyzing image..."
+      return "Analyzing image…"
     case "failed":
       return "Processing failed"
     case "flagged":
-      return `Flagged`
+      return "Flagged"
     case "verified":
-      return `Ready`
+      return "Ready"
     default:
       return content.status
   }
@@ -81,7 +87,7 @@ export function ContentAttachment({ content }: ContentAttachmentProps) {
     Boolean(content.thumbnailUrl) && contentHasThumbnail(content.status)
 
   return (
-    <Attachment state={state} className="w-full">
+    <Attachment state={state} className="w-full items-center">
       <AttachmentMedia variant={showThumbnail ? "image" : "icon"}>
         {showThumbnail ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -94,6 +100,9 @@ export function ContentAttachment({ content }: ContentAttachmentProps) {
         <AttachmentTitle>{content.filename}</AttachmentTitle>
         <AttachmentDescription>{descriptionFor(content)}</AttachmentDescription>
       </AttachmentContent>
+      <AttachmentActions className="ms-auto self-center pe-1">
+        <ContentStatusBadge content={content} />
+      </AttachmentActions>
     </Attachment>
   )
 }

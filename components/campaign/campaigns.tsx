@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import {
   Empty,
   EmptyDescription,
@@ -42,13 +43,12 @@ export function Campaigns({ showAllLink = true }: CampaignsProps) {
           <CardTitle>Campaigns</CardTitle>
           {showAllLink ? (
             <CardAction>
-              <Link
-                href="/campaigns"
-                className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-              >
-                Show all
-                <ArrowRightIcon className="size-3.5" />
-              </Link>
+              <Button variant="ghost" size="sm" asChild>
+                <Link href="/campaigns">
+                  Show all
+                  <ArrowRightIcon data-icon="inline-end" />
+                </Link>
+              </Button>
             </CardAction>
           ) : null}
         </CardHeader>

@@ -1,3 +1,24 @@
+export type ContentStatus =
+  | "pending_upload"
+  | "uploaded"
+  | "analyzing"
+  | "verified"
+  | "flagged"
+  | "failed"
+
+export interface Content {
+  id: string
+  campaignId: string
+  clientId: string
+  filename: string
+  contentType: string
+  status: ContentStatus
+  sizeBytes?: number | null
+  thumbnailUrl?: string
+  createdAt: string
+  updatedAt: string
+}
+
 export const MAX_CONTENT_FILES = 20
 
 export const ACCEPTED_CONTENT_TYPES = [
@@ -38,3 +59,18 @@ export type ContentUploadStatus =
   | "uploading"
   | "done"
   | "error"
+
+export function isContentProcessing(status: ContentStatus) {
+  return status === "pending_upload" || status === "analyzing"
+}
+
+/** Thumbnail is available once status is past pending_upload (except failed). */
+export function contentHasThumbnail(status: ContentStatus) {
+  return (
+    status === "uploaded" ||
+    status === "analyzing" ||
+    status === "verified" ||
+    status === "flagged"
+  )
+}
+

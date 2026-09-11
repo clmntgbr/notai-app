@@ -1,5 +1,7 @@
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
+import { CreateCampaignButton } from "./campaign/create-campaign-button"
+import { ImageUploadButton } from "./image-upload/image-upload-button"
 
 export function SidebarHeader() {
   return (
@@ -11,6 +13,11 @@ export function SidebarHeader() {
           className="mx-2 data-[orientation=vertical]:h-4"
         />
         <h1 className="text-base font-medium">Documents</h1>
+      </div>
+
+      <div className="flex items-center justify-end gap-2 px-4 lg:px-6">
+        <ImageUploadButton />
+        <CreateCampaignButton />
       </div>
     </header>
   )

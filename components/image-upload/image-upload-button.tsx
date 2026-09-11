@@ -17,7 +17,7 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer"
-import { useUploadCampaignContents } from "@/lib/content/hooks"
+import { useUploadContents } from "@/lib/content/hooks"
 import { ACCEPTED_CONTENT_TYPES, MAX_CONTENT_FILES } from "@/lib/content/types"
 import { ImageIcon, Loader2Icon, XIcon } from "lucide-react"
 import * as React from "react"
@@ -67,7 +67,7 @@ export function ImageUploadDrawer({
   onImagesChange,
   campaignId,
 }: ImageUploadDrawerProps) {
-  const uploadContents = useUploadCampaignContents()
+  const uploadContents = useUploadContents()
   const [error, setError] = React.useState<string | null>(null)
   const [fileProgress, setFileProgress] = React.useState<
     Record<number, number>

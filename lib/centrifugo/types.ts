@@ -1,4 +1,4 @@
-export type RealtimeResource = "user" | "client" | "campaign"
+export type RealtimeResource = "user" | "client" | "campaign" | "content"
 
 export type RealtimeVerb =
   | "created"
@@ -8,6 +8,7 @@ export type RealtimeVerb =
   | "member_added"
   | "member_removed"
   | "background_updated"
+  | "status_changed"
 
 export type RealtimeEventType = `${RealtimeResource}.${RealtimeVerb}`
 
@@ -17,11 +18,17 @@ export interface UserStreamEvent {
   userId?: string
   clientId?: string
   campaignId?: string
+  contentId?: string
   name?: string
+  status?: string
   backgroundStatus?: string
+  /** Present on content.updated (ContentUploaded). */
+  thumbnailKey?: string
+  sizeBytes?: number
+  objectKey?: string
 }
 
-const RESOURCES = new Set<string>(["user", "client", "campaign"])
+const RESOURCES = new Set<string>(["user", "client", "campaign", "content"])
 
 const VERBS = new Set<string>([
   "created",
@@ -31,6 +38,7 @@ const VERBS = new Set<string>([
   "member_added",
   "member_removed",
   "background_updated",
+  "status_changed",
 ])
 
 export function canonicalizeRealtimeType(type: string): string {
@@ -73,3 +81,27 @@ export function shouldRefreshCampaignBackground(event: UserStreamEvent): boolean
   )
 }
 
+/**
+ * Content cache refresh (mirrors campaign.background_updated for media).
+ * - content.created → presign / pending_upload (row appears)
+ * - content.updated → thumbnail ready (ContentUploaded)
+ * - content.status_changed → status uploaded / analyzing / …
+ */
+export function shouldRefreshContent(event: UserStreamEvent): boolean {
+  return (
+    (eventTypeEquals(event, "content.created") ||
+      eventTypeEquals(event, "content.updated") ||
+      eventTypeEquals(event, "content.status_changed") ||
+      eventTypeEquals(event, "content.deleted")) &&
+    typeof event.clientId === "string"
+  )
+}
+
+/** Thumbnail ready after MinIO process — same role as campaign.background_updated. */
+export function shouldRefreshContentThumbnail(event: UserStreamEvent): boolean {
+  return (
+    eventTypeEquals(event, "content.updated") &&
+    typeof event.clientId === "string" &&
+    typeof event.contentId === "string"
+  )
+}

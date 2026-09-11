@@ -1,36 +1,17 @@
 "use client"
 
-import { CampaignDrawer } from "@/components/campaign/campaign-drawer"
-import { Button } from "@/components/ui/button"
 import { useCampaigns } from "@/lib/campaign/hooks"
-import { Campaign } from "@/lib/campaign/types"
-import { Loader2Icon, PlusIcon } from "lucide-react"
-import * as React from "react"
+import { Loader2Icon } from "lucide-react"
+import Link from "next/link"
 
 export function Campaigns() {
   const { data, isLoading } = useCampaigns()
   const campaigns = data?.members ?? []
-  const [open, setOpen] = React.useState(false)
-  const [selected, setSelected] = React.useState<Campaign | null>(null)
-
-  function openCreate() {
-    setSelected(null)
-    setOpen(true)
-  }
-
-  function openEdit(campaign: Campaign) {
-    setSelected(campaign)
-    setOpen(true)
-  }
 
   return (
     <div className="space-y-3 px-4 lg:px-6">
       <div className="flex items-center justify-between gap-2">
         <h2 className="text-base font-medium">Campaigns</h2>
-        <Button type="button" size="sm" onClick={openCreate}>
-          <PlusIcon className="size-4" />
-          New campaign
-        </Button>
       </div>
 
       {isLoading ? (
@@ -44,10 +25,9 @@ export function Campaigns() {
         <ul className="divide-y rounded-lg border">
           {campaigns.map((campaign) => (
             <li key={campaign.id}>
-              <button
-                type="button"
+              <Link
+                href={`/campaign/${campaign.id}`}
                 className="flex w-full items-center gap-3 px-3 py-2.5 text-left hover:bg-muted/50"
-                onClick={() => openEdit(campaign)}
               >
                 <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md border bg-muted">
                   {campaign.backgroundThumbnailUrl ? (
@@ -68,13 +48,11 @@ export function Campaigns() {
                     {campaign.name}
                   </p>
                 </div>
-              </button>
+              </Link>
             </li>
           ))}
         </ul>
       )}
-
-      <CampaignDrawer open={open} onOpenChange={setOpen} campaign={selected} />
     </div>
   )
 }

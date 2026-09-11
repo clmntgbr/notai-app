@@ -24,19 +24,16 @@ export const queryKeys = {
   },
 
   contents: {
-    all: (clientId: string, campaignId: string) =>
-      [
-        ...queryKeys.campaigns.detail(clientId, campaignId),
-        "contents",
-      ] as const,
-    list: (clientId: string, campaignId: string, params?: PaginateParams) =>
-      [
-        ...queryKeys.contents.all(clientId, campaignId),
-        "list",
-        params ?? {},
-      ] as const,
-    detail: (clientId: string, campaignId: string, contentId: string) =>
-      [...queryKeys.contents.all(clientId, campaignId), contentId] as const,
+    all: (clientId: string) =>
+      [...queryKeys.clients.detail(clientId), "contents"] as const,
+    lists: (clientId: string) =>
+      [...queryKeys.contents.all(clientId), "list"] as const,
+    list: (
+      clientId: string,
+      params?: PaginateParams & { campaignId?: string | null }
+    ) => [...queryKeys.contents.lists(clientId), params ?? {}] as const,
+    detail: (clientId: string, contentId: string) =>
+      [...queryKeys.contents.all(clientId), contentId] as const,
   },
 
   checks: {

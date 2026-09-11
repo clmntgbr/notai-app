@@ -9,7 +9,9 @@ export default function Page() {
       <div className="grid grid-cols-1 gap-4 px-4 lg:grid-cols-2 lg:px-6">
         <RecentContents />
       </div>
-      <Campaigns />
+      <div className="grid grid-cols-1 gap-4 px-4 lg:px-6">
+        <Campaigns />
+      </div>
     </div>
   )
 }

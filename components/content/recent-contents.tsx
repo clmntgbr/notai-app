@@ -15,6 +15,10 @@ export function RecentContents() {
 
   const contents = data?.members ?? []
 
+  if (contents.length === 0) {
+    return null
+  }
+
   return (
     <Card className="@container/card gap-0 space-y-0">
       <CardHeader>

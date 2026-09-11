@@ -70,7 +70,7 @@ function ThemeHotkey() {
         return
       }
 
-      if (event.key.toLowerCase() !== "d") {
+      if (event.key?.toLowerCase() !== "d") {
         return
       }
 

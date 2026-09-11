@@ -8,6 +8,10 @@ export function Campaigns() {
   const { data, isLoading } = useCampaigns()
   const campaigns = data?.members ?? []
 
+  if (campaigns.length === 0) {
+    return null
+  }
+
   return (
     <div className="space-y-3 px-4 lg:px-6">
       <div className="flex items-center justify-between gap-2">

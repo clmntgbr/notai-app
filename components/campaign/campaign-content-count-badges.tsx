@@ -44,7 +44,7 @@ const COUNT_BADGES = [
 ] as const satisfies ReadonlyArray<{
   key: Exclude<
     keyof CampaignContentCounts,
-    "pendingUpload" | "uploaded" | "analyzing"
+    "pendingUpload" | "uploaded" | "analyzing" | "analyzed"
   >
   label: string
   icon: typeof ShieldCheckIcon

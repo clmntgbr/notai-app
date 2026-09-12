@@ -26,37 +26,14 @@ function toAttachmentState(
     case "analyzing":
       return "processing"
     case "failed":
-      return "error"
     case "flagged":
       return "error"
     case "uploaded":
+    case "analyzed":
     case "verified":
       return "done"
     default:
       return "idle"
-  }
-}
-
-function descriptionFor(content: Content) {
-  if (content.label) {
-    return content.contentType || "Analyzed"
-  }
-
-  switch (content.status) {
-    case "pending_upload":
-      return "Waiting for upload"
-    case "uploaded":
-      return "Uploaded"
-    case "analyzing":
-      return "Analyzing image…"
-    case "failed":
-      return "Processing failed"
-    case "flagged":
-      return "Flagged"
-    case "verified":
-      return "Ready"
-    default:
-      return content.status
   }
 }
 
@@ -70,6 +47,7 @@ function MediaIcon({ content }: { content: Content }) {
     case "flagged":
       return <FileWarningIcon />
     case "uploaded":
+    case "analyzed":
     case "verified":
       return <CheckIcon />
     default:

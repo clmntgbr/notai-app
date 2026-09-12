@@ -4,13 +4,20 @@ export type ContentStatus =
   | "pending_upload"
   | "uploaded"
   | "analyzing"
-  | "verified"
-  | "flagged"
+  | "analyzed"
   | "failed"
+  /** @deprecated Prefer `analyzed` + label. */
+  | "verified"
+  /** @deprecated Prefer `analyzed` + label. */
+  | "flagged"
 
 export type ContentLabel = "human" | "ai_generated" | "uncertain"
 
 export interface ContentStats {
+  pendingUpload: number
+  uploaded: number
+  analyzing: number
+  analyzed: number
   failed: number
   human: number
   aiGenerated: number
@@ -93,8 +100,8 @@ export function contentHasThumbnail(status: ContentStatus) {
   return (
     status === "uploaded" ||
     status === "analyzing" ||
+    status === "analyzed" ||
     status === "verified" ||
     status === "flagged"
   )
 }
-

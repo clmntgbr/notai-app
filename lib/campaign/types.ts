@@ -4,6 +4,7 @@ export interface CampaignContentCounts {
   pendingUpload: number
   uploaded: number
   analyzing: number
+  analyzed: number
   failed: number
   human: number
   aiGenerated: number
@@ -42,6 +43,7 @@ export const EMPTY_CAMPAIGN_CONTENT_COUNTS: CampaignContentCounts = {
   pendingUpload: 0,
   uploaded: 0,
   analyzing: 0,
+  analyzed: 0,
   failed: 0,
   human: 0,
   aiGenerated: 0,
@@ -53,6 +55,7 @@ export function campaignHasContentActivity(counts: CampaignContentCounts) {
   return (
     counts.uploaded > 0 ||
     counts.analyzing > 0 ||
+    counts.analyzed > 0 ||
     counts.failed > 0 ||
     counts.human > 0 ||
     counts.aiGenerated > 0 ||

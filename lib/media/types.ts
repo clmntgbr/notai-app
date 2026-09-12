@@ -16,6 +16,15 @@ export interface MediaVerdict {
   failedCount: number
 }
 
+export interface MediaCampaign {
+  id: string
+  name: string
+  backgroundStatus: string
+  backgroundThumbnailUrl?: string
+  startAt?: string | null
+  endAt?: string | null
+}
+
 export interface Media {
   id: string
   campaignId: string
@@ -24,6 +33,8 @@ export interface Media {
   status: MediaStatus
   verdict?: MediaVerdict | null
   thumbnailUrl?: string | null
+  /** Present only when the media is not on the default campaign. */
+  campaign?: MediaCampaign
   createdAt: string
   updatedAt: string
   analyzedAt?: string | null
@@ -34,6 +45,7 @@ export interface MediaContentChild {
   frameIndex?: number | null
   timestampMs?: number | null
   status: string
+  thumbnailUrl?: string | null
   verdict?: {
     label: MediaVerdictLabel | string
     confidence: number
@@ -62,10 +74,6 @@ export interface MediaMonthlyControls extends MediaStatsCounts {
 export interface MediaStats extends MediaStatsCounts {
   monthlyControls: MediaMonthlyControls[]
 }
-
-/** Path id for POST /campaigns/:id/media/presign → backend resolves default campaign. */
-export const DEFAULT_CAMPAIGN_PRESIGN_ID =
-  "00000000-0000-0000-0000-000000000000"
 
 export const MAX_MEDIA_FILES = 20
 

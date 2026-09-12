@@ -1,22 +1,34 @@
 import { parseApiError } from "@/lib/api-error"
 import { uploadToPresignedUrl } from "@/lib/campaign/api"
-import { Paginated, PaginateParams, toSearchParams } from "@/lib/paginate"
+import { Paginated, PaginateParams } from "@/lib/paginate"
 import {
-  DEFAULT_CAMPAIGN_PRESIGN_ID,
   Media,
   MediaDetail,
   MediaStats,
   PresignMediaResponse,
 } from "./types"
 
-export const listCampaignMedia = async (
-  campaignId: string,
-  params?: PaginateParams
+export interface ListMediaParams extends PaginateParams {
+  campaignId?: string | null
+}
+
+export const listMedia = async (
+  params?: ListMediaParams
 ): Promise<Paginated<Media>> => {
-  const response = await fetch(
-    `/api/campaigns/${campaignId}/media${toSearchParams(params)}`,
-    { method: "GET" }
-  )
+  const searchParams = new URLSearchParams()
+  if (params?.page != null) searchParams.set("page", String(params.page))
+  if (params?.limit != null) searchParams.set("limit", String(params.limit))
+  if (params?.sortBy) searchParams.set("sortBy", params.sortBy)
+  if (params?.orderBy) searchParams.set("orderBy", params.orderBy)
+  if (params?.search) searchParams.set("search", params.search)
+  if (params?.campaignId?.trim()) {
+    searchParams.set("campaignId", params.campaignId.trim())
+  }
+
+  const query = searchParams.toString()
+  const response = await fetch(`/api/medias${query ? `?${query}` : ""}`, {
+    method: "GET",
+  })
 
   if (!response.ok) {
     throw await parseApiError(response, "Failed to fetch media")
@@ -26,7 +38,7 @@ export const listCampaignMedia = async (
 }
 
 export const getMedia = async (id: string): Promise<MediaDetail> => {
-  const response = await fetch(`/api/media/${id}`, { method: "GET" })
+  const response = await fetch(`/api/medias/${id}`, { method: "GET" })
 
   if (!response.ok) {
     throw await parseApiError(response, "Failed to fetch media")
@@ -36,7 +48,7 @@ export const getMedia = async (id: string): Promise<MediaDetail> => {
 }
 
 export const getMediaStats = async (): Promise<MediaStats> => {
-  const response = await fetch("/api/media/stats", { method: "GET" })
+  const response = await fetch("/api/medias/stats", { method: "GET" })
 
   if (!response.ok) {
     throw await parseApiError(response, "Failed to fetch media stats")
@@ -52,19 +64,25 @@ export const getMediaContentThumbnailUrl = (
 ) => {
   const query =
     version != null ? `?v=${encodeURIComponent(String(version))}` : ""
-  return `/api/media/${mediaId}/contents/${contentId}/thumbnail${query}`
+  return `/api/medias/${mediaId}/contents/${contentId}/thumbnail${query}`
 }
 
 export const presignMedia = async (
   campaignId: string | null | undefined,
   files: { filename: string; contentType: string }[]
 ): Promise<PresignMediaResponse> => {
-  const pathId = campaignId?.trim() || DEFAULT_CAMPAIGN_PRESIGN_ID
+  const body: {
+    files: { filename: string; contentType: string }[]
+    campaignId?: string
+  } = { files }
 
-  const response = await fetch(`/api/campaigns/${pathId}/media/presign`, {
+  const trimmed = campaignId?.trim()
+  if (trimmed) body.campaignId = trimmed
+
+  const response = await fetch("/api/medias/presign", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ files }),
+    body: JSON.stringify(body),
   })
 
   if (!response.ok) {

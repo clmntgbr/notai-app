@@ -82,8 +82,8 @@ export function MediaAttachment({ media, onSelect }: MediaAttachmentProps) {
       </AttachmentMedia>
       <AttachmentContent>
         <AttachmentTitle>{media.filename}</AttachmentTitle>
-        <AttachmentDescription className="capitalize">
-          {media.mediaType}
+        <AttachmentDescription>
+          {media.campaign?.name ?? media.mediaType}
         </AttachmentDescription>
       </AttachmentContent>
       <AttachmentActions className="ms-auto self-center pe-1">

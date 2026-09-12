@@ -1,10 +1,9 @@
 "use client"
 
-import { PaginateParams } from "@/lib/paginate"
 import { queryKeys } from "@/lib/query/keys"
 import { useUser } from "@/lib/user/hooks"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { getMedia, getMediaStats, listCampaignMedia, uploadMedia } from "./api"
+import { getMedia, getMediaStats, listMedia, ListMediaParams, uploadMedia } from "./api"
 import { isMediaProcessing } from "./types"
 
 async function invalidateMediaQueries(
@@ -27,9 +26,6 @@ async function invalidateMediaQueries(
   if (campaignId) {
     tasks.push(
       queryClient.invalidateQueries({
-        queryKey: queryKeys.media.lists(clientId, campaignId),
-      }),
-      queryClient.invalidateQueries({
         queryKey: queryKeys.campaigns.detail(clientId, campaignId),
       })
     )
@@ -46,20 +42,40 @@ async function invalidateMediaQueries(
   await Promise.all(tasks)
 }
 
-export function useCampaignMedia(
-  campaignId: string | null | undefined,
-  params?: PaginateParams
-) {
+export function useMedia(params?: ListMediaParams) {
   const { currentClientId } = useUser()
+  const listParams = {
+    ...params,
+    campaignId: params?.campaignId?.trim() || undefined,
+  }
 
   return useQuery({
-    queryKey: queryKeys.media.list(
-      currentClientId ?? "none",
-      campaignId ?? "",
-      params
-    ),
-    queryFn: () => listCampaignMedia(campaignId!, params),
-    enabled: Boolean(currentClientId) && Boolean(campaignId),
+    queryKey: queryKeys.media.list(currentClientId ?? "none", listParams),
+    queryFn: () => listMedia(listParams),
+    enabled: Boolean(currentClientId),
+    refetchInterval: (query) => {
+      const members = query.state.data?.members ?? []
+      return members.some((media) => isMediaProcessing(media.status))
+        ? 2000
+        : false
+    },
+  })
+}
+
+export function useCampaignMedia(
+  campaignId: string | null | undefined,
+  params?: Omit<ListMediaParams, "campaignId">
+) {
+  const { currentClientId } = useUser()
+  const trimmed = campaignId?.trim()
+
+  return useQuery({
+    queryKey: queryKeys.media.list(currentClientId ?? "none", {
+      ...params,
+      campaignId: trimmed,
+    }),
+    queryFn: () => listMedia({ ...params, campaignId: trimmed }),
+    enabled: Boolean(currentClientId) && Boolean(trimmed),
     refetchInterval: (query) => {
       const members = query.state.data?.members ?? []
       return members.some((media) => isMediaProcessing(media.status))
@@ -108,12 +124,6 @@ export function useUploadMedia() {
       onFileProgress?: (fileIndex: number, percent: number) => void
     }) => uploadMedia(campaignId, files, onFileProgress),
     onSuccess: async (result) => {
-      if (currentClientId) {
-        queryClient.setQueryData(
-          queryKeys.campaigns.default(currentClientId),
-          { id: result.campaignId }
-        )
-      }
       await invalidateMediaQueries(
         queryClient,
         currentClientId,

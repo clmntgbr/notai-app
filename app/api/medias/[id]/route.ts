@@ -15,7 +15,7 @@ export async function GET(_request: Request, context: RouteContext) {
 
     const { id } = await context.params
 
-    const response = await fetch(`${BACKEND_API_URL}/api/media/${id}`, {
+    const response = await fetch(`${BACKEND_API_URL}/api/medias/${id}`, {
       method: "GET",
       headers: createAuthHeaders(auth.token),
     })

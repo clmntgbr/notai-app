@@ -21,18 +21,17 @@ export const queryKeys = {
       [...queryKeys.campaigns.all(clientId), "list", params ?? {}] as const,
     detail: (clientId: string, campaignId: string) =>
       [...queryKeys.campaigns.all(clientId), campaignId] as const,
-    /** Cached after a default-campaign media upload (no GET endpoint). */
-    default: (clientId: string) =>
-      [...queryKeys.campaigns.all(clientId), "default"] as const,
   },
 
   media: {
     all: (clientId: string) =>
       [...queryKeys.clients.detail(clientId), "media"] as const,
-    lists: (clientId: string, campaignId: string) =>
-      [...queryKeys.media.all(clientId), campaignId, "list"] as const,
-    list: (clientId: string, campaignId: string, params?: PaginateParams) =>
-      [...queryKeys.media.lists(clientId, campaignId), params ?? {}] as const,
+    lists: (clientId: string) =>
+      [...queryKeys.media.all(clientId), "list"] as const,
+    list: (
+      clientId: string,
+      params?: PaginateParams & { campaignId?: string | null }
+    ) => [...queryKeys.media.lists(clientId), params ?? {}] as const,
     detail: (clientId: string, mediaId: string) =>
       [...queryKeys.media.all(clientId), mediaId] as const,
     stats: (clientId: string) =>

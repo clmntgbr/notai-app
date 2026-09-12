@@ -11,7 +11,6 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer"
 import { Spinner } from "@/components/ui/spinner"
-import { getMediaContentThumbnailUrl } from "@/lib/media/api"
 import { useMediaDetail } from "@/lib/media/hooks"
 import {
   formatFrameTimestamp,
@@ -21,17 +20,11 @@ import {
 import { FilmIcon, ImageIcon } from "lucide-react"
 
 function ContentVerdictBlock({
-  mediaId,
   content,
-  showThumbnail,
 }: {
-  mediaId: string
   content: MediaContentChild
-  showThumbnail: boolean
 }) {
-  const thumbnailUrl = showThumbnail
-    ? getMediaContentThumbnailUrl(mediaId, content.id)
-    : null
+  const thumbnailUrl = content.thumbnailUrl
 
   return (
     <div className="flex gap-3 rounded-lg border px-3 py-2">
@@ -67,13 +60,7 @@ function ContentVerdictBlock({
   )
 }
 
-function FrameTimeline({
-  mediaId,
-  contents,
-}: {
-  mediaId: string
-  contents: MediaContentChild[]
-}) {
+function FrameTimeline({ contents }: { contents: MediaContentChild[] }) {
   const sorted = [...contents].sort(
     (a, b) => (a.timestampMs ?? 0) - (b.timestampMs ?? 0)
   )
@@ -82,12 +69,7 @@ function FrameTimeline({
     <div className="flex flex-col gap-2">
       <h3 className="text-sm font-medium">Frames</h3>
       {sorted.map((content) => (
-        <ContentVerdictBlock
-          key={content.id}
-          mediaId={mediaId}
-          content={content}
-          showThumbnail
-        />
+        <ContentVerdictBlock key={content.id} content={content} />
       ))}
     </div>
   )
@@ -134,15 +116,11 @@ function MediaDetailBody({ media }: { media: MediaDetail }) {
       </div>
 
       {showFrames ? (
-        <FrameTimeline mediaId={media.id} contents={media.contents} />
+        <FrameTimeline contents={media.contents} />
       ) : single ? (
         <div className="flex flex-col gap-2">
           <h3 className="text-sm font-medium">Analysis</h3>
-          <ContentVerdictBlock
-            mediaId={media.id}
-            content={single}
-            showThumbnail={media.mediaType === "video"}
-          />
+          <ContentVerdictBlock content={single} />
         </div>
       ) : (
         <p className="text-sm text-muted-foreground">

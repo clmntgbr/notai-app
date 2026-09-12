@@ -15,74 +15,25 @@ import {
   EmptyLoadingState,
   EmptyState,
 } from "@/components/ui/empty-state"
-import { useCampaigns } from "@/lib/campaign/hooks"
-import { listCampaignMedia } from "@/lib/media/api"
+import { useMedia } from "@/lib/media/hooks"
 import { Media } from "@/lib/media/types"
-import { queryKeys } from "@/lib/query/keys"
-import { useUser } from "@/lib/user/hooks"
-import { useQueries, useQuery } from "@tanstack/react-query"
 import { ArrowRightIcon, ImageIcon } from "lucide-react"
-import { useMemo, useState } from "react"
+import { useState } from "react"
 
 export interface RecentMediaProps {
   limit?: number
 }
 
 export function RecentMedia({ limit = 5 }: RecentMediaProps) {
-  const { currentClientId } = useUser()
   const [selected, setSelected] = useState<Media | null>(null)
-
-  const campaignsQuery = useCampaigns({ page: 1, limit: 50 })
-  const defaultCampaignQuery = useQuery({
-    queryKey: queryKeys.campaigns.default(currentClientId ?? "none"),
-    queryFn: async () => null as { id: string } | null,
-    enabled: false,
-    staleTime: Infinity,
+  const { data, isLoading, isError } = useMedia({
+    page: 1,
+    limit,
+    sortBy: "created_at",
+    orderBy: "desc",
   })
 
-  const campaignIds = useMemo(() => {
-    const ids = new Set<string>()
-    for (const campaign of campaignsQuery.data?.members ?? []) {
-      ids.add(campaign.id)
-    }
-    if (defaultCampaignQuery.data?.id) ids.add(defaultCampaignQuery.data.id)
-    return [...ids]
-  }, [campaignsQuery.data?.members, defaultCampaignQuery.data?.id])
-
-  const mediaQueries = useQueries({
-    queries: campaignIds.map((campaignId) => ({
-      queryKey: queryKeys.media.list(currentClientId ?? "none", campaignId, {
-        page: 1,
-        limit,
-        sortBy: "created_at",
-        orderBy: "desc",
-      }),
-      queryFn: () =>
-        listCampaignMedia(campaignId, {
-          page: 1,
-          limit,
-          sortBy: "created_at",
-          orderBy: "desc",
-        }),
-      enabled: Boolean(currentClientId) && Boolean(campaignId),
-    })),
-  })
-
-  const isLoading =
-    campaignsQuery.isLoading || mediaQueries.some((query) => query.isLoading)
-  const isError =
-    campaignsQuery.isError || mediaQueries.some((query) => query.isError)
-
-  const items = useMemo(() => {
-    const merged = mediaQueries.flatMap((query) => query.data?.members ?? [])
-    return [...merged]
-      .sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      )
-      .slice(0, limit)
-  }, [mediaQueries, limit])
-
+  const items = data?.members ?? []
   const isEmpty = !isLoading && !isError && items.length === 0
   const hideHeader = isLoading || isEmpty || isError
 

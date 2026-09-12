@@ -4,26 +4,18 @@ import { NextResponse } from "next/server"
 
 const BACKEND_API_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL
 
-type RouteContext = {
-  params: Promise<{ id: string }>
-}
-
-export async function POST(request: Request, context: RouteContext) {
+export async function POST(request: Request) {
   try {
     const auth = await requireAuth()
     if ("error" in auth) return auth.error
 
-    const { id } = await context.params
     const body = await request.json()
 
-    const response = await fetch(
-      `${BACKEND_API_URL}/api/campaigns/${id}/media/presign`,
-      {
-        method: "POST",
-        headers: createAuthHeaders(auth.token),
-        body: JSON.stringify(body),
-      }
-    )
+    const response = await fetch(`${BACKEND_API_URL}/api/medias/presign`, {
+      method: "POST",
+      headers: createAuthHeaders(auth.token),
+      body: JSON.stringify(body),
+    })
 
     if (!response.ok) {
       const errorBody = await response.json().catch(() => ({ success: false }))

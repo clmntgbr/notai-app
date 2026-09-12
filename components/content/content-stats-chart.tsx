@@ -9,13 +9,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart"
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "@/components/ui/empty"
+import { EmptyErrorState, EmptyLoadingState, EmptyState } from "@/components/ui/empty-state"
 import { useContentStats } from "@/lib/content/hooks"
 import { ContentStats } from "@/lib/content/types"
 import { ChartPieIcon } from "lucide-react"
@@ -66,21 +60,19 @@ export function ContentStatsChart() {
         <CardTitle>Content breakdown</CardTitle>
       </CardHeader>
       <CardContent className="flex min-h-55 flex-1 flex-col items-center justify-center px-0">
-        {isLoading ? null : isError ? (
-          <p className="text-sm text-destructive">Failed to load stats.</p>
+        {isLoading ? (
+          <EmptyLoadingState />
+        ) : isError ? (
+          <EmptyErrorState
+            title="Failed to load stats"
+            description="Something went wrong while loading content stats. Please try again later."
+          />
         ) : total === 0 ? (
-          <Empty className="border-0 p-0">
-            <EmptyHeader>
-              <EmptyMedia variant="icon">
-                <ChartPieIcon />
-              </EmptyMedia>
-              <EmptyTitle>No analyzed contents yet</EmptyTitle>
-              <EmptyDescription>
-                You haven&apos;t analyzed any contents yet. Get started by
-                analyzing your first content.
-              </EmptyDescription>
-            </EmptyHeader>
-          </Empty>
+          <EmptyState
+            icon={<ChartPieIcon />}
+            title="No analyzed contents yet"
+            description="You haven't analyzed any contents yet. Get started by analyzing your first content."
+          />
         ) : (
           <ChartContainer
             config={chartConfig}

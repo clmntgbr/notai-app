@@ -42,7 +42,10 @@ const COUNT_BADGES = [
       "border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-800 dark:bg-sky-950/50 dark:text-sky-400",
   },
 ] as const satisfies ReadonlyArray<{
-  key: keyof CampaignContentCounts
+  key: Exclude<
+    keyof CampaignContentCounts,
+    "pendingUpload" | "uploaded" | "analyzing"
+  >
   label: string
   icon: typeof ShieldCheckIcon
   className: string

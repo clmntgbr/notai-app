@@ -1,6 +1,7 @@
 "use client"
 
 import { CampaignContentCountBadges } from "@/components/campaign/campaign-content-count-badges"
+import { ImageUploadButton } from "@/components/image-upload/image-upload-button"
 import {
   Attachment,
   AttachmentContent,
@@ -9,17 +10,14 @@ import {
   AttachmentTitle,
   AttachmentTrigger,
 } from "@/components/ui/attachment"
-import { Campaign, CampaignContentCounts } from "@/lib/campaign/types"
+import {
+  Campaign,
+  campaignHasContentActivity,
+  EMPTY_CAMPAIGN_CONTENT_COUNTS,
+} from "@/lib/campaign/types"
 import { format } from "date-fns"
 import { ImageIcon } from "lucide-react"
 import Link from "next/link"
-
-const EMPTY_COUNTS: CampaignContentCounts = {
-  failed: 0,
-  human: 0,
-  aiGenerated: 0,
-  uncertain: 0,
-}
 
 function scheduleLabel(campaign: Campaign): string {
   const start = campaign.startAt
@@ -39,7 +37,8 @@ export interface CampaignAttachmentProps {
 
 export function CampaignAttachment({ campaign }: CampaignAttachmentProps) {
   const hasThumbnail = Boolean(campaign.backgroundThumbnailUrl)
-  const counts = campaign.contentCounts ?? EMPTY_COUNTS
+  const counts = campaign.contentCounts ?? EMPTY_CAMPAIGN_CONTENT_COUNTS
+  const showUploadCta = !campaignHasContentActivity(counts)
 
   return (
     <Attachment
@@ -57,7 +56,17 @@ export function CampaignAttachment({ campaign }: CampaignAttachmentProps) {
       <AttachmentContent>
         <AttachmentTitle>{campaign.name}</AttachmentTitle>
         <AttachmentDescription>{scheduleLabel(campaign)}</AttachmentDescription>
-        <CampaignContentCountBadges counts={counts} />
+        {showUploadCta ? (
+          <div
+            className="relative z-20 mt-2 flex justify-center pt-1"
+            onClick={(event) => event.stopPropagation()}
+            onPointerDown={(event) => event.stopPropagation()}
+          >
+            <ImageUploadButton campaignId={campaign.id} />
+          </div>
+        ) : (
+          <CampaignContentCountBadges counts={counts} />
+        )}
       </AttachmentContent>
       <AttachmentTrigger asChild>
         <Link

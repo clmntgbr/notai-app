@@ -1,6 +1,7 @@
 "use client"
 
 import { ContentAttachment } from "@/components/content/content-attachment"
+import { Button } from "@/components/ui/button"
 import {
   Card,
   CardAction,
@@ -8,16 +9,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "@/components/ui/empty"
+  EmptyErrorState,
+  EmptyLoadingState,
+  EmptyState,
+} from "@/components/ui/empty-state"
 import { useContents } from "@/lib/content/hooks"
-import { ArrowRightIcon, ImageIcon, Loader2Icon } from "lucide-react"
+import { ArrowRightIcon, ImageIcon } from "lucide-react"
 import Link from "next/link"
 
 export interface RecentContentsProps {
@@ -38,16 +36,17 @@ export function RecentContents({
 
   const contents = data?.members ?? []
   const isEmpty = !isLoading && !isError && contents.length === 0
+  const hideHeader = isLoading || isEmpty || isError
 
   return (
     <Card
       className={
-        isEmpty
+        hideHeader
           ? "@container/card h-full min-h-55 gap-4 px-4"
           : "@container/card gap-4 px-4"
       }
     >
-      {!isEmpty ? (
+      {!hideHeader ? (
         <CardHeader className="px-0">
           <CardTitle>Last contents</CardTitle>
           {showAllLink ? (
@@ -64,31 +63,24 @@ export function RecentContents({
       ) : null}
       <CardContent
         className={
-          isEmpty
+          hideHeader
             ? "flex flex-1 flex-col items-center justify-center px-0"
             : "px-0"
         }
       >
         {isLoading ? (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Loader2Icon className="size-4 animate-spin" />
-            Loading…
-          </div>
+          <EmptyLoadingState />
         ) : isError ? (
-          <p className="text-sm text-destructive">Failed to load contents.</p>
+          <EmptyErrorState
+            title="Failed to load contents"
+            description="Something went wrong while loading your contents. Please try again later."
+          />
         ) : isEmpty ? (
-          <Empty className="border-0 p-0">
-            <EmptyHeader>
-              <EmptyMedia variant="icon">
-                <ImageIcon />
-              </EmptyMedia>
-              <EmptyTitle>No contents yet</EmptyTitle>
-              <EmptyDescription>
-                You haven&apos;t uploaded any contents yet. Get started by
-                uploading your first image.
-              </EmptyDescription>
-            </EmptyHeader>
-          </Empty>
+          <EmptyState
+            icon={<ImageIcon />}
+            title="No contents yet"
+            description="You haven't uploaded any contents yet. Get started by uploading your first image."
+          />
         ) : (
           <div className="flex w-full flex-col gap-2">
             {contents.map((content) => (

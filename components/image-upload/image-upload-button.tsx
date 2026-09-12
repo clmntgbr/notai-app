@@ -141,7 +141,7 @@ export function ImageUploadDrawer({
         style={{ width: "80vw", maxWidth: "80vw", backgroundColor: "#f9f9f9" }}
       >
         <DrawerHeader className="sr-only">
-          <DrawerTitle>Upload images</DrawerTitle>
+          <DrawerTitle>Upload contents</DrawerTitle>
         </DrawerHeader>
 
         <div className="flex min-h-0 flex-1 flex-col">
@@ -306,14 +306,16 @@ export function ImageUploadButton({
             disabled={disabled}
           >
             <ImageIcon className="size-4" />
-            Upload images
+            Upload contents
           </Button>
         </HoverCardTrigger>
         <HoverCardContent align="end" className="flex w-64 flex-col gap-0.5">
-          <div className="font-semibold">Upload images</div>
+          <div className="font-semibold">Upload contents</div>
           <div>
-            Select up to {MAX_CONTENT_FILES} images (JPG, PNG, WebP, GIF). They
-            will be uploaded without a campaign.
+            Select up to {MAX_CONTENT_FILES} images (JPG, PNG, WebP, GIF).
+            {campaignId
+              ? " They will be uploaded to this campaign."
+              : " They will be uploaded to the default campaign."}
           </div>
         </HoverCardContent>
       </HoverCard>

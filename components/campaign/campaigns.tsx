@@ -2,6 +2,7 @@
 
 import { CampaignAttachment } from "@/components/campaign/campaign-attachment"
 import { AttachmentGroup } from "@/components/ui/attachment"
+import { Button } from "@/components/ui/button"
 import {
   Card,
   CardAction,
@@ -9,16 +10,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "@/components/ui/empty"
+import { EmptyErrorState, EmptyLoadingState, EmptyState } from "@/components/ui/empty-state"
 import { useCampaigns } from "@/lib/campaign/hooks"
-import { ArrowRightIcon, FileExclamationPoint, Loader2Icon } from "lucide-react"
+import { ArrowRightIcon, FileExclamationPoint } from "lucide-react"
 import Link from "next/link"
 
 export interface CampaignsProps {
@@ -29,16 +23,17 @@ export function Campaigns({ showAllLink = true }: CampaignsProps) {
   const { data, isLoading, isError } = useCampaigns()
   const campaigns = data?.members ?? []
   const isEmpty = !isLoading && !isError && campaigns.length === 0
+  const hideHeader = isLoading || isEmpty || isError
 
   return (
     <Card
       className={
-        isEmpty
+        hideHeader
           ? "@container/card min-h-55 gap-4 px-4"
           : "@container/card gap-4 px-4"
       }
     >
-      {!isEmpty ? (
+      {!hideHeader ? (
         <CardHeader className="px-0">
           <CardTitle>Campaigns</CardTitle>
           {showAllLink ? (
@@ -55,31 +50,24 @@ export function Campaigns({ showAllLink = true }: CampaignsProps) {
       ) : null}
       <CardContent
         className={
-          isEmpty
+          hideHeader
             ? "flex flex-1 flex-col items-center justify-center px-0"
             : "px-0"
         }
       >
         {isLoading ? (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Loader2Icon className="size-4 animate-spin" />
-            Loading…
-          </div>
+          <EmptyLoadingState />
         ) : isError ? (
-          <p className="text-sm text-destructive">Failed to load campaigns.</p>
+          <EmptyErrorState
+            title="Failed to load campaigns"
+            description="Something went wrong while loading your campaigns. Please try again later."
+          />
         ) : isEmpty ? (
-          <Empty className="border-0 p-0">
-            <EmptyHeader>
-              <EmptyMedia variant="icon">
-                <FileExclamationPoint />
-              </EmptyMedia>
-              <EmptyTitle>No campaigns yet</EmptyTitle>
-              <EmptyDescription>
-                You haven&apos;t created any campaigns yet. Get started by
-                creating your first campaign.
-              </EmptyDescription>
-            </EmptyHeader>
-          </Empty>
+          <EmptyState
+            icon={<FileExclamationPoint />}
+            title="No campaigns yet"
+            description="You haven't created any campaigns yet. Get started by creating your first campaign."
+          />
         ) : (
           <AttachmentGroup className="w-full">
             {campaigns.map((campaign) => (

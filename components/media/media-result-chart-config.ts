@@ -1,7 +1,7 @@
 import type { ChartConfig } from "@/components/ui/chart"
-import type { ContentStatsCounts } from "@/lib/content/types"
+import type { MediaStatsCounts } from "@/lib/media/types"
 
-export const contentResultChartConfig = {
+export const mediaResultChartConfig = {
   total: {
     label: "Total",
     color: "oklch(0.45 0.14 255)",
@@ -24,28 +24,28 @@ export const contentResultChartConfig = {
   },
 } satisfies ChartConfig
 
-export const CONTENT_RESULT_KEYS = [
+export const MEDIA_RESULT_KEYS = [
   "human",
   "uncertain",
   "aiGenerated",
   "failed",
-] as const satisfies ReadonlyArray<keyof ContentStatsCounts>
+] as const satisfies ReadonlyArray<keyof MediaStatsCounts>
 
-export const CONTENT_MONTHLY_SERIES_KEYS = [
+export const MEDIA_MONTHLY_SERIES_KEYS = [
   "total",
-  ...CONTENT_RESULT_KEYS,
+  ...MEDIA_RESULT_KEYS,
 ] as const
 
-export function contentResultTotal(counts: ContentStatsCounts) {
-  return CONTENT_RESULT_KEYS.reduce((sum, key) => sum + counts[key], 0)
+export function mediaResultTotal(counts: MediaStatsCounts) {
+  return MEDIA_RESULT_KEYS.reduce((sum, key) => sum + counts[key], 0)
 }
 
-/** Total contents per month = status buckets only (not labels). */
-export function contentMonthTotal(counts: ContentStatsCounts) {
+/** Total media per month = status buckets only (not labels). */
+export function mediaMonthTotal(counts: MediaStatsCounts) {
   return (
     counts.analyzed +
     counts.failed +
-    counts.analyzing +
+    counts.processing +
     counts.uploaded +
     counts.pendingUpload
   )

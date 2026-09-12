@@ -4,12 +4,18 @@ import { NextResponse } from "next/server"
 
 const BACKEND_API_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL
 
-export async function GET() {
+type RouteContext = {
+  params: Promise<{ id: string }>
+}
+
+export async function GET(_request: Request, context: RouteContext) {
   try {
     const auth = await requireAuth()
     if ("error" in auth) return auth.error
 
-    const response = await fetch(`${BACKEND_API_URL}/api/contents/stats`, {
+    const { id } = await context.params
+
+    const response = await fetch(`${BACKEND_API_URL}/api/media/${id}`, {
       method: "GET",
       headers: createAuthHeaders(auth.token),
     })

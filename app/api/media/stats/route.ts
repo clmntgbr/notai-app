@@ -1,18 +1,15 @@
 import { createAuthHeaders } from "@/lib/create-auth-headers"
 import { requireAuth } from "@/lib/require-auth"
-import { NextRequest, NextResponse } from "next/server"
+import { NextResponse } from "next/server"
 
 const BACKEND_API_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const auth = await requireAuth()
     if ("error" in auth) return auth.error
 
-    const query = request.nextUrl.searchParams.toString()
-    const url = `${BACKEND_API_URL}/api/contents${query ? `?${query}` : ""}`
-
-    const response = await fetch(url, {
+    const response = await fetch(`${BACKEND_API_URL}/api/media/stats`, {
       method: "GET",
       headers: createAuthHeaders(auth.token),
     })

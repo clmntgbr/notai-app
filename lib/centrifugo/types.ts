@@ -2,7 +2,7 @@ export type RealtimeResource =
   | "user"
   | "client"
   | "campaign"
-  | "content"
+  | "media"
   | "activity"
 
 export type RealtimeVerb =
@@ -23,11 +23,10 @@ export interface UserStreamEvent {
   userId?: string
   clientId?: string
   campaignId?: string
-  contentId?: string
+  mediaId?: string
   name?: string
   status?: string
   backgroundStatus?: string
-  /** Present on content.updated (ContentUploaded). */
   thumbnailKey?: string
   sizeBytes?: number
   objectKey?: string
@@ -37,7 +36,7 @@ const RESOURCES = new Set<string>([
   "user",
   "client",
   "campaign",
-  "content",
+  "media",
   "activity",
 ])
 
@@ -92,28 +91,13 @@ export function shouldRefreshCampaignBackground(event: UserStreamEvent): boolean
   )
 }
 
-/**
- * Content cache refresh (mirrors campaign.background_updated for media).
- * - content.created → presign / pending_upload (row appears)
- * - content.updated → thumbnail ready (ContentUploaded)
- * - content.status_changed → status uploaded / analyzing / …
- */
-export function shouldRefreshContent(event: UserStreamEvent): boolean {
+/** Media pipeline: created / uploaded / status / verdict. */
+export function shouldRefreshMedia(event: UserStreamEvent): boolean {
   return (
-    (eventTypeEquals(event, "content.created") ||
-      eventTypeEquals(event, "content.updated") ||
-      eventTypeEquals(event, "content.status_changed") ||
-      eventTypeEquals(event, "content.deleted")) &&
+    (eventTypeEquals(event, "media.created") ||
+      eventTypeEquals(event, "media.updated") ||
+      eventTypeEquals(event, "media.status_changed")) &&
     typeof event.clientId === "string"
-  )
-}
-
-/** Thumbnail ready after MinIO process — same role as campaign.background_updated. */
-export function shouldRefreshContentThumbnail(event: UserStreamEvent): boolean {
-  return (
-    eventTypeEquals(event, "content.updated") &&
-    typeof event.clientId === "string" &&
-    typeof event.contentId === "string"
   )
 }
 

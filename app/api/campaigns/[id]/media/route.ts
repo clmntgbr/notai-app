@@ -1,20 +1,25 @@
 import { createAuthHeaders } from "@/lib/create-auth-headers"
 import { requireAuth } from "@/lib/require-auth"
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 
 const BACKEND_API_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL
 
-export async function POST(request: Request) {
+type RouteContext = {
+  params: Promise<{ id: string }>
+}
+
+export async function GET(request: NextRequest, context: RouteContext) {
   try {
     const auth = await requireAuth()
     if ("error" in auth) return auth.error
 
-    const body = await request.json()
+    const { id } = await context.params
+    const query = request.nextUrl.searchParams.toString()
+    const url = `${BACKEND_API_URL}/api/campaigns/${id}/media${query ? `?${query}` : ""}`
 
-    const response = await fetch(`${BACKEND_API_URL}/api/contents/presign`, {
-      method: "POST",
+    const response = await fetch(url, {
+      method: "GET",
       headers: createAuthHeaders(auth.token),
-      body: JSON.stringify(body),
     })
 
     if (!response.ok) {
@@ -23,7 +28,7 @@ export async function POST(request: Request) {
     }
 
     const data = await response.json()
-    return NextResponse.json(data, { status: response.status })
+    return NextResponse.json(data)
   } catch {
     return NextResponse.json({ success: false }, { status: 500 })
   }

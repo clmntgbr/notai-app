@@ -1,6 +1,6 @@
 "use client"
 
-import { CampaignContentCounts } from "@/lib/campaign/types"
+import { CampaignMediaCounts } from "@/lib/campaign/types"
 import { cn } from "cn"
 import {
   BanIcon,
@@ -43,7 +43,7 @@ const COUNT_BADGES = [
   },
 ] as const satisfies ReadonlyArray<{
   key: Exclude<
-    keyof CampaignContentCounts,
+    keyof CampaignMediaCounts,
     "pendingUpload" | "uploaded" | "analyzing" | "analyzed"
   >
   label: string
@@ -52,7 +52,7 @@ const COUNT_BADGES = [
 }>
 
 export interface CampaignContentCountBadgesProps {
-  counts: CampaignContentCounts
+  counts: CampaignMediaCounts
   className?: string
 }
 

@@ -1,12 +1,12 @@
 "use client"
 
 import {
-  CONTENT_MONTHLY_SERIES_KEYS,
-  CONTENT_RESULT_KEYS,
-  contentMonthTotal,
-  contentResultChartConfig,
+  MEDIA_MONTHLY_SERIES_KEYS,
+  MEDIA_RESULT_KEYS,
+  mediaMonthTotal,
+  mediaResultChartConfig,
   formatControlMonth,
-} from "@/components/content/content-result-chart-config"
+} from "@/components/media/media-result-chart-config"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   ChartContainer,
@@ -15,25 +15,29 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-import { EmptyErrorState, EmptyLoadingState, EmptyState } from "@/components/ui/empty-state"
-import { ContentMonthlyControls } from "@/lib/content/types"
+import {
+  EmptyErrorState,
+  EmptyLoadingState,
+  EmptyState,
+} from "@/components/ui/empty-state"
+import { MediaMonthlyControls } from "@/lib/media/types"
 import { ChartLineIcon } from "lucide-react"
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
 
-export interface ContentMonthlyControlsChartProps {
-  months?: ContentMonthlyControls[] | null
+export interface MediaMonthlyControlsChartProps {
+  months?: MediaMonthlyControls[] | null
   isLoading?: boolean
   isError?: boolean
 }
 
-export function ContentMonthlyControlsChart({
+export function MediaMonthlyControlsChart({
   months,
   isLoading,
   isError,
-}: ContentMonthlyControlsChartProps) {
+}: MediaMonthlyControlsChartProps) {
   const chartData = (months ?? []).map((entry) => ({
     month: formatControlMonth(entry.month),
-    total: contentMonthTotal(entry),
+    total: mediaMonthTotal(entry),
     human: entry.human,
     uncertain: entry.uncertain,
     aiGenerated: entry.aiGenerated,
@@ -42,7 +46,7 @@ export function ContentMonthlyControlsChart({
 
   const hasData = chartData.some(
     (entry) =>
-      entry.total > 0 || CONTENT_RESULT_KEYS.some((key) => entry[key] > 0)
+      entry.total > 0 || MEDIA_RESULT_KEYS.some((key) => entry[key] > 0)
   )
 
   return (
@@ -62,16 +66,16 @@ export function ContentMonthlyControlsChart({
           <EmptyState
             icon={<ChartLineIcon />}
             title="No monthly controls yet"
-            description="Analyzed contents will appear here by month."
+            description="Analyzed media will appear here by month."
           />
         ) : (
           <ChartContainer
-            config={contentResultChartConfig}
+            config={mediaResultChartConfig}
             className="aspect-auto h-65 w-full"
           >
             <AreaChart data={chartData} margin={{ left: 0, right: 8, top: 8 }}>
               <defs>
-                {CONTENT_MONTHLY_SERIES_KEYS.map((key) => (
+                {MEDIA_MONTHLY_SERIES_KEYS.map((key) => (
                   <linearGradient
                     key={key}
                     id={`fill-${key}`}
@@ -114,7 +118,7 @@ export function ContentMonthlyControlsChart({
                 content={<ChartLegendContent />}
                 verticalAlign="bottom"
               />
-              {CONTENT_MONTHLY_SERIES_KEYS.map((key) => (
+              {MEDIA_MONTHLY_SERIES_KEYS.map((key) => (
                 <Area
                   key={key}
                   type="linear"

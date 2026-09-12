@@ -8,7 +8,7 @@ import {
   isUserStreamEvent,
   shouldRefreshActivity,
   shouldRefreshCampaignBackground,
-  shouldRefreshContent,
+  shouldRefreshMedia,
 } from "./types"
 import { useCentrifuge } from "./use-centrifuge"
 
@@ -32,7 +32,7 @@ export function UserCentrifugeListener() {
         userId: data.userId,
         clientId: data.clientId,
         campaignId: data.campaignId,
-        contentId: data.contentId,
+        mediaId: data.mediaId,
         status: data.status,
         backgroundStatus: data.backgroundStatus,
         thumbnailKey: data.thumbnailKey,
@@ -40,7 +40,6 @@ export function UserCentrifugeListener() {
         payload: data,
       })
 
-      // campaign.background_updated → background thumbnail ready/failed
       if (shouldRefreshCampaignBackground(data)) {
         const clientId = data.clientId!
         const campaignId = data.campaignId!
@@ -53,20 +52,21 @@ export function UserCentrifugeListener() {
         })
       }
 
-      // content.created (presign) | content.updated (thumbnail ready) | content.status_changed
-      if (shouldRefreshContent(data)) {
+      if (shouldRefreshMedia(data)) {
         const clientId = data.clientId!
         void queryClient.invalidateQueries({
-          queryKey: queryKeys.contents.all(clientId),
+          queryKey: queryKeys.media.all(clientId),
         })
-        if (typeof data.contentId === "string") {
+        void queryClient.invalidateQueries({
+          queryKey: queryKeys.campaigns.all(clientId),
+        })
+        if (typeof data.mediaId === "string") {
           void queryClient.invalidateQueries({
-            queryKey: queryKeys.contents.detail(clientId, data.contentId),
+            queryKey: queryKeys.media.detail(clientId, data.mediaId),
           })
         }
       }
 
-      // activity.created → new feed row projected
       if (shouldRefreshActivity(data)) {
         void queryClient.invalidateQueries({
           queryKey: queryKeys.activity.all(data.clientId!),

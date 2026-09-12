@@ -22,8 +22,8 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card"
-import { useUploadContents } from "@/lib/content/hooks"
-import { ACCEPTED_CONTENT_TYPES, MAX_CONTENT_FILES } from "@/lib/content/types"
+import { useUploadMedia } from "@/lib/media/hooks"
+import { ACCEPTED_MEDIA_TYPES, MAX_MEDIA_FILES } from "@/lib/media/types"
 import { ImageIcon, Loader2Icon, XIcon } from "lucide-react"
 import * as React from "react"
 
@@ -42,12 +42,12 @@ function formatBytes(bytes: number) {
 function fileExtensionLabel(file: File) {
   const fromName = file.name.split(".").pop()?.toUpperCase()
   if (fromName) return fromName
-  return file.type.split("/")[1]?.toUpperCase() || "IMG"
+  return file.type.split("/")[1]?.toUpperCase() || "FILE"
 }
 
-function isAcceptedImage(file: File) {
-  return ACCEPTED_CONTENT_TYPES.includes(
-    file.type as (typeof ACCEPTED_CONTENT_TYPES)[number]
+function isAcceptedMedia(file: File) {
+  return ACCEPTED_MEDIA_TYPES.includes(
+    file.type as (typeof ACCEPTED_MEDIA_TYPES)[number]
   )
 }
 
@@ -72,13 +72,13 @@ export function ImageUploadDrawer({
   onImagesChange,
   campaignId,
 }: ImageUploadDrawerProps) {
-  const uploadContents = useUploadContents()
+  const uploadMedia = useUploadMedia()
   const [error, setError] = React.useState<string | null>(null)
   const [fileProgress, setFileProgress] = React.useState<
     Record<number, number>
   >({})
 
-  const isUploading = uploadContents.isPending
+  const isUploading = uploadMedia.isPending
 
   function handleRemove(id: string) {
     if (isUploading) return
@@ -104,7 +104,7 @@ export function ImageUploadDrawer({
     try {
       setError(null)
       setFileProgress({})
-      await uploadContents.mutateAsync({
+      await uploadMedia.mutateAsync({
         campaignId,
         files: images.map((image) => image.file),
         onFileProgress: (fileIndex, percent) => {
@@ -119,7 +119,7 @@ export function ImageUploadDrawer({
       setFileProgress({})
       onOpenChange(false)
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to upload images")
+      setError(err instanceof Error ? err.message : "Failed to upload media")
     }
   }
 
@@ -141,7 +141,7 @@ export function ImageUploadDrawer({
         style={{ width: "80vw", maxWidth: "80vw", backgroundColor: "#f9f9f9" }}
       >
         <DrawerHeader className="sr-only">
-          <DrawerTitle>Upload contents</DrawerTitle>
+          <DrawerTitle>Upload media</DrawerTitle>
         </DrawerHeader>
 
         <div className="flex min-h-0 flex-1 flex-col">
@@ -149,7 +149,7 @@ export function ImageUploadDrawer({
             <div className="w-full">
               {images.length === 0 ? (
                 <p className="text-center text-sm text-muted-foreground">
-                  No images selected.
+                  No files selected.
                 </p>
               ) : (
                 <div className="grid w-full grid-cols-[repeat(auto-fill,minmax(9rem,1fr))] gap-4">
@@ -161,6 +161,7 @@ export function ImageUploadDrawer({
                         : isUploading
                           ? "processing"
                           : "done"
+                    const isVideo = image.file.type.startsWith("video/")
 
                     return (
                       <Attachment
@@ -170,8 +171,21 @@ export function ImageUploadDrawer({
                         className="w-full! max-w-none has-data-[slot=attachment-content]:w-full!"
                       >
                         <AttachmentMedia variant="image">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={image.previewUrl} alt={image.file.name} />
+                          {isVideo ? (
+                            // eslint-disable-next-line jsx-a11y/media-has-caption
+                            <video
+                              src={image.previewUrl}
+                              className="size-full object-cover"
+                              muted
+                              playsInline
+                            />
+                          ) : (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={image.previewUrl}
+                              alt={image.file.name}
+                            />
+                          )}
                         </AttachmentMedia>
                         <AttachmentContent>
                           <AttachmentTitle>{image.file.name}</AttachmentTitle>
@@ -269,12 +283,12 @@ export function ImageUploadButton({
   }
 
   function handleFilesSelected(event: React.ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(event.target.files ?? []).filter(isAcceptedImage)
+    const files = Array.from(event.target.files ?? []).filter(isAcceptedMedia)
     event.target.value = ""
 
     if (files.length === 0) return
 
-    const limited = files.slice(0, MAX_CONTENT_FILES)
+    const limited = files.slice(0, MAX_MEDIA_FILES)
     const next: SelectedImage[] = limited.map((file) => ({
       id: `${file.name}-${file.size}-${file.lastModified}-${crypto.randomUUID()}`,
       file,
@@ -290,7 +304,7 @@ export function ImageUploadButton({
       <input
         ref={inputRef}
         type="file"
-        accept={ACCEPTED_CONTENT_TYPES.join(",")}
+        accept={[...ACCEPTED_MEDIA_TYPES, ".jpg", ".jpeg", ".png", ".webp", ".mp4", ".webm", ".mov"].join(",")}
         multiple
         className="hidden"
         onChange={handleFilesSelected}
@@ -306,13 +320,13 @@ export function ImageUploadButton({
             disabled={disabled}
           >
             <ImageIcon className="size-4" />
-            Upload contents
+            Upload media
           </Button>
         </HoverCardTrigger>
         <HoverCardContent align="end" className="flex w-64 flex-col gap-0.5">
-          <div className="font-semibold">Upload contents</div>
+          <div className="font-semibold">Upload media</div>
           <div>
-            Select up to {MAX_CONTENT_FILES} images (JPG, PNG, WebP, GIF).
+            Select up to {MAX_MEDIA_FILES} files (images or videos).
             {campaignId
               ? " They will be uploaded to this campaign."
               : " They will be uploaded to the default campaign."}
@@ -330,4 +344,4 @@ export function ImageUploadButton({
   )
 }
 
-export { MAX_CONTENT_FILES as MAX_IMAGES }
+export { MAX_MEDIA_FILES as MAX_IMAGES }

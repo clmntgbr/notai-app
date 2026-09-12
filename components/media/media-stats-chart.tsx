@@ -1,23 +1,23 @@
 "use client"
 
-import { ContentMonthlyControlsChart } from "@/components/content/content-monthly-controls-chart"
-import { ContentStatsPieChart } from "@/components/content/content-stats-pie-chart"
-import { useContentStats } from "@/lib/content/hooks"
+import { MediaMonthlyControlsChart } from "@/components/media/media-monthly-controls-chart"
+import { MediaStatsPieChart } from "@/components/media/media-stats-pie-chart"
+import { useMediaStats } from "@/lib/media/hooks"
 
-export function ContentStatsChart() {
-  const { data, isLoading, isError } = useContentStats()
+export function MediaStatsChart() {
+  const { data, isLoading, isError } = useMediaStats()
 
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
       <div className="lg:col-span-3">
-        <ContentMonthlyControlsChart
+        <MediaMonthlyControlsChart
           months={data?.monthlyControls}
           isLoading={isLoading}
           isError={isError}
         />
       </div>
       <div className="lg:col-span-1">
-        <ContentStatsPieChart
+        <MediaStatsPieChart
           counts={data}
           isLoading={isLoading}
           isError={isError}

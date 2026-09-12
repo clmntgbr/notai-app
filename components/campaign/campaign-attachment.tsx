@@ -20,8 +20,8 @@ import {
 } from "@/lib/campaign/schedule-status"
 import {
   Campaign,
-  campaignHasContentActivity,
-  EMPTY_CAMPAIGN_CONTENT_COUNTS,
+  campaignHasMediaActivity,
+  EMPTY_CAMPAIGN_MEDIA_COUNTS,
 } from "@/lib/campaign/types"
 import { cn } from "cn"
 import { format } from "date-fns"
@@ -57,8 +57,8 @@ export interface CampaignAttachmentProps {
 export function CampaignAttachment({ campaign }: CampaignAttachmentProps) {
   const [editOpen, setEditOpen] = React.useState(false)
   const hasThumbnail = Boolean(campaign.backgroundThumbnailUrl)
-  const counts = campaign.contentCounts ?? EMPTY_CAMPAIGN_CONTENT_COUNTS
-  const showUploadCta = !campaignHasContentActivity(counts)
+  const counts = campaign.mediaCounts ?? campaign.contentCounts ?? EMPTY_CAMPAIGN_MEDIA_COUNTS
+  const showUploadCta = !campaignHasMediaActivity(counts)
   const status = getCampaignScheduleStatus(campaign)
 
   return (

@@ -38,6 +38,15 @@ export const queryKeys = {
       [...queryKeys.contents.all(clientId), "stats"] as const,
   },
 
+  activity: {
+    all: (clientId: string) =>
+      [...queryKeys.clients.detail(clientId), "activity"] as const,
+    list: (clientId: string, params?: PaginateParams) =>
+      [...queryKeys.activity.all(clientId), "list", params ?? {}] as const,
+    infinite: (clientId: string, limit = 20) =>
+      [...queryKeys.activity.all(clientId), "infinite", { limit }] as const,
+  },
+
   checks: {
     all: (campaignId: string) => ["campaigns", campaignId, "checks"] as const,
   },

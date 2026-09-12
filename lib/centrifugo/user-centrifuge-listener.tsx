@@ -6,6 +6,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { useCallback } from "react"
 import {
   isUserStreamEvent,
+  shouldRefreshActivity,
   shouldRefreshCampaignBackground,
   shouldRefreshContent,
 } from "./types"
@@ -63,6 +64,13 @@ export function UserCentrifugeListener() {
             queryKey: queryKeys.contents.detail(clientId, data.contentId),
           })
         }
+      }
+
+      // activity.created → new feed row projected
+      if (shouldRefreshActivity(data)) {
+        void queryClient.invalidateQueries({
+          queryKey: queryKeys.activity.all(data.clientId!),
+        })
       }
     },
     [queryClient]

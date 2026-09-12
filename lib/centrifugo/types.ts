@@ -1,4 +1,9 @@
-export type RealtimeResource = "user" | "client" | "campaign" | "content"
+export type RealtimeResource =
+  | "user"
+  | "client"
+  | "campaign"
+  | "content"
+  | "activity"
 
 export type RealtimeVerb =
   | "created"
@@ -28,7 +33,13 @@ export interface UserStreamEvent {
   objectKey?: string
 }
 
-const RESOURCES = new Set<string>(["user", "client", "campaign", "content"])
+const RESOURCES = new Set<string>([
+  "user",
+  "client",
+  "campaign",
+  "content",
+  "activity",
+])
 
 const VERBS = new Set<string>([
   "created",
@@ -103,5 +114,13 @@ export function shouldRefreshContentThumbnail(event: UserStreamEvent): boolean {
     eventTypeEquals(event, "content.updated") &&
     typeof event.clientId === "string" &&
     typeof event.contentId === "string"
+  )
+}
+
+/** Activity feed row projected — refresh activity lists for the client. */
+export function shouldRefreshActivity(event: UserStreamEvent): boolean {
+  return (
+    eventTypeEquals(event, "activity.created") &&
+    typeof event.clientId === "string"
   )
 }

@@ -43,7 +43,7 @@ export function RecentContents({
       className={
         hideHeader
           ? "@container/card h-full min-h-55 gap-4 px-4"
-          : "@container/card gap-4 px-4"
+          : "@container/card h-full gap-4 px-4"
       }
     >
       {!hideHeader ? (

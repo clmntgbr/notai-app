@@ -1,3 +1,4 @@
+import { ActivityFeed } from "@/components/activity/activity-feed"
 import { Campaigns } from "@/components/campaign/campaigns"
 import { ContentStatsChart } from "@/components/content/content-stats-chart"
 import { RecentContents } from "@/components/content/recent-contents"
@@ -12,7 +13,7 @@ export default function Page() {
       </div>
       <div className="grid grid-cols-1 gap-4 px-4 lg:grid-cols-2 lg:px-6">
         <RecentContents />
-        <div />
+        <ActivityFeed />
       </div>
       <div className="grid grid-cols-1 gap-4 px-4 lg:px-6">
         <Campaigns />

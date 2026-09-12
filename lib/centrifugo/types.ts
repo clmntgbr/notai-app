@@ -20,6 +20,8 @@ export type RealtimeEventType = `${RealtimeResource}.${RealtimeVerb}`
 /** Centrifugo user-channel payload: `{resource}.{action}` (optional `.vN` suffix). */
 export interface UserStreamEvent {
   type: string
+  /** Domain event id — used for client-side dedupe of republished messages. */
+  eventId?: string
   userId?: string
   clientId?: string
   campaignId?: string
@@ -96,6 +98,15 @@ export function shouldRefreshMedia(event: UserStreamEvent): boolean {
   return (
     (eventTypeEquals(event, "media.created") ||
       eventTypeEquals(event, "media.updated") ||
+      eventTypeEquals(event, "media.status_changed")) &&
+    typeof event.clientId === "string"
+  )
+}
+
+/** High-churn media events — coalesce invalidations with a short debounce. */
+export function shouldDebounceMediaRefresh(event: UserStreamEvent): boolean {
+  return (
+    (eventTypeEquals(event, "media.updated") ||
       eventTypeEquals(event, "media.status_changed")) &&
     typeof event.clientId === "string"
   )

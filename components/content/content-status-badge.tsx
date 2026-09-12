@@ -27,7 +27,7 @@ const RESULT_BADGES: Record<
       "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-400",
   },
   uncertain: {
-    label: "Review",
+    label: "To review",
     icon: TriangleAlertIcon,
     className:
       "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-400",
@@ -52,14 +52,12 @@ const STATUS_BADGES: Partial<
   pending_upload: {
     label: "Waiting",
     icon: ClockIcon,
-    className:
-      "border-border bg-muted text-muted-foreground",
+    className: "border-border bg-muted text-muted-foreground",
   },
   uploaded: {
     label: "Uploaded",
     icon: UploadIcon,
-    className:
-      "border-border bg-muted text-muted-foreground",
+    className: "border-border bg-muted text-muted-foreground",
   },
   analyzing: {
     label: "Analyzing",
@@ -102,7 +100,10 @@ export function ContentStatusBadge({
   const Icon = badge.icon
 
   return (
-    <span className={cn(badgeClassName, badge.className, className)} title={badge.label}>
+    <span
+      className={cn(badgeClassName, badge.className, className)}
+      title={badge.label}
+    >
       <Icon
         className={cn(
           "size-3",

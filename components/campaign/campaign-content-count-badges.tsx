@@ -22,7 +22,7 @@ const COUNT_BADGES = [
   },
   {
     key: "uncertain",
-    label: "Review",
+    label: "To review",
     icon: TriangleAlertIcon,
     className:
       "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-400",

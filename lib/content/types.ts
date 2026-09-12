@@ -13,7 +13,7 @@ export type ContentStatus =
 
 export type ContentLabel = "human" | "ai_generated" | "uncertain"
 
-export interface ContentStats {
+export interface ContentStatsCounts {
   pendingUpload: number
   uploaded: number
   analyzing: number
@@ -22,6 +22,14 @@ export interface ContentStats {
   human: number
   aiGenerated: number
   uncertain: number
+}
+
+export interface ContentMonthlyControls extends ContentStatsCounts {
+  month: string
+}
+
+export interface ContentStats extends ContentStatsCounts {
+  monthlyControls: ContentMonthlyControls[]
 }
 
 /** Nested campaign on a content item. Omitted when the campaign is the client default. */

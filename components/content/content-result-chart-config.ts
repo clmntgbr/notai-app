@@ -56,5 +56,5 @@ export function formatControlMonth(month: string) {
   if (!year || !monthPart) return month
   const date = new Date(Number(year), Number(monthPart) - 1, 1)
   if (Number.isNaN(date.getTime())) return month
-  return date.toLocaleDateString("en-US", { month: "short" })
+  return date.toLocaleDateString("en-US", { month: "long" })
 }

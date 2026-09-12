@@ -1,8 +1,10 @@
 "use client"
 
 import {
-  contentResultChartConfig,
+  CONTENT_MONTHLY_SERIES_KEYS,
   CONTENT_RESULT_KEYS,
+  contentMonthTotal,
+  contentResultChartConfig,
   formatControlMonth,
 } from "@/components/content/content-result-chart-config"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -16,7 +18,7 @@ import {
 import { EmptyErrorState, EmptyLoadingState, EmptyState } from "@/components/ui/empty-state"
 import { ContentMonthlyControls } from "@/lib/content/types"
 import { ChartLineIcon } from "lucide-react"
-import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts"
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
 
 export interface ContentMonthlyControlsChartProps {
   months?: ContentMonthlyControls[] | null
@@ -31,14 +33,16 @@ export function ContentMonthlyControlsChart({
 }: ContentMonthlyControlsChartProps) {
   const chartData = (months ?? []).map((entry) => ({
     month: formatControlMonth(entry.month),
+    total: contentMonthTotal(entry),
     human: entry.human,
     uncertain: entry.uncertain,
     aiGenerated: entry.aiGenerated,
     failed: entry.failed,
   }))
 
-  const hasData = chartData.some((entry) =>
-    CONTENT_RESULT_KEYS.some((key) => entry[key] > 0)
+  const hasData = chartData.some(
+    (entry) =>
+      entry.total > 0 || CONTENT_RESULT_KEYS.some((key) => entry[key] > 0)
   )
 
   return (
@@ -65,8 +69,31 @@ export function ContentMonthlyControlsChart({
             config={contentResultChartConfig}
             className="aspect-auto h-65 w-full"
           >
-            <LineChart data={chartData} margin={{ left: 0, right: 8 }}>
-              <CartesianGrid vertical={false} />
+            <AreaChart data={chartData} margin={{ left: 0, right: 8, top: 8 }}>
+              <defs>
+                {CONTENT_MONTHLY_SERIES_KEYS.map((key) => (
+                  <linearGradient
+                    key={key}
+                    id={`fill-${key}`}
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1"
+                  >
+                    <stop
+                      offset="5%"
+                      stopColor={`var(--color-${key})`}
+                      stopOpacity={0.35}
+                    />
+                    <stop
+                      offset="95%"
+                      stopColor={`var(--color-${key})`}
+                      stopOpacity={0.02}
+                    />
+                  </linearGradient>
+                ))}
+              </defs>
+              <CartesianGrid vertical={false} strokeDasharray="3 3" />
               <XAxis
                 dataKey="month"
                 tickLine={false}
@@ -77,25 +104,30 @@ export function ContentMonthlyControlsChart({
                 allowDecimals={false}
                 tickLine={false}
                 axisLine={false}
-                width={28}
+                width={32}
               />
               <ChartTooltip
                 cursor={false}
                 content={<ChartTooltipContent />}
               />
-              <ChartLegend content={<ChartLegendContent />} />
-              {CONTENT_RESULT_KEYS.map((key) => (
-                <Line
+              <ChartLegend
+                content={<ChartLegendContent />}
+                verticalAlign="bottom"
+              />
+              {CONTENT_MONTHLY_SERIES_KEYS.map((key) => (
+                <Area
                   key={key}
-                  type="monotone"
+                  type="linear"
                   dataKey={key}
                   stroke={`var(--color-${key})`}
-                  strokeWidth={2}
+                  strokeWidth={key === "total" ? 2.5 : 2}
+                  fill={`url(#fill-${key})`}
+                  fillOpacity={1}
                   dot={false}
                   activeDot={{ r: 4 }}
                 />
               ))}
-            </LineChart>
+            </AreaChart>
           </ChartContainer>
         )}
       </CardContent>

@@ -2,6 +2,10 @@ import type { ChartConfig } from "@/components/ui/chart"
 import type { ContentStatsCounts } from "@/lib/content/types"
 
 export const contentResultChartConfig = {
+  total: {
+    label: "Total",
+    color: "oklch(0.45 0.14 255)",
+  },
   human: {
     label: "Human",
     color: "oklch(0.55 0.15 163)",
@@ -27,8 +31,24 @@ export const CONTENT_RESULT_KEYS = [
   "failed",
 ] as const satisfies ReadonlyArray<keyof ContentStatsCounts>
 
+export const CONTENT_MONTHLY_SERIES_KEYS = [
+  "total",
+  ...CONTENT_RESULT_KEYS,
+] as const
+
 export function contentResultTotal(counts: ContentStatsCounts) {
   return CONTENT_RESULT_KEYS.reduce((sum, key) => sum + counts[key], 0)
+}
+
+/** Total contents per month = status buckets only (not labels). */
+export function contentMonthTotal(counts: ContentStatsCounts) {
+  return (
+    counts.analyzed +
+    counts.failed +
+    counts.analyzing +
+    counts.uploaded +
+    counts.pendingUpload
+  )
 }
 
 export function formatControlMonth(month: string) {

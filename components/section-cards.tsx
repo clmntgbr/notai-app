@@ -9,95 +9,203 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { useMediaStats } from "@/lib/media/hooks"
+import type { MediaKpis } from "@/lib/media/types"
 import { TrendingDownIcon, TrendingUpIcon } from "lucide-react"
 
+function formatCount(value: number) {
+  return new Intl.NumberFormat("en-US").format(value)
+}
+
+function formatPercent(value: number) {
+  return `${value.toFixed(1)}%`
+}
+
+function formatSignedPercent(value: number) {
+  const sign = value > 0 ? "+" : ""
+  return `${sign}${value.toFixed(1)}%`
+}
+
+function formatSignedPoints(value: number) {
+  const sign = value > 0 ? "+" : ""
+  return `${sign}${value.toFixed(1)} pts`
+}
+
+function changeFooter(
+  value: number | null,
+  format: "percent" | "points" = "percent"
+) {
+  if (value == null) return "No comparison vs last month"
+  const label =
+    format === "points" ? formatSignedPoints(value) : formatSignedPercent(value)
+  return `${label} vs last month`
+}
+
+function TrendBadge({
+  value,
+  format = "percent",
+  higherIsBetter = true,
+}: {
+  value: number
+  format?: "percent" | "points"
+  higherIsBetter?: boolean
+}) {
+  const isUp = value > 0
+  const isFlat = value === 0
+  const Icon = isUp ? TrendingUpIcon : TrendingDownIcon
+  const label =
+    format === "points" ? formatSignedPoints(value) : formatSignedPercent(value)
+  const isGood = higherIsBetter ? value >= 0 : value <= 0
+
+  return (
+    <Badge variant="outline" className={isGood || isFlat ? undefined : "text-destructive"}>
+      {!isFlat ? <Icon /> : null}
+      {label}
+    </Badge>
+  )
+}
+
+function KpiCard({
+  description,
+  title,
+  trend,
+  trendFormat,
+  higherIsBetter,
+  footerPrimary,
+  footerSecondary,
+}: {
+  description: string
+  title: string
+  trend?: number | null
+  trendFormat?: "percent" | "points"
+  higherIsBetter?: boolean
+  footerPrimary: string
+  footerSecondary: string
+}) {
+  return (
+    <Card className="@container/card">
+      <CardHeader>
+        <CardDescription>{description}</CardDescription>
+        <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+          {title}
+        </CardTitle>
+        {trend != null ? (
+          <CardAction>
+            <TrendBadge
+              value={trend}
+              format={trendFormat}
+              higherIsBetter={higherIsBetter}
+            />
+          </CardAction>
+        ) : null}
+      </CardHeader>
+      <CardFooter className="flex-col items-start gap-1.5 text-sm">
+        <div className="line-clamp-1 flex gap-2 font-medium">{footerPrimary}</div>
+        <div className="text-muted-foreground">{footerSecondary}</div>
+      </CardFooter>
+    </Card>
+  )
+}
+
+function KpiCardsSkeleton() {
+  return (
+    <>
+      {Array.from({ length: 4 }).map((_, index) => (
+        <Card key={index} className="@container/card">
+          <CardHeader>
+            <div className="bg-muted h-4 w-28 animate-pulse rounded" />
+            <div className="bg-muted mt-2 h-8 w-20 animate-pulse rounded" />
+          </CardHeader>
+          <CardFooter className="flex-col items-start gap-2">
+            <div className="bg-muted h-4 w-40 animate-pulse rounded" />
+            <div className="bg-muted h-3 w-32 animate-pulse rounded" />
+          </CardFooter>
+        </Card>
+      ))}
+    </>
+  )
+}
+
+function MediaKpiCards({ kpis }: { kpis: MediaKpis }) {
+  const hasVerifications = kpis.verifications > 0
+
+  return (
+    <>
+      <KpiCard
+        description="Verifications this month"
+        title={formatCount(kpis.verifications)}
+        trend={kpis.verificationsChangePercent}
+        footerPrimary={changeFooter(kpis.verificationsChangePercent)}
+        footerSecondary={
+          kpis.planIncluded == null
+            ? "Plan quota unavailable"
+            : `Plan quota — ${formatCount(kpis.planIncluded)}`
+        }
+      />
+      <KpiCard
+        description="Authenticity rate"
+        title={
+          hasVerifications
+            ? formatPercent(kpis.authenticityRatePercent)
+            : "—"
+        }
+        trend={hasVerifications ? kpis.authenticityChangePoints : null}
+        trendFormat="points"
+        footerPrimary={
+          hasVerifications
+            ? `${formatCount(kpis.validatedCount)} classified human`
+            : "No analyzed media this month"
+        }
+        footerSecondary={changeFooter(
+          hasVerifications ? kpis.authenticityChangePoints : null,
+          "points"
+        )}
+      />
+      <KpiCard
+        description="To review"
+        title={formatCount(kpis.toReviewCount)}
+        trend={kpis.toReviewChangePercent}
+        higherIsBetter={false}
+        footerPrimary={changeFooter(kpis.toReviewChangePercent)}
+        footerSecondary="Uncertain media this month"
+      />
+      <KpiCard
+        description="AI generated"
+        title={formatCount(kpis.aiGeneratedCount)}
+        footerPrimary={
+          hasVerifications
+            ? `${formatPercent(kpis.aiGeneratedSharePercent)} of verifications`
+            : "No analyzed media this month"
+        }
+        footerSecondary="Share of analyzed media this month"
+      />
+    </>
+  )
+}
+
 export function SectionCards() {
+  const { data, isPending, isError } = useMediaStats()
+  const kpis = data?.kpis
+
   return (
     <div className="grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-linear-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4 dark:*:data-[slot=card]:bg-card">
-      <Card className="@container/card">
-        <CardHeader>
-          <CardDescription>Total Revenue</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            $1,250.00
-          </CardTitle>
-          <CardAction>
-            <Badge variant="outline">
-              <TrendingUpIcon />
-              +12.5%
-            </Badge>
-          </CardAction>
-        </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Trending up this month <TrendingUpIcon className="size-4" />
-          </div>
-          <div className="text-muted-foreground">
-            Visitors for the last 6 months
-          </div>
-        </CardFooter>
-      </Card>
-      <Card className="@container/card">
-        <CardHeader>
-          <CardDescription>New Customers</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            1,234
-          </CardTitle>
-          <CardAction>
-            <Badge variant="outline">
-              <TrendingDownIcon />
-              -20%
-            </Badge>
-          </CardAction>
-        </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Down 20% this period <TrendingDownIcon className="size-4" />
-          </div>
-          <div className="text-muted-foreground">
-            Acquisition needs attention
-          </div>
-        </CardFooter>
-      </Card>
-      <Card className="@container/card">
-        <CardHeader>
-          <CardDescription>Active Accounts</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            45,678
-          </CardTitle>
-          <CardAction>
-            <Badge variant="outline">
-              <TrendingUpIcon />
-              +12.5%
-            </Badge>
-          </CardAction>
-        </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Strong user retention <TrendingUpIcon className="size-4" />
-          </div>
-          <div className="text-muted-foreground">Engagement exceed targets</div>
-        </CardFooter>
-      </Card>
-      <Card className="@container/card">
-        <CardHeader>
-          <CardDescription>Growth Rate</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            4.5%
-          </CardTitle>
-          <CardAction>
-            <Badge variant="outline">
-              <TrendingUpIcon />
-              +4.5%
-            </Badge>
-          </CardAction>
-        </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Steady performance increase <TrendingUpIcon className="size-4" />
-          </div>
-          <div className="text-muted-foreground">Meets growth projections</div>
-        </CardFooter>
-      </Card>
+      {isPending ? (
+        <KpiCardsSkeleton />
+      ) : isError || !kpis ? (
+        <Card className="@container/card @5xl/main:col-span-4">
+          <CardHeader>
+            <CardDescription>Media KPIs</CardDescription>
+            <CardTitle className="text-base font-medium">
+              Failed to load KPIs
+            </CardTitle>
+          </CardHeader>
+          <CardFooter className="text-muted-foreground text-sm">
+            Something went wrong while loading your media stats.
+          </CardFooter>
+        </Card>
+      ) : (
+        <MediaKpiCards kpis={kpis} />
+      )}
     </div>
   )
 }

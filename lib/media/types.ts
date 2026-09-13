@@ -71,8 +71,23 @@ export interface MediaMonthlyControls extends MediaStatsCounts {
   month: string
 }
 
+export interface MediaKpis {
+  month: string
+  verifications: number
+  verificationsChangePercent: number | null
+  planIncluded: number | null
+  authenticityRatePercent: number
+  authenticityChangePoints: number | null
+  validatedCount: number
+  toReviewCount: number
+  toReviewChangePercent: number | null
+  aiGeneratedCount: number
+  aiGeneratedSharePercent: number
+}
+
 export interface MediaStats extends MediaStatsCounts {
   monthlyControls: MediaMonthlyControls[]
+  kpis: MediaKpis
 }
 
 export const MAX_MEDIA_FILES = 20

@@ -47,6 +47,29 @@ export const queryKeys = {
       [...queryKeys.activity.all(clientId), "infinite", { limit }] as const,
   },
 
+  plans: {
+    all: ["plans"] as const,
+  },
+
+  subscription: {
+    detail: (clientId: string) =>
+      [...queryKeys.clients.detail(clientId), "subscription"] as const,
+  },
+
+  quota: {
+    detail: (clientId: string) =>
+      [...queryKeys.clients.detail(clientId), "quota"] as const,
+  },
+
+  invoices: {
+    all: (clientId: string) =>
+      [...queryKeys.clients.detail(clientId), "invoices"] as const,
+    list: (
+      clientId: string,
+      params?: Pick<PaginateParams, "page" | "limit" | "sortBy" | "orderBy">
+    ) => [...queryKeys.invoices.all(clientId), "list", params ?? {}] as const,
+  },
+
   checks: {
     all: (campaignId: string) => ["campaigns", campaignId, "checks"] as const,
   },

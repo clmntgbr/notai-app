@@ -1,5 +1,6 @@
 "use client"
 
+import { openSubscriptionDrawer } from "@/components/billing/subscription-drawer-host"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
   DropdownMenu,
@@ -23,7 +24,9 @@ import {
   CreditCardIcon,
   EllipsisVerticalIcon,
   LogOutIcon,
+  TagsIcon,
 } from "lucide-react"
+import Link from "next/link"
 
 export function SidebarUser({ user }: { user: User }) {
   const { isMobile } = useSidebar()
@@ -84,9 +87,15 @@ export function SidebarUser({ user }: { user: User }) {
                 <CircleUserRoundIcon />
                 Account
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => openSubscriptionDrawer()}>
                 <CreditCardIcon />
                 Billing
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/pricing">
+                  <TagsIcon />
+                  Pricing
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <BellIcon />

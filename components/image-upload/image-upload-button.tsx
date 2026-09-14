@@ -24,8 +24,29 @@ import {
 } from "@/components/ui/hover-card"
 import { useUploadMedia } from "@/lib/media/hooks"
 import { ACCEPTED_MEDIA_TYPES, MAX_MEDIA_FILES } from "@/lib/media/types"
+import { useQuota } from "@/lib/quota/hooks"
 import { ImageIcon, Loader2Icon, XIcon } from "lucide-react"
 import * as React from "react"
+
+const IMAGE_ACCEPT = [
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/webp",
+  ".jpg",
+  ".jpeg",
+  ".png",
+  ".webp",
+] as const
+
+const VIDEO_ACCEPT = [
+  "video/mp4",
+  "video/webm",
+  "video/quicktime",
+  ".mp4",
+  ".webm",
+  ".mov",
+] as const
 
 export type SelectedImage = {
   id: string
@@ -274,21 +295,69 @@ export function ImageUploadButton({
   disabled,
 }: ImageUploadButtonProps) {
   const inputRef = React.useRef<HTMLInputElement>(null)
+  const { data: quota } = useQuota()
   const [open, setOpen] = React.useState(false)
   const [images, setImages] = React.useState<SelectedImage[]>([])
+  const [pickError, setPickError] = React.useState<string | null>(null)
+
+  const allowsVideo = quota?.limits.allowsVideoAnalysis ?? false
+  const maxFileSizeMb = quota?.limits.maxFileSizeMb ?? null
+  const accept = allowsVideo
+    ? [...IMAGE_ACCEPT, ...VIDEO_ACCEPT].join(",")
+    : IMAGE_ACCEPT.join(",")
 
   function handlePick() {
     if (disabled) return
+    setPickError(null)
     inputRef.current?.click()
   }
 
   function handleFilesSelected(event: React.ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(event.target.files ?? []).filter(isAcceptedMedia)
+    const raw = Array.from(event.target.files ?? [])
     event.target.value = ""
 
-    if (files.length === 0) return
+    const accepted = raw.filter((file) => {
+      if (!isAcceptedMedia(file)) return false
+      if (!allowsVideo && file.type.startsWith("video/")) return false
+      return true
+    })
 
-    const limited = files.slice(0, MAX_MEDIA_FILES)
+    if (accepted.length === 0) {
+      if (raw.some((file) => file.type.startsWith("video/")) && !allowsVideo) {
+        setPickError("Video analysis is not included in your plan.")
+      }
+      return
+    }
+
+    const maxBytes =
+      maxFileSizeMb != null && maxFileSizeMb > 0
+        ? maxFileSizeMb * 1024 * 1024
+        : null
+    const oversized = maxBytes
+      ? accepted.filter((file) => file.size > maxBytes)
+      : []
+    const sizedOk = maxBytes
+      ? accepted.filter((file) => file.size <= maxBytes)
+      : accepted
+
+    if (sizedOk.length === 0) {
+      setPickError(
+        maxFileSizeMb
+          ? `Files must be under ${maxFileSizeMb} MB on your plan.`
+          : "Unable to upload these files."
+      )
+      return
+    }
+
+    if (oversized.length > 0) {
+      setPickError(
+        `${oversized.length} file(s) exceed the ${maxFileSizeMb} MB plan limit and were skipped.`
+      )
+    } else {
+      setPickError(null)
+    }
+
+    const limited = sizedOk.slice(0, MAX_MEDIA_FILES)
     const next: SelectedImage[] = limited.map((file) => ({
       id: `${file.name}-${file.size}-${file.lastModified}-${crypto.randomUUID()}`,
       file,
@@ -304,7 +373,7 @@ export function ImageUploadButton({
       <input
         ref={inputRef}
         type="file"
-        accept={[...ACCEPTED_MEDIA_TYPES, ".jpg", ".jpeg", ".png", ".webp", ".mp4", ".webm", ".mov"].join(",")}
+        accept={accept}
         multiple
         className="hidden"
         onChange={handleFilesSelected}
@@ -326,11 +395,16 @@ export function ImageUploadButton({
         <HoverCardContent align="end" className="flex w-64 flex-col gap-0.5">
           <div className="font-semibold">Upload media</div>
           <div>
-            Select up to {MAX_MEDIA_FILES} files (images or videos).
+            Select up to {MAX_MEDIA_FILES} files
+            {allowsVideo ? " (images or videos)" : " (images)"}.
+            {maxFileSizeMb ? ` Max ${maxFileSizeMb} MB each.` : null}
             {campaignId
               ? " They will be uploaded to this campaign."
               : " They will be uploaded to the default campaign."}
           </div>
+          {pickError ? (
+            <div className="mt-1 text-destructive">{pickError}</div>
+          ) : null}
         </HoverCardContent>
       </HoverCard>
       <ImageUploadDrawer

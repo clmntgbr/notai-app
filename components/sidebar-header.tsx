@@ -1,8 +1,10 @@
 import { AppBreadcrumb } from "@/components/app-breadcrumb"
 import { CreateCampaignButton } from "@/components/campaign/create-campaign-button"
 import { ImageUploadButton } from "@/components/image-upload/image-upload-button"
+import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
+import Link from "next/link"
 
 export function SidebarHeader() {
   return (
@@ -17,6 +19,9 @@ export function SidebarHeader() {
       </div>
 
       <div className="flex items-center justify-end gap-2 px-4 lg:px-6">
+        <Button variant="ghost" size="sm" asChild>
+          <Link href="/pricing">Pricing</Link>
+        </Button>
         <ImageUploadButton />
         <CreateCampaignButton />
       </div>

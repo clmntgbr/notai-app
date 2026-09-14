@@ -75,6 +75,7 @@ function KpiCard({
   trendFormat,
   higherIsBetter,
   footerPrimary,
+  footerSecondary,
 }: {
   description: string
   title: string
@@ -82,6 +83,7 @@ function KpiCard({
   trendFormat?: "percent" | "points"
   higherIsBetter?: boolean
   footerPrimary: string
+  footerSecondary?: string
 }) {
   return (
     <Card className="@container/card">
@@ -101,9 +103,14 @@ function KpiCard({
         ) : null}
       </CardHeader>
       <CardFooter className="flex-col items-start gap-1.5 text-sm">
-        <div className="line-clamp-1 flex gap-2 font-medium">
-          {footerPrimary}
-        </div>
+        {footerPrimary ? (
+          <div className="line-clamp-1 flex gap-2 font-medium">
+            {footerPrimary}
+          </div>
+        ) : null}
+        {footerSecondary ? (
+          <div className="text-muted-foreground">{footerSecondary}</div>
+        ) : null}
       </CardFooter>
     </Card>
   )
@@ -138,6 +145,11 @@ function MediaKpiCards({ kpis }: { kpis: MediaKpis }) {
         title={formatCount(kpis.verifications)}
         trend={kpis.verificationsChangePercent}
         footerPrimary={changeFooter(kpis.verificationsChangePercent)}
+        footerSecondary={
+          kpis.planIncluded == null
+            ? "Plan quota unavailable"
+            : `Plan quota — ${formatCount(kpis.planIncluded)}`
+        }
       />
       <KpiCard
         description="Authenticity rate"

@@ -1,4 +1,5 @@
 import { AppShell } from "@/components/app-shell"
+import { SubscriptionDrawerHost } from "@/components/billing/subscription-drawer-host"
 import { UserCentrifugeListener } from "@/lib/centrifugo/user-centrifuge-listener"
 import { cookies } from "next/headers"
 
@@ -18,6 +19,7 @@ export default async function PrivateLayout({
     <>
       <UserCentrifugeListener />
       <AppShell defaultSidebarOpen={defaultSidebarOpen}>{children}</AppShell>
+      <SubscriptionDrawerHost />
     </>
   )
 }

@@ -66,9 +66,7 @@ export function MediaAttachment({ media, onSelect }: MediaAttachmentProps) {
     <Attachment
       state={state}
       className={
-        onSelect
-          ? "w-full cursor-pointer items-center"
-          : "w-full items-center"
+        onSelect ? "w-full cursor-pointer items-center" : "w-full items-center"
       }
       onClick={onSelect ? () => onSelect(media) : undefined}
     >
@@ -82,9 +80,7 @@ export function MediaAttachment({ media, onSelect }: MediaAttachmentProps) {
       </AttachmentMedia>
       <AttachmentContent>
         <AttachmentTitle>{media.filename}</AttachmentTitle>
-        <AttachmentDescription>
-          {media.campaign?.name ?? media.mediaType}
-        </AttachmentDescription>
+        <AttachmentDescription>{media.campaign?.name}</AttachmentDescription>
       </AttachmentContent>
       <AttachmentActions className="ms-auto self-center pe-1">
         <MediaStatusBadge media={media} />

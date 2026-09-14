@@ -35,7 +35,7 @@ function changeFooter(
   value: number | null,
   format: "percent" | "points" = "percent"
 ) {
-  if (value == null) return "No comparison vs last month"
+  if (value == null) return ""
   const label =
     format === "points" ? formatSignedPoints(value) : formatSignedPercent(value)
   return `${label} vs last month`
@@ -58,7 +58,10 @@ function TrendBadge({
   const isGood = higherIsBetter ? value >= 0 : value <= 0
 
   return (
-    <Badge variant="outline" className={isGood || isFlat ? undefined : "text-destructive"}>
+    <Badge
+      variant="outline"
+      className={isGood || isFlat ? undefined : "text-destructive"}
+    >
       {!isFlat ? <Icon /> : null}
       {label}
     </Badge>
@@ -72,7 +75,6 @@ function KpiCard({
   trendFormat,
   higherIsBetter,
   footerPrimary,
-  footerSecondary,
 }: {
   description: string
   title: string
@@ -80,7 +82,6 @@ function KpiCard({
   trendFormat?: "percent" | "points"
   higherIsBetter?: boolean
   footerPrimary: string
-  footerSecondary: string
 }) {
   return (
     <Card className="@container/card">
@@ -100,8 +101,9 @@ function KpiCard({
         ) : null}
       </CardHeader>
       <CardFooter className="flex-col items-start gap-1.5 text-sm">
-        <div className="line-clamp-1 flex gap-2 font-medium">{footerPrimary}</div>
-        <div className="text-muted-foreground">{footerSecondary}</div>
+        <div className="line-clamp-1 flex gap-2 font-medium">
+          {footerPrimary}
+        </div>
       </CardFooter>
     </Card>
   )
@@ -113,12 +115,12 @@ function KpiCardsSkeleton() {
       {Array.from({ length: 4 }).map((_, index) => (
         <Card key={index} className="@container/card">
           <CardHeader>
-            <div className="bg-muted h-4 w-28 animate-pulse rounded" />
-            <div className="bg-muted mt-2 h-8 w-20 animate-pulse rounded" />
+            <div className="h-4 w-28 animate-pulse rounded bg-muted" />
+            <div className="mt-2 h-8 w-20 animate-pulse rounded bg-muted" />
           </CardHeader>
           <CardFooter className="flex-col items-start gap-2">
-            <div className="bg-muted h-4 w-40 animate-pulse rounded" />
-            <div className="bg-muted h-3 w-32 animate-pulse rounded" />
+            <div className="h-4 w-40 animate-pulse rounded bg-muted" />
+            <div className="h-3 w-32 animate-pulse rounded bg-muted" />
           </CardFooter>
         </Card>
       ))}
@@ -136,30 +138,19 @@ function MediaKpiCards({ kpis }: { kpis: MediaKpis }) {
         title={formatCount(kpis.verifications)}
         trend={kpis.verificationsChangePercent}
         footerPrimary={changeFooter(kpis.verificationsChangePercent)}
-        footerSecondary={
-          kpis.planIncluded == null
-            ? "Plan quota unavailable"
-            : `Plan quota — ${formatCount(kpis.planIncluded)}`
-        }
       />
       <KpiCard
         description="Authenticity rate"
         title={
-          hasVerifications
-            ? formatPercent(kpis.authenticityRatePercent)
-            : "—"
+          hasVerifications ? formatPercent(kpis.authenticityRatePercent) : "—"
         }
         trend={hasVerifications ? kpis.authenticityChangePoints : null}
         trendFormat="points"
         footerPrimary={
           hasVerifications
             ? `${formatCount(kpis.validatedCount)} classified human`
-            : "No analyzed media this month"
+            : ""
         }
-        footerSecondary={changeFooter(
-          hasVerifications ? kpis.authenticityChangePoints : null,
-          "points"
-        )}
       />
       <KpiCard
         description="To review"
@@ -167,17 +158,15 @@ function MediaKpiCards({ kpis }: { kpis: MediaKpis }) {
         trend={kpis.toReviewChangePercent}
         higherIsBetter={false}
         footerPrimary={changeFooter(kpis.toReviewChangePercent)}
-        footerSecondary="Uncertain media this month"
       />
       <KpiCard
-        description="AI generated"
-        title={formatCount(kpis.aiGeneratedCount)}
+        description="AI rate"
+        title={formatPercent(kpis.aiGeneratedSharePercent)}
         footerPrimary={
           hasVerifications
-            ? `${formatPercent(kpis.aiGeneratedSharePercent)} of verifications`
-            : "No analyzed media this month"
+            ? `${formatCount(kpis.aiGeneratedCount)} classified AI`
+            : ""
         }
-        footerSecondary="Share of analyzed media this month"
       />
     </>
   )
@@ -199,7 +188,7 @@ export function SectionCards() {
               Failed to load KPIs
             </CardTitle>
           </CardHeader>
-          <CardFooter className="text-muted-foreground text-sm">
+          <CardFooter className="text-sm text-muted-foreground">
             Something went wrong while loading your media stats.
           </CardFooter>
         </Card>

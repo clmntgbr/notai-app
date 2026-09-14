@@ -82,12 +82,13 @@ export function useMediaDetail(mediaId: string | null | undefined) {
   })
 }
 
-export function useMediaStats() {
+export function useMediaStats(campaignId?: string | null) {
   const { currentClientId } = useUser()
+  const trimmed = campaignId?.trim() || null
 
   return useQuery({
-    queryKey: queryKeys.media.stats(currentClientId ?? "none"),
-    queryFn: getMediaStats,
+    queryKey: queryKeys.media.stats(currentClientId ?? "none", trimmed),
+    queryFn: () => getMediaStats(trimmed),
     enabled: Boolean(currentClientId),
   })
 }

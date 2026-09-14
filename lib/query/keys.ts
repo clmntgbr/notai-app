@@ -34,8 +34,12 @@ export const queryKeys = {
     ) => [...queryKeys.media.lists(clientId), params ?? {}] as const,
     detail: (clientId: string, mediaId: string) =>
       [...queryKeys.media.all(clientId), mediaId] as const,
-    stats: (clientId: string) =>
-      [...queryKeys.media.all(clientId), "stats"] as const,
+    stats: (clientId: string, campaignId?: string | null) =>
+      [
+        ...queryKeys.media.all(clientId),
+        "stats",
+        campaignId?.trim() || "all",
+      ] as const,
   },
 
   activity: {

@@ -4,12 +4,18 @@ import { NextResponse } from "next/server"
 
 const BACKEND_API_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const auth = await requireAuth()
     if ("error" in auth) return auth.error
 
-    const response = await fetch(`${BACKEND_API_URL}/api/medias/stats`, {
+    const { searchParams } = new URL(request.url)
+    const campaignId = searchParams.get("campaignId")?.trim()
+    const query = new URLSearchParams()
+    if (campaignId) query.set("campaignId", campaignId)
+    const suffix = query.toString() ? `?${query}` : ""
+
+    const response = await fetch(`${BACKEND_API_URL}/api/medias/stats${suffix}`, {
       method: "GET",
       headers: createAuthHeaders(auth.token),
     })

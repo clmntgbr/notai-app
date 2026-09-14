@@ -47,8 +47,18 @@ export const getMedia = async (id: string): Promise<MediaDetail> => {
   return response.json()
 }
 
-export const getMediaStats = async (): Promise<MediaStats> => {
-  const response = await fetch("/api/medias/stats", { method: "GET" })
+export const getMediaStats = async (
+  campaignId?: string | null
+): Promise<MediaStats> => {
+  const searchParams = new URLSearchParams()
+  const trimmed = campaignId?.trim()
+  if (trimmed) searchParams.set("campaignId", trimmed)
+
+  const query = searchParams.toString()
+  const response = await fetch(
+    `/api/medias/stats${query ? `?${query}` : ""}`,
+    { method: "GET" }
+  )
 
   if (!response.ok) {
     throw await parseApiError(response, "Failed to fetch media stats")

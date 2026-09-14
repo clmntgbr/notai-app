@@ -145,11 +145,6 @@ function MediaKpiCards({ kpis }: { kpis: MediaKpis }) {
         title={formatCount(kpis.verifications)}
         trend={kpis.verificationsChangePercent}
         footerPrimary={changeFooter(kpis.verificationsChangePercent)}
-        footerSecondary={
-          kpis.planIncluded == null
-            ? "Plan quota unavailable"
-            : `Plan quota — ${formatCount(kpis.planIncluded)}`
-        }
       />
       <KpiCard
         description="Authenticity rate"
@@ -186,8 +181,12 @@ function MediaKpiCards({ kpis }: { kpis: MediaKpis }) {
   )
 }
 
-export function SectionCards() {
-  const { data, isPending, isError } = useMediaStats()
+export interface SectionCardsProps {
+  campaignId?: string | null
+}
+
+export function SectionCards({ campaignId }: SectionCardsProps) {
+  const { data, isPending, isError } = useMediaStats(campaignId)
   const kpis = data?.kpis
 
   return (

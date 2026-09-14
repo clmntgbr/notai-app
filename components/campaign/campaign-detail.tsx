@@ -2,6 +2,7 @@
 
 import { CampaignMediaList } from "@/components/media/campaign-media-list"
 import { ImageUploadButton } from "@/components/image-upload/image-upload-button"
+import { SectionCards } from "@/components/section-cards"
 import { useCampaignDetail } from "@/lib/campaign/hooks"
 import { Loader2Icon } from "lucide-react"
 import { useParams } from "next/navigation"
@@ -29,8 +30,8 @@ export function CampaignDetail() {
   }
 
   return (
-    <div className="space-y-6 px-4 lg:px-6">
-      <div className="flex flex-wrap items-start justify-between gap-3">
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-start justify-between gap-3 px-4 lg:px-6">
         <div className="space-y-1">
           <h1 className="text-xl font-semibold">{campaign.name}</h1>
           <p className="text-sm text-muted-foreground">
@@ -39,7 +40,10 @@ export function CampaignDetail() {
         </div>
         <ImageUploadButton campaignId={campaign.id} />
       </div>
-      <CampaignMediaList campaignId={campaign.id} />
+      <SectionCards campaignId={campaign.id} />
+      <div className="px-4 lg:px-6">
+        <CampaignMediaList campaignId={campaign.id} />
+      </div>
     </div>
   )
 }

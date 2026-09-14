@@ -4,7 +4,6 @@ import { queryKeys } from "@/lib/query/keys"
 import { useUser } from "@/lib/user/hooks"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { getMedia, getMediaStats, listMedia, ListMediaParams, uploadMedia } from "./api"
-import { isMediaProcessing } from "./types"
 
 async function invalidateMediaQueries(
   queryClient: ReturnType<typeof useQueryClient>,
@@ -53,12 +52,6 @@ export function useMedia(params?: ListMediaParams) {
     queryKey: queryKeys.media.list(currentClientId ?? "none", listParams),
     queryFn: () => listMedia(listParams),
     enabled: Boolean(currentClientId),
-    refetchInterval: (query) => {
-      const members = query.state.data?.members ?? []
-      return members.some((media) => isMediaProcessing(media.status))
-        ? 2000
-        : false
-    },
   })
 }
 
@@ -76,12 +69,6 @@ export function useCampaignMedia(
     }),
     queryFn: () => listMedia({ ...params, campaignId: trimmed }),
     enabled: Boolean(currentClientId) && Boolean(trimmed),
-    refetchInterval: (query) => {
-      const members = query.state.data?.members ?? []
-      return members.some((media) => isMediaProcessing(media.status))
-        ? 2000
-        : false
-    },
   })
 }
 
@@ -92,10 +79,6 @@ export function useMediaDetail(mediaId: string | null | undefined) {
     queryKey: queryKeys.media.detail(currentClientId ?? "none", mediaId ?? ""),
     queryFn: () => getMedia(mediaId!),
     enabled: Boolean(mediaId) && Boolean(currentClientId),
-    refetchInterval: (query) => {
-      const status = query.state.data?.status
-      return status && isMediaProcessing(status) ? 2000 : false
-    },
   })
 }
 

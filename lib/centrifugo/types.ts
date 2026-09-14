@@ -3,6 +3,7 @@ export type RealtimeResource =
   | "client"
   | "campaign"
   | "media"
+  | "content"
   | "activity"
 
 export type RealtimeVerb =
@@ -14,6 +15,7 @@ export type RealtimeVerb =
   | "member_removed"
   | "background_updated"
   | "status_changed"
+  | "verdict_rendered"
 
 export type RealtimeEventType = `${RealtimeResource}.${RealtimeVerb}`
 
@@ -26,6 +28,7 @@ export interface UserStreamEvent {
   clientId?: string
   campaignId?: string
   mediaId?: string
+  contentId?: string
   name?: string
   status?: string
   backgroundStatus?: string
@@ -39,6 +42,7 @@ const RESOURCES = new Set<string>([
   "client",
   "campaign",
   "media",
+  "content",
   "activity",
 ])
 
@@ -51,6 +55,7 @@ const VERBS = new Set<string>([
   "member_removed",
   "background_updated",
   "status_changed",
+  "verdict_rendered",
 ])
 
 export function canonicalizeRealtimeType(type: string): string {
@@ -93,22 +98,45 @@ export function shouldRefreshCampaignBackground(event: UserStreamEvent): boolean
   )
 }
 
-/** Media pipeline: created / uploaded / status / verdict. */
+/**
+ * Media channel — only four moments:
+ * - media.created (presign / pending_upload)
+ * - media.status_changed uploaded
+ * - media.status_changed processing
+ * - media.verdict_rendered (analyzed | failed)
+ */
 export function shouldRefreshMedia(event: UserStreamEvent): boolean {
+  if (typeof event.clientId !== "string") return false
+
   return (
-    (eventTypeEquals(event, "media.created") ||
-      eventTypeEquals(event, "media.updated") ||
-      eventTypeEquals(event, "media.status_changed")) &&
-    typeof event.clientId === "string"
+    eventTypeEquals(event, "media.created") ||
+    eventTypeEquals(event, "media.status_changed") ||
+    eventTypeEquals(event, "media.verdict_rendered")
   )
 }
 
-/** High-churn media events — coalesce invalidations with a short debounce. */
+/**
+ * Coalesce high-churn media invalidations (upload → processing → verdict).
+ * `media.created` stays immediate so the list shows the new row right away.
+ */
 export function shouldDebounceMediaRefresh(event: UserStreamEvent): boolean {
+  if (typeof event.clientId !== "string") return false
+
   return (
-    (eventTypeEquals(event, "media.updated") ||
-      eventTypeEquals(event, "media.status_changed")) &&
-    typeof event.clientId === "string"
+    eventTypeEquals(event, "media.status_changed") ||
+    eventTypeEquals(event, "media.verdict_rendered")
+  )
+}
+
+/**
+ * Content channel — terminal per-frame verdict while a media detail is open.
+ * Invalidates media detail only (not the media list pipeline).
+ */
+export function shouldRefreshMediaDetail(event: UserStreamEvent): boolean {
+  return (
+    eventTypeEquals(event, "content.verdict_rendered") &&
+    typeof event.clientId === "string" &&
+    typeof event.mediaId === "string"
   )
 }
 

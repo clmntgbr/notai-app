@@ -304,15 +304,6 @@ function SubscriptionContent({
             max={usage?.members.max ?? planQuota.maxClientMembers}
             unit="members"
           />
-          <QuotaMeter
-            icon={Layers}
-            label="Concurrent analyses"
-            used={usage?.concurrentAnalyses.used ?? 0}
-            max={
-              usage?.concurrentAnalyses.max ?? planQuota.maxConcurrentAnalyses
-            }
-            unit="analyses"
-          />
         </div>
       </section>
 

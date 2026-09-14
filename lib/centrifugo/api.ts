@@ -1,6 +1,9 @@
 export interface RealtimeConnection {
   token: string
+  /** Account channel (legacy primary). Prefer `channels` when present. */
   channel: string
+  /** Per-interest channels: account, media, content, activity. */
+  channels?: Record<string, string>
   wsUrl: string
 }
 
@@ -30,9 +33,21 @@ export async function getRealtimeConnection(): Promise<RealtimeConnection | null
     return {
       token: data.token,
       channel: data.channel,
+      channels: data.channels,
       wsUrl,
     }
   } catch {
     return null
   }
+}
+
+/** Unique subscribe targets from a connection payload. */
+export function connectionSubscribeChannels(
+  connection: RealtimeConnection
+): string[] {
+  const fromMap = Object.values(connection.channels ?? {}).filter(Boolean)
+  if (fromMap.length > 0) {
+    return [...new Set(fromMap)]
+  }
+  return [connection.channel]
 }

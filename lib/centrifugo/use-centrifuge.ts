@@ -2,11 +2,14 @@
 
 import { Centrifuge } from "centrifuge"
 import { useEffect, useRef } from "react"
-import { getRealtimeConnection } from "./api"
+import {
+  connectionSubscribeChannels,
+  getRealtimeConnection,
+} from "./api"
 
 /**
- * Connects to Centrifugo using GET /api/realtime/connection
- * (`token`, `channel` = users:<uuid>, `wsUrl`), then subscribes to `channel`.
+ * Connects to Centrifugo using GET /api/realtime/connection and subscribes to
+ * every interest channel (account / media / content / activity).
  * No-ops quietly when realtime is unavailable.
  */
 export function useCentrifuge(
@@ -27,7 +30,12 @@ export function useCentrifuge(
 
     const connect = async () => {
       const connection = await getRealtimeConnection()
-      if (cancelled || !connection) return
+      if (cancelled || !connection) {
+        console.warn("[Centrifugo] connection unavailable")
+        return
+      }
+
+      const channels = connectionSubscribeChannels(connection)
 
       centrifuge = new Centrifuge(connection.wsUrl, {
         getToken: async () => {
@@ -39,22 +47,38 @@ export function useCentrifuge(
         },
       })
 
-      const subscription = centrifuge.newSubscription(connection.channel)
+      for (const channel of channels) {
+        const subscription = centrifuge.newSubscription(channel)
 
-      subscription.on("publication", (ctx) => {
-        onPublicationRef.current(ctx.data)
-      })
+        subscription.on("publication", (ctx) => {
+          console.log("[Centrifugo] publication", { channel, data: ctx.data })
+          onPublicationRef.current(ctx.data)
+        })
 
-      subscription.on("error", (ctx) => {
-        console.warn("[Centrifugo] subscription error", connection.channel, ctx)
+        subscription.on("subscribed", () => {
+          console.log("[Centrifugo] subscribed", channel)
+        })
+
+        subscription.on("error", (ctx) => {
+          console.warn("[Centrifugo] subscription error", channel, ctx)
+        })
+
+        subscription.subscribe()
+      }
+
+      centrifuge.on("connected", () => {
+        console.log("[Centrifugo] connected", connection.wsUrl)
       })
 
       centrifuge.on("disconnected", (ctx) => {
         console.warn("[Centrifugo] disconnected", ctx)
       })
 
-      subscription.subscribe()
       centrifuge.connect()
+      console.log("[Centrifugo] connecting…", {
+        wsUrl: connection.wsUrl,
+        channels,
+      })
     }
 
     void connect()

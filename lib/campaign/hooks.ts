@@ -63,8 +63,6 @@ export function useCampaignDetail(
     ),
     queryFn: () => getCampaign(campaignId!),
     enabled: Boolean(campaignId) && Boolean(resolvedClientId),
-    refetchInterval: (query) =>
-      query.state.data?.backgroundStatus === "pending" ? 2000 : false,
   })
 }
 

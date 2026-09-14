@@ -5,10 +5,17 @@ import { SidebarHeader } from "@/components/sidebar-header"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { TooltipProvider } from "@/components/ui/tooltip"
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({
+  children,
+  defaultSidebarOpen = true,
+}: {
+  children: React.ReactNode
+  defaultSidebarOpen?: boolean
+}) {
   return (
     <TooltipProvider delayDuration={0}>
       <SidebarProvider
+        defaultOpen={defaultSidebarOpen}
         style={
           {
             "--sidebar-width": "calc(var(--spacing) * 72)",

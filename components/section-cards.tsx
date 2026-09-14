@@ -153,20 +153,22 @@ function MediaKpiCards({ kpis }: { kpis: MediaKpis }) {
         }
       />
       <KpiCard
-        description="To review"
-        title={formatCount(kpis.toReviewCount)}
-        trend={kpis.toReviewChangePercent}
-        higherIsBetter={false}
-        footerPrimary={changeFooter(kpis.toReviewChangePercent)}
-      />
-      <KpiCard
         description="AI rate"
-        title={formatPercent(kpis.aiGeneratedSharePercent)}
+        title={
+          hasVerifications ? formatPercent(kpis.aiGeneratedSharePercent) : "—"
+        }
         footerPrimary={
           hasVerifications
             ? `${formatCount(kpis.aiGeneratedCount)} classified AI`
             : ""
         }
+      />
+      <KpiCard
+        description="To review"
+        title={formatCount(kpis.toReviewCount)}
+        trend={kpis.toReviewChangePercent}
+        higherIsBetter={false}
+        footerPrimary={changeFooter(kpis.toReviewChangePercent)}
       />
     </>
   )

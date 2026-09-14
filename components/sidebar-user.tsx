@@ -23,6 +23,7 @@ import {
   CircleUserRoundIcon,
   CreditCardIcon,
   EllipsisVerticalIcon,
+  HomeIcon,
   LogOutIcon,
   TagsIcon,
 } from "lucide-react"
@@ -83,6 +84,12 @@ export function SidebarUser({ user }: { user: User }) {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
+              <DropdownMenuItem asChild>
+                <Link href="/">
+                  <HomeIcon />
+                  Home
+                </Link>
+              </DropdownMenuItem>
               <DropdownMenuItem>
                 <CircleUserRoundIcon />
                 Account

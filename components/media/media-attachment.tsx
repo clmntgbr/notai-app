@@ -80,10 +80,10 @@ export function MediaAttachment({ media, onSelect }: MediaAttachmentProps) {
       <AttachmentContent>
         <AttachmentTitle>{media.filename}</AttachmentTitle>
         <AttachmentDescription>
-          {media.campaign?.name}
-          {media.failureReason && (
+          {(media.failureReason && (
             <span className="text-red-500">{media.failureReason}</span>
-          )}
+          )) ??
+            media.campaign?.name}
         </AttachmentDescription>
       </AttachmentContent>
       <AttachmentActions className="ms-auto self-center pe-1">

@@ -193,7 +193,6 @@ export function ImageUploadDrawer({
                       >
                         <AttachmentMedia variant="image">
                           {isVideo ? (
-                            // eslint-disable-next-line jsx-a11y/media-has-caption
                             <video
                               src={image.previewUrl}
                               className="size-full object-cover"
@@ -202,10 +201,7 @@ export function ImageUploadDrawer({
                             />
                           ) : (
                             // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                              src={image.previewUrl}
-                              alt={image.file.name}
-                            />
+                            <img src={image.previewUrl} alt={image.file.name} />
                           )}
                         </AttachmentMedia>
                         <AttachmentContent>
@@ -287,12 +283,14 @@ export interface ImageUploadButtonProps {
   className?: string
   campaignId?: string | null
   disabled?: boolean
+  title?: string
 }
 
 export function ImageUploadButton({
   className,
   campaignId = null,
   disabled,
+  title,
 }: ImageUploadButtonProps) {
   const inputRef = React.useRef<HTMLInputElement>(null)
   const { data: quota } = useQuota()
@@ -389,18 +387,18 @@ export function ImageUploadButton({
             disabled={disabled}
           >
             <ImageIcon className="size-4" />
-            Upload media
+            {title ?? "Upload media"}
           </Button>
         </HoverCardTrigger>
         <HoverCardContent align="end" className="flex w-64 flex-col gap-0.5">
-          <div className="font-semibold">Upload media</div>
+          <div className="font-semibold">{title ?? "Upload media"}</div>
           <div>
             Select up to {MAX_MEDIA_FILES} files
             {allowsVideo ? " (images or videos)" : " (images)"}.
             {maxFileSizeMb ? ` Max ${maxFileSizeMb} MB each.` : null}
             {campaignId
               ? " They will be uploaded to this campaign."
-              : " They will be uploaded to the default campaign."}
+              : " They will be uploaded without a campaign."}
           </div>
           {pickError ? (
             <div className="mt-1 text-destructive">{pickError}</div>

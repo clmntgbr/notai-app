@@ -144,7 +144,7 @@ export function Pricing() {
   }
 
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-8 p-6 pb-20">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 pb-20 lg:px-6">
       <div className="space-y-4 text-center">
         <p className="text-sm font-medium text-primary">
           Simple, transparent pricing

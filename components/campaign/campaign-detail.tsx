@@ -1,7 +1,7 @@
 "use client"
 
-import { CampaignMediaList } from "@/components/media/campaign-media-list"
 import { ImageUploadButton } from "@/components/image-upload/image-upload-button"
+import { CampaignMediaList } from "@/components/media/campaign-media-list"
 import { SectionCards } from "@/components/section-cards"
 import { useCampaignDetail } from "@/lib/campaign/hooks"
 import { Loader2Icon } from "lucide-react"
@@ -34,11 +34,11 @@ export function CampaignDetail() {
       <div className="flex flex-wrap items-start justify-between gap-3 px-4 lg:px-6">
         <div className="space-y-1">
           <h1 className="text-xl font-semibold">{campaign.name}</h1>
-          <p className="text-sm text-muted-foreground">
-            Status: {campaign.backgroundStatus}
-          </p>
         </div>
-        <ImageUploadButton campaignId={campaign.id} />
+        <ImageUploadButton
+          campaignId={campaign.id}
+          title="Upload media for this campaign"
+        />
       </div>
       <SectionCards campaignId={campaign.id} />
       <div className="px-4 lg:px-6">

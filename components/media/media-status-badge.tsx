@@ -43,7 +43,7 @@ const RESULT_BADGES: Record<
     label: "Failed",
     icon: BanIcon,
     className:
-      "border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-800 dark:bg-sky-950/50 dark:text-sky-400",
+      "border-red-200 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950/50 dark:text-red-400",
   },
 }
 

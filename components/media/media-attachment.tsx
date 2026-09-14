@@ -28,7 +28,6 @@ function toAttachmentState(
     case "processing":
       return "processing"
     case "failed":
-      return "error"
     case "uploaded":
     case "analyzed":
       return "done"
@@ -80,7 +79,12 @@ export function MediaAttachment({ media, onSelect }: MediaAttachmentProps) {
       </AttachmentMedia>
       <AttachmentContent>
         <AttachmentTitle>{media.filename}</AttachmentTitle>
-        <AttachmentDescription>{media.campaign?.name}</AttachmentDescription>
+        <AttachmentDescription>
+          {media.campaign?.name}
+          {media.failureReason && (
+            <span className="text-red-500">{media.failureReason}</span>
+          )}
+        </AttachmentDescription>
       </AttachmentContent>
       <AttachmentActions className="ms-auto self-center pe-1">
         <MediaStatusBadge media={media} />

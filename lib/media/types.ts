@@ -33,6 +33,7 @@ export interface Media {
   status: MediaStatus
   verdict?: MediaVerdict | null
   thumbnailUrl?: string | null
+  failureReason?: string | null
   /** Present only when the media is not on the default campaign. */
   campaign?: MediaCampaign
   createdAt: string

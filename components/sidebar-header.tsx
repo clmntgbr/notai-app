@@ -1,9 +1,13 @@
+"use client"
+
 import { AppBreadcrumb } from "@/components/app-breadcrumb"
+import { openSubscriptionDrawer } from "@/components/billing/subscription-drawer-host"
 import { CreateCampaignButton } from "@/components/campaign/create-campaign-button"
 import { ImageUploadButton } from "@/components/image-upload/image-upload-button"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
+import { CreditCardIcon } from "lucide-react"
 import Link from "next/link"
 
 export function SidebarHeader() {
@@ -21,6 +25,15 @@ export function SidebarHeader() {
       <div className="flex items-center justify-end gap-2 px-4 lg:px-6">
         <Button variant="ghost" size="sm" asChild>
           <Link href="/pricing">Pricing</Link>
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => openSubscriptionDrawer()}
+        >
+          <CreditCardIcon className="size-4" />
+          Subscription
         </Button>
         <ImageUploadButton />
         <CreateCampaignButton />

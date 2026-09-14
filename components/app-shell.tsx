@@ -1,5 +1,6 @@
 "use client"
 
+import { SubscriptionDrawerHost } from "@/components/billing/subscription-drawer-host"
 import { AppSidebar } from "@/components/sidebar"
 import { SidebarHeader } from "@/components/sidebar-header"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
@@ -32,6 +33,7 @@ export function AppShell({
             </div>
           </div>
         </SidebarInset>
+        <SubscriptionDrawerHost />
       </SidebarProvider>
     </TooltipProvider>
   )

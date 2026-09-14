@@ -206,7 +206,10 @@ export function Pricing() {
               isFreeCard && (!hasStripeCustomer || isSameTier)
 
             const quotaFeatures = getQuotaFeatures(plan.quota)
-            const features = [...quotaFeatures, ...meta.extraFeatures]
+            const extras = meta.extraFeatures.filter(
+              (feature) => !quotaFeatures.includes(feature)
+            )
+            const features = [...quotaFeatures, ...extras]
 
             return (
               <div
@@ -291,7 +294,7 @@ export function Pricing() {
                   {features.map((feature, idx) => {
                     const isQuota = idx < quotaFeatures.length
                     return (
-                      <li key={feature} className="flex items-start gap-2.5">
+                      <li key={`${slug}-${idx}`} className="flex items-start gap-2.5">
                         <span
                           className={cn(
                             "mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full",

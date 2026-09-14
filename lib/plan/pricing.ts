@@ -22,13 +22,13 @@ export const PLAN_META: Record<PlanSlug, PlanMeta> = {
     tagline: "To get started",
     cta: "Choose Starter",
     highlight: false,
-    extraFeatures: ["Email support", "PDF export"],
+    extraFeatures: ["Email support"],
   },
   pro: {
     tagline: "Most popular",
     cta: "Choose Pro",
     highlight: true,
-    extraFeatures: ["Priority analysis", "Video analysis"],
+    extraFeatures: ["Priority analysis"],
   },
   business: {
     tagline: "For teams",

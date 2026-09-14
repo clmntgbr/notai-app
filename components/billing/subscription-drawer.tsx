@@ -61,7 +61,7 @@ export function SubscriptionDrawer({
   onOpenChange,
   onGoPricing,
 }: SubscriptionDrawerProps) {
-  const { data: subscription, isLoading } = useSubscription()
+  const { data: subscription, isPending } = useSubscription()
   const billingPortal = useBillingPortal()
   const [portalLoading, setPortalLoading] = useState(false)
 
@@ -109,7 +109,7 @@ export function SubscriptionDrawer({
           </DrawerHeader>
 
           <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-5 sm:px-6">
-            {isLoading && !subscription ? (
+            {isPending && !subscription ? (
               <LoadingState />
             ) : !subscription || !subscription.plan ? (
               <EmptyState onGoPricing={handleGoPricing} />

@@ -2,7 +2,12 @@
 
 import { queryKeys } from "@/lib/query/keys"
 import { useUser } from "@/lib/user/hooks"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query"
 import { getMedia, getMediaStats, listMedia, ListMediaParams, uploadMedia } from "./api"
 
 async function invalidateMediaQueries(
@@ -69,6 +74,37 @@ export function useCampaignMedia(
     }),
     queryFn: () => listMedia({ ...params, campaignId: trimmed }),
     enabled: Boolean(currentClientId) && Boolean(trimmed),
+  })
+}
+
+export function useInfiniteMedia(options?: {
+  enabled?: boolean
+  limit?: number
+  campaignId?: string | null
+}) {
+  const { currentClientId } = useUser()
+  const limit = options?.limit ?? 20
+  const enabled = options?.enabled ?? true
+  const campaignId = options?.campaignId?.trim() || undefined
+
+  return useInfiniteQuery({
+    queryKey: queryKeys.media.infinite(
+      currentClientId ?? "none",
+      limit,
+      campaignId
+    ),
+    queryFn: ({ pageParam }) =>
+      listMedia({
+        page: pageParam,
+        limit,
+        campaignId,
+        sortBy: "created_at",
+        orderBy: "desc",
+      }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) =>
+      lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined,
+    enabled: Boolean(currentClientId) && enabled,
   })
 }
 

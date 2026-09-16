@@ -2,6 +2,7 @@
 
 import { MediaAttachment } from "@/components/media/media-attachment"
 import { MediaDetailDrawer } from "@/components/media/media-detail-drawer"
+import { RecentMediaDrawer } from "@/components/media/recent-media-drawer"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -26,6 +27,7 @@ export interface RecentMediaProps {
 
 export function RecentMedia({ limit = 5 }: RecentMediaProps) {
   const [selected, setSelected] = useState<Media | null>(null)
+  const [drawerOpen, setDrawerOpen] = useState(false)
   const { data, isLoading, isError } = useMedia({
     page: 1,
     limit,
@@ -50,7 +52,11 @@ export function RecentMedia({ limit = 5 }: RecentMediaProps) {
           <CardHeader className="px-0">
             <CardTitle>Last media</CardTitle>
             <CardAction>
-              <Button variant="ghost" size="sm" disabled>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setDrawerOpen(true)}
+              >
                 Show all
                 <ArrowRightIcon data-icon="inline-end" />
               </Button>
@@ -98,6 +104,8 @@ export function RecentMedia({ limit = 5 }: RecentMediaProps) {
           if (!open) setSelected(null)
         }}
       />
+
+      <RecentMediaDrawer open={drawerOpen} onOpenChange={setDrawerOpen} />
     </>
   )
 }

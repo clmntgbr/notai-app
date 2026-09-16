@@ -34,6 +34,12 @@ export const queryKeys = {
     ) => [...queryKeys.media.lists(clientId), params ?? {}] as const,
     detail: (clientId: string, mediaId: string) =>
       [...queryKeys.media.all(clientId), mediaId] as const,
+    infinite: (clientId: string, limit = 20, campaignId?: string | null) =>
+      [
+        ...queryKeys.media.all(clientId),
+        "infinite",
+        { limit, campaignId: campaignId?.trim() || null },
+      ] as const,
     stats: (clientId: string, campaignId?: string | null) =>
       [
         ...queryKeys.media.all(clientId),

@@ -43,7 +43,7 @@ export function ActivityFeedItem({
               : undefined
           }
         >
-          {item.actorName} · {format(new Date(item.occurredAt), "d MMM")}
+          {format(new Date(item.occurredAt), "MMMM d, yyyy")}
         </AttachmentDescription>
       </AttachmentContent>
     </Attachment>

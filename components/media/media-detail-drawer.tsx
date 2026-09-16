@@ -19,17 +19,25 @@ export interface MediaDetailDrawerProps {
   mediaId: string | null
   open: boolean
   onOpenChange: (open: boolean) => void
+  /** Use when opened from inside another drawer (vaul NestedRoot). */
+  nested?: boolean
 }
 
 export function MediaDetailDrawer({
   mediaId,
   open,
   onOpenChange,
+  nested = false,
 }: MediaDetailDrawerProps) {
   const { data, isLoading, isError } = useMediaDetail(open ? mediaId : null)
 
   return (
-    <Drawer open={open} onOpenChange={onOpenChange} direction="right">
+    <Drawer
+      open={open}
+      onOpenChange={onOpenChange}
+      direction="right"
+      nested={nested}
+    >
       <DrawerContent className="flex h-full max-w-2xl! flex-col data-[vaul-drawer-direction=right]:w-full sm:max-w-2xl!">
         <DrawerHeader className="hidden border-b text-start">
           <DrawerTitle className="hidden">Media detail</DrawerTitle>

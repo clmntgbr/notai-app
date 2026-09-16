@@ -147,3 +147,11 @@ export function shouldRefreshActivity(event: UserStreamEvent): boolean {
     typeof event.clientId === "string"
   )
 }
+
+/** Terminal media outcome — refresh subscription / quota usage. */
+export function shouldRefreshSubscription(event: UserStreamEvent): boolean {
+  return (
+    eventTypeEquals(event, "media.verdict_rendered") &&
+    typeof event.clientId === "string"
+  )
+}

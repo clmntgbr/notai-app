@@ -12,6 +12,7 @@ import {
   shouldRefreshCampaignBackground,
   shouldRefreshMedia,
   shouldRefreshMediaDetail,
+  shouldRefreshSubscription,
 } from "./types"
 import { useCentrifuge } from "./use-centrifuge"
 import { useDebouncedCallback } from "./use-debounced-callback"
@@ -187,6 +188,21 @@ export function UserCentrifugeListener() {
         })
         void queryClient.invalidateQueries({
           queryKey: queryKeys.activity.all(data.clientId!),
+        })
+      }
+
+      if (shouldRefreshSubscription(data)) {
+        const clientId = data.clientId!
+        console.log("[Centrifugo] invalidate subscription + quota", {
+          clientId,
+          mediaId: data.mediaId,
+          type: data.type,
+        })
+        void queryClient.invalidateQueries({
+          queryKey: queryKeys.subscription.detail(clientId),
+        })
+        void queryClient.invalidateQueries({
+          queryKey: queryKeys.quota.detail(clientId),
         })
       }
     },

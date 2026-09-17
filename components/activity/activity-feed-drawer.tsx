@@ -4,6 +4,7 @@ import { ActivityFeedInfiniteList } from "@/components/activity/activity-feed-in
 import {
   Drawer,
   DrawerContent,
+  DrawerDescription,
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer"
@@ -20,8 +21,9 @@ export function ActivityFeedDrawer({
   return (
     <Drawer open={open} onOpenChange={onOpenChange} direction="right">
       <DrawerContent className="flex h-full max-w-2xl! flex-col data-[vaul-drawer-direction=right]:w-full sm:max-w-2xl!">
-        <DrawerHeader className="hidden border-b text-start">
+        <DrawerHeader className="border-b text-start">
           <DrawerTitle>Activity feed</DrawerTitle>
+          <DrawerDescription>Latest events</DrawerDescription>
         </DrawerHeader>
         <ActivityFeedInfiniteList enabled={open} />
       </DrawerContent>

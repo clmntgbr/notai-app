@@ -89,8 +89,29 @@ export const queryKeys = {
       [...queryKeys.clients.detail(clientId), "activity"] as const,
     list: (clientId: string, params?: PaginateParams) =>
       [...queryKeys.activity.all(clientId), "list", params ?? {}] as const,
-    infinite: (clientId: string, limit = 20) =>
-      [...queryKeys.activity.all(clientId), "infinite", { limit }] as const,
+    infinite: (
+      clientId: string,
+      filters: {
+        limit?: number
+        campaignIds?: string[]
+        search?: string | null
+        from?: string | null
+        to?: string | null
+      } = {}
+    ) =>
+      [
+        ...queryKeys.activity.all(clientId),
+        "infinite",
+        {
+          limit: filters.limit ?? 20,
+          campaignIds: filters.campaignIds?.length
+            ? [...filters.campaignIds].sort()
+            : [],
+          search: filters.search?.trim() || null,
+          from: filters.from?.trim() || null,
+          to: filters.from?.trim() ? filters.to?.trim() || null : null,
+        },
+      ] as const,
   },
 
   plans: {

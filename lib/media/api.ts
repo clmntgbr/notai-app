@@ -1,6 +1,6 @@
 import { parseApiError } from "@/lib/api-error"
 import { uploadToPresignedUrl } from "@/lib/campaign/api"
-import { Paginated, PaginateParams } from "@/lib/paginate"
+import { appendArrayParams, Paginated, PaginateParams } from "@/lib/paginate"
 import {
   Media,
   MediaDetail,
@@ -10,11 +10,11 @@ import {
 
 export interface ListMediaParams extends PaginateParams {
   campaignId?: string | null
-  /** Filter by one or more campaigns (sent as `campaignIds` csv). */
+  /** Filter by one or more campaigns (`campaignIds[]=`). */
   campaignIds?: string[]
-  /** Media pipeline statuses (`pending_upload`, `uploaded`, …). */
+  /** Media pipeline statuses (`status[]=`). */
   statuses?: string[]
-  /** Verdict labels (`human`, `uncertain`, `ai_generated`). */
+  /** Verdict labels (`verdict[]=`). */
   verdicts?: string[]
   /** YYYY-MM-DD or RFC3339. Alone = [from, now). */
   from?: string | null
@@ -32,15 +32,15 @@ export const listMedia = async (
   if (params?.orderBy) searchParams.set("orderBy", params.orderBy)
   if (params?.search) searchParams.set("search", params.search)
   if (params?.campaignIds?.length) {
-    searchParams.set("campaignIds", params.campaignIds.join(","))
+    appendArrayParams(searchParams, "campaignIds", params.campaignIds)
   } else if (params?.campaignId?.trim()) {
     searchParams.set("campaignId", params.campaignId.trim())
   }
   if (params?.statuses?.length) {
-    searchParams.set("status", params.statuses.join(","))
+    appendArrayParams(searchParams, "status", params.statuses)
   }
   if (params?.verdicts?.length) {
-    searchParams.set("verdict", params.verdicts.join(","))
+    appendArrayParams(searchParams, "verdict", params.verdicts)
   }
   const from = params?.from?.trim()
   const to = params?.to?.trim()

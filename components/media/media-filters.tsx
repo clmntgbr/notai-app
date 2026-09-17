@@ -89,6 +89,9 @@ export function MediaFilters({ value, onChange }: MediaFiltersProps) {
         onChange={(event) =>
           onChange({ ...value, search: event.target.value })
         }
+        onSearch={(event) =>
+          onChange({ ...value, search: event.currentTarget.value })
+        }
         placeholder="Search by filename"
         aria-label="Search by filename"
         className="w-full"

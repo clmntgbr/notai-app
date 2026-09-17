@@ -42,9 +42,13 @@ export function MediaInfiniteList({ enabled = true }: MediaInfiniteListProps) {
 
   function handleFiltersChange(next: MediaFiltersValue) {
     setFilters(next)
-    if (next.search !== filters.search) {
-      updateSearch(next.search)
+    if (next.search === filters.search) return
+    // Flush immediately on clear so the native search ✕ updates the query.
+    if (!next.search.trim()) {
+      setDebouncedSearch("")
+      return
     }
+    updateSearch(next.search)
   }
 
   const { statuses, verdicts } = splitMediaFilterKeys(filters.statuses)

@@ -7,6 +7,7 @@ import {
   Card,
   CardAction,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
@@ -27,34 +28,27 @@ export function Campaigns({ showAllLink = true }: CampaignsProps) {
   const { data, isLoading, isError } = useCampaigns()
   const campaigns = data?.members ?? []
   const isEmpty = !isLoading && !isError && campaigns.length === 0
-  const hideHeader = isLoading || isEmpty || isError
+  const showAll = showAllLink && !isLoading && !isError && !isEmpty
 
   return (
-    <Card
-      className={
-        hideHeader
-          ? "@container/card min-h-55 gap-4 px-4"
-          : "@container/card gap-4 px-4"
-      }
-    >
-      {!hideHeader ? (
-        <CardHeader className="px-0">
-          <CardTitle className="hidden">Campaigns</CardTitle>
-          {showAllLink ? (
-            <CardAction>
-              <Button variant="ghost" size="sm" asChild>
-                <Link href="/campaigns">
-                  Show all
-                  <ArrowRightIcon data-icon="inline-end" />
-                </Link>
-              </Button>
-            </CardAction>
-          ) : null}
-        </CardHeader>
-      ) : null}
+    <Card className="@container/card min-h-55 gap-4 px-4">
+      <CardHeader className="px-0">
+        <CardTitle>Campaigns</CardTitle>
+        <CardDescription>Organize your media</CardDescription>
+        {showAll ? (
+          <CardAction className="self-center">
+            <Button variant="ghost" size="sm" asChild>
+              <Link href="/campaigns">
+                Show all
+                <ArrowRightIcon data-icon="inline-end" />
+              </Link>
+            </Button>
+          </CardAction>
+        ) : null}
+      </CardHeader>
       <CardContent
         className={
-          hideHeader
+          isLoading || isError || isEmpty
             ? "flex flex-1 flex-col items-center justify-center px-0"
             : "px-0"
         }

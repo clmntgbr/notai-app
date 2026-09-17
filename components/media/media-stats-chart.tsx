@@ -19,24 +19,26 @@ export function MediaStatsChart({
   const monthlyStats = useMediaStats({ campaignId })
   const rangedStats = useMediaStats({ campaignId, from, to })
 
-  const monthlyLoading = monthlyStats.isLoading && !monthlyStats.data
-  const rangedInitialLoading = rangedStats.isLoading && !rangedStats.data
-  const showStale = rangedStats.isFetching && rangedStats.isPlaceholderData
-  const counts = showStale ? undefined : rangedStats.data
-  const pieLoading = rangedInitialLoading || showStale
+  // Unscoped key only changes on campaign/client switch — hide keepPreviousData bleed.
+  const monthlyStale = monthlyStats.isPlaceholderData
+  const monthlyLoading =
+    (monthlyStats.isLoading && !monthlyStats.data) || monthlyStale
+
+  // Same policy as SectionCards: keep previous values while a new range loads.
+  const pieLoading = rangedStats.isLoading && !rangedStats.data
 
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
       <div className="lg:col-span-1">
         <MediaStatsPieChart
-          counts={counts}
+          counts={rangedStats.data}
           isLoading={pieLoading}
           isError={rangedStats.isError && !rangedStats.data}
         />
       </div>
       <div className="lg:col-span-3">
         <MediaMonthlyControlsChart
-          months={monthlyStats.data?.monthlyControls}
+          months={monthlyStale ? undefined : monthlyStats.data?.monthlyControls}
           isLoading={monthlyLoading}
           isError={monthlyStats.isError && !monthlyStats.data}
         />

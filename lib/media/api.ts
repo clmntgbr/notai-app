@@ -10,6 +10,8 @@ import {
 
 export interface ListMediaParams extends PaginateParams {
   campaignId?: string | null
+  /** Filter by one or more campaigns (sent as `campaignIds` csv). */
+  campaignIds?: string[]
   /** Media pipeline statuses (`pending_upload`, `uploaded`, …). */
   statuses?: string[]
   /** Verdict labels (`human`, `uncertain`, `ai_generated`). */
@@ -25,7 +27,9 @@ export const listMedia = async (
   if (params?.sortBy) searchParams.set("sortBy", params.sortBy)
   if (params?.orderBy) searchParams.set("orderBy", params.orderBy)
   if (params?.search) searchParams.set("search", params.search)
-  if (params?.campaignId?.trim()) {
+  if (params?.campaignIds?.length) {
+    searchParams.set("campaignIds", params.campaignIds.join(","))
+  } else if (params?.campaignId?.trim()) {
     searchParams.set("campaignId", params.campaignId.trim())
   }
   if (params?.statuses?.length) {

@@ -81,7 +81,7 @@ export function useCampaignMedia(
 export function useInfiniteMedia(options?: {
   enabled?: boolean
   limit?: number
-  campaignId?: string | null
+  campaignIds?: string[]
   search?: string | null
   statuses?: string[]
   verdicts?: string[]
@@ -89,7 +89,9 @@ export function useInfiniteMedia(options?: {
   const { currentClientId } = useUser()
   const limit = options?.limit ?? 20
   const enabled = options?.enabled ?? true
-  const campaignId = options?.campaignId?.trim() || undefined
+  const campaignIds = options?.campaignIds?.length
+    ? options.campaignIds
+    : undefined
   const search = options?.search?.trim() || undefined
   const statuses = options?.statuses?.length ? options.statuses : undefined
   const verdicts = options?.verdicts?.length ? options.verdicts : undefined
@@ -97,7 +99,7 @@ export function useInfiniteMedia(options?: {
   return useInfiniteQuery({
     queryKey: queryKeys.media.infinite(currentClientId ?? "none", {
       limit,
-      campaignId,
+      campaignIds,
       search,
       statuses,
       verdicts,
@@ -106,7 +108,7 @@ export function useInfiniteMedia(options?: {
       listMedia({
         page: pageParam,
         limit,
-        campaignId,
+        campaignIds,
         search,
         statuses,
         verdicts,

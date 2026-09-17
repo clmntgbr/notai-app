@@ -26,7 +26,7 @@ export interface MediaInfiniteListProps {
 const EMPTY_FILTERS: MediaFiltersValue = {
   statuses: [],
   search: "",
-  campaignId: null,
+  campaignIds: [],
 }
 
 export function MediaInfiniteList({ enabled = true }: MediaInfiniteListProps) {
@@ -57,7 +57,7 @@ export function MediaInfiniteList({ enabled = true }: MediaInfiniteListProps) {
     isFetchNextPageError,
   } = useInfiniteMedia({
     enabled,
-    campaignId: filters.campaignId,
+    campaignIds: filters.campaignIds,
     search: debouncedSearch,
     statuses,
     verdicts,

@@ -38,7 +38,7 @@ export const queryKeys = {
       clientId: string,
       filters: {
         limit?: number
-        campaignId?: string | null
+        campaignIds?: string[]
         search?: string | null
         statuses?: string[]
         verdicts?: string[]
@@ -49,7 +49,9 @@ export const queryKeys = {
         "infinite",
         {
           limit: filters.limit ?? 20,
-          campaignId: filters.campaignId?.trim() || null,
+          campaignIds: filters.campaignIds?.length
+            ? [...filters.campaignIds].sort()
+            : [],
           search: filters.search?.trim() || null,
           statuses: filters.statuses?.length
             ? [...filters.statuses].sort()

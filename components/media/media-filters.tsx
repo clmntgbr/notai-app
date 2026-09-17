@@ -1,6 +1,6 @@
 "use client"
 
-import { CampaignSelect } from "@/components/campaign/campaign-select"
+import { CampaignMultiSelect } from "@/components/campaign/campaign-multi-select"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { MEDIA_FILTER_OPTIONS, MediaFilterKey } from "@/lib/media/filters"
@@ -9,7 +9,7 @@ import { cn } from "cn"
 export interface MediaFiltersValue {
   statuses: MediaFilterKey[]
   search: string
-  campaignId: string | null
+  campaignIds: string[]
 }
 
 export interface MediaFiltersProps {
@@ -52,7 +52,12 @@ export function MediaFilters({ value, onChange }: MediaFiltersProps) {
                 id={checkboxId}
                 checked={checked}
                 tabIndex={-1}
-                className="pointer-events-none size-3 shrink-0"
+                className={cn(
+                  "pointer-events-none size-3.5 shrink-0 rounded-[3px] bg-transparent shadow-none",
+                  "data-checked:text-white dark:data-checked:text-white",
+                  "[&_[data-slot=checkbox-indicator]>svg]:size-2.5",
+                  option.checkboxClassName
+                )}
               />
               <span>{option.label}</span>
             </div>
@@ -71,11 +76,11 @@ export function MediaFilters({ value, onChange }: MediaFiltersProps) {
           aria-label="Search by filename"
           className="w-full"
         />
-        <CampaignSelect
-          value={value.campaignId}
-          onValueChange={(campaignId) => onChange({ ...value, campaignId })}
-          className="w-full"
-          triggerClassName="h-8 w-full"
+        <CampaignMultiSelect
+          value={value.campaignIds}
+          onValueChange={(campaignIds) =>
+            onChange({ ...value, campaignIds })
+          }
         />
       </div>
     </div>

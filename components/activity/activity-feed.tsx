@@ -7,6 +7,7 @@ import {
   Card,
   CardAction,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
@@ -36,37 +37,29 @@ export function ActivityFeed({
 
   const items = data?.members ?? []
   const isEmpty = !isLoading && !isError && items.length === 0
-  const hideHeader = isLoading || isEmpty || isError
 
   return (
     <>
-      <Card
-        className={
-          hideHeader
-            ? "@container/card h-full min-h-55 gap-4 px-4"
-            : "@container/card h-full gap-4 px-4"
-        }
-      >
-        {!hideHeader ? (
-          <CardHeader className="px-0">
-            <CardTitle className="hidden">Activity feed</CardTitle>
-            {showAllLink ? (
-              <CardAction>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setDrawerOpen(true)}
-                >
-                  Show all
-                  <ArrowRightIcon data-icon="inline-end" />
-                </Button>
-              </CardAction>
-            ) : null}
-          </CardHeader>
-        ) : null}
+      <Card className="@container/card h-full min-h-55 gap-4 px-4">
+        <CardHeader className="px-0">
+          <CardTitle>Activity feed</CardTitle>
+          <CardDescription>Latest events</CardDescription>
+          {showAllLink && !isLoading && !isError && !isEmpty ? (
+            <CardAction className="self-center">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setDrawerOpen(true)}
+              >
+                Show all
+                <ArrowRightIcon data-icon="inline-end" />
+              </Button>
+            </CardAction>
+          ) : null}
+        </CardHeader>
         <CardContent
           className={
-            hideHeader
+            isLoading || isError || isEmpty
               ? "flex flex-1 flex-col items-center justify-center px-0"
               : "px-0"
           }

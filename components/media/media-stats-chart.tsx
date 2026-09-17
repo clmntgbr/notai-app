@@ -15,27 +15,30 @@ export function MediaStatsChart({
   from,
   to,
 }: MediaStatsChartProps) {
-  const { data, isLoading, isError } = useMediaStats({
-    campaignId,
-    from,
-    to,
-  })
-  const isInitialLoading = isLoading && !data
+  // Monthly trend is always unscoped — date range only affects KPIs / breakdown.
+  const monthlyStats = useMediaStats({ campaignId })
+  const rangedStats = useMediaStats({ campaignId, from, to })
+
+  const monthlyLoading = monthlyStats.isLoading && !monthlyStats.data
+  const rangedInitialLoading = rangedStats.isLoading && !rangedStats.data
+  const showStale = rangedStats.isFetching && rangedStats.isPlaceholderData
+  const counts = showStale ? undefined : rangedStats.data
+  const pieLoading = rangedInitialLoading || showStale
 
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
-      <div className="lg:col-span-3">
-        <MediaMonthlyControlsChart
-          months={data?.monthlyControls}
-          isLoading={isInitialLoading}
-          isError={isError && !data}
-        />
-      </div>
       <div className="lg:col-span-1">
         <MediaStatsPieChart
-          counts={data}
-          isLoading={isInitialLoading}
-          isError={isError && !data}
+          counts={counts}
+          isLoading={pieLoading}
+          isError={rangedStats.isError && !rangedStats.data}
+        />
+      </div>
+      <div className="lg:col-span-3">
+        <MediaMonthlyControlsChart
+          months={monthlyStats.data?.monthlyControls}
+          isLoading={monthlyLoading}
+          isError={monthlyStats.isError && !monthlyStats.data}
         />
       </div>
     </div>

@@ -4,7 +4,13 @@ import {
   mediaResultChartConfig,
   MEDIA_RESULT_KEYS,
 } from "@/components/media/media-result-chart-config"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import {
   ChartContainer,
   ChartLegend,
@@ -49,6 +55,7 @@ export function MediaStatsPieChart({
     <Card className="@container/card h-full gap-4 px-4">
       <CardHeader className="px-0">
         <CardTitle>Breakdown</CardTitle>
+        <CardDescription>By verdict</CardDescription>
       </CardHeader>
       <CardContent className="flex min-h-55 flex-1 flex-col items-center justify-center px-0">
         {isLoading ? (

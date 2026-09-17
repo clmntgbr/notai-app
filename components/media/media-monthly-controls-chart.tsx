@@ -1,13 +1,19 @@
 "use client"
 
 import {
+  formatControlMonth,
   MEDIA_MONTHLY_SERIES_KEYS,
   MEDIA_RESULT_KEYS,
   mediaMonthTotal,
   mediaResultChartConfig,
-  formatControlMonth,
 } from "@/components/media/media-result-chart-config"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import {
   ChartContainer,
   ChartLegend,
@@ -53,6 +59,7 @@ export function MediaMonthlyControlsChart({
     <Card className="@container/card h-full gap-4 px-4">
       <CardHeader className="px-0">
         <CardTitle>Monthly controls</CardTitle>
+        <CardDescription>Trend by month</CardDescription>
       </CardHeader>
       <CardContent className="flex min-h-55 flex-1 flex-col items-center justify-center px-0">
         {isLoading ? (

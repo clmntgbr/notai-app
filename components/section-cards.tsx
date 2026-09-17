@@ -132,23 +132,14 @@ function KpiCardsSkeleton() {
   )
 }
 
-function MediaKpiCards({
-  kpis,
-  customRange,
-}: {
-  kpis: MediaKpis
-  customRange: boolean
-}) {
+function MediaKpiCards({ kpis }: { kpis: MediaKpis }) {
   const hasVerifications = kpis.verifications > 0
-  const comparisonLabel = customRange ? "vs previous period" : "vs last month"
-  const verificationsLabel = customRange
-    ? "Verifications"
-    : "Verifications this month"
+  const comparisonLabel = "vs previous period"
 
   return (
     <>
       <KpiCard
-        description={verificationsLabel}
+        description="Verifications"
         title={formatCount(kpis.verifications)}
         trend={kpis.verificationsChangePercent}
         footerPrimary={changeFooter(
@@ -207,7 +198,6 @@ export function SectionCards({ campaignId, from, to }: SectionCardsProps) {
     to,
   })
   const kpis = data?.kpis
-  const customRange = Boolean(from)
   const isInitialLoading = isLoading && !data
 
   return (
@@ -227,7 +217,7 @@ export function SectionCards({ campaignId, from, to }: SectionCardsProps) {
           </CardFooter>
         </Card>
       ) : kpis ? (
-        <MediaKpiCards kpis={kpis} customRange={customRange} />
+        <MediaKpiCards kpis={kpis} />
       ) : null}
     </div>
   )

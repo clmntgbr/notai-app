@@ -8,6 +8,7 @@ import {
   Card,
   CardAction,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
@@ -37,21 +38,15 @@ export function RecentMedia({ limit = 5 }: RecentMediaProps) {
 
   const items = data?.members ?? []
   const isEmpty = !isLoading && !isError && items.length === 0
-  const hideHeader = isLoading || isEmpty || isError
 
   return (
     <>
-      <Card
-        className={
-          hideHeader
-            ? "@container/card h-full min-h-55 gap-4 px-4"
-            : "@container/card h-full gap-4 px-4"
-        }
-      >
-        {!hideHeader ? (
-          <CardHeader className="px-0">
-            <CardTitle className="hidden">Last media</CardTitle>
-            <CardAction>
+      <Card className="@container/card h-full min-h-55 gap-4 px-4">
+        <CardHeader className="px-0">
+          <CardTitle>Last media</CardTitle>
+          <CardDescription>Most recent uploads</CardDescription>
+          {!isLoading && !isError && !isEmpty ? (
+            <CardAction className="self-center">
               <Button
                 variant="ghost"
                 size="sm"
@@ -61,11 +56,11 @@ export function RecentMedia({ limit = 5 }: RecentMediaProps) {
                 <ArrowRightIcon data-icon="inline-end" />
               </Button>
             </CardAction>
-          </CardHeader>
-        ) : null}
+          ) : null}
+        </CardHeader>
         <CardContent
           className={
-            hideHeader
+            isLoading || isError || isEmpty
               ? "flex flex-1 flex-col items-center justify-center px-0"
               : "px-0"
           }

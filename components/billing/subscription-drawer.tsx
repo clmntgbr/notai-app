@@ -26,13 +26,16 @@ import {
   CreditCard,
   FileText,
   FolderKanban,
+  HardDrive,
   Infinity as InfinityIcon,
   Layers,
   Loader2,
+  RefreshCw,
   ScanSearch,
   Sparkles,
   Users,
   Video,
+  Webhook,
 } from "lucide-react"
 import { useEffect, useState, type ComponentType } from "react"
 import { toast } from "sonner"
@@ -319,14 +322,44 @@ function SubscriptionContent({
             value={`${formatCount(limits.maxFileSizeMb)} MB`}
           />
           <DetailRow
+            icon={HardDrive}
+            label="Storage"
+            value={`${formatCount(limits.maxStorageGb)} GB`}
+          />
+          <DetailRow
+            icon={Layers}
+            label="Batch upload size"
+            value={`${formatCount(limits.maxBatchUploadSize)} files`}
+          />
+          <DetailRow
+            icon={ScanSearch}
+            label="Detectors per analysis"
+            value={formatCount(limits.maxDetectorsPerAnalysis)}
+          />
+          <DetailRow
+            icon={Video}
+            label="Frames per video"
+            value={formatCount(limits.maxFramesPerVideo)}
+          />
+          <DetailRow
             icon={CalendarClock}
             label="Report retention"
             value={`${formatCount(limits.reportRetentionDays)} days`}
           />
           <DetailRow
+            icon={CalendarClock}
+            label="Frame retention"
+            value={`${formatCount(limits.frameRetentionDays)} days`}
+          />
+          <DetailRow
             icon={Video}
             label="Video analysis"
             value={limits.allowsVideoAnalysis ? "Yes" : "No"}
+          />
+          <DetailRow
+            icon={RefreshCw}
+            label="Reanalysis"
+            value={limits.allowsReanalysis ? "Yes" : "No"}
           />
           <DetailRow
             icon={FileText}
@@ -344,12 +377,36 @@ function SubscriptionContent({
             value={limits.allowsApiAccess ? "Yes" : "No"}
           />
           <DetailRow
+            icon={Sparkles}
+            label="Custom ruleset"
+            value={limits.allowsCustomRuleset ? "Yes" : "No"}
+          />
+          <DetailRow
+            icon={FileText}
+            label="White-label reports"
+            value={limits.allowsWhiteLabelReport ? "Yes" : "No"}
+          />
+          <DetailRow
+            icon={Webhook}
+            label="Webhooks"
+            value={limits.allowsWebhooks ? "Yes" : "No"}
+          />
+          <DetailRow
             icon={CreditCard}
             label="Overage"
             value={
               limits.overagePriceCents > 0
                 ? formatMoneyCents(limits.overagePriceCents, plan.currency)
                 : "Hard limit"
+            }
+          />
+          <DetailRow
+            icon={CreditCard}
+            label="Overage grace"
+            value={
+              limits.quotaOverageGraceVerifications > 0
+                ? `${formatCount(limits.quotaOverageGraceVerifications)} verifications`
+                : "None"
             }
           />
           <DetailRow

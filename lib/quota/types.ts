@@ -21,6 +21,16 @@ export interface QuotaLimits {
   allowsApiAccess: boolean
   overagePriceCents: number
   analysisPriority: number
+  maxDetectorsPerAnalysis: number
+  maxFramesPerVideo: number
+  allowsReanalysis: boolean
+  maxStorageGb: number
+  maxBatchUploadSize: number
+  frameRetentionDays: number
+  allowsCustomRuleset: boolean
+  allowsWhiteLabelReport: boolean
+  allowsWebhooks: boolean
+  quotaOverageGraceVerifications: number
 }
 
 export interface QuotaUsage {

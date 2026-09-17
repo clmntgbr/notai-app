@@ -13,6 +13,16 @@ export interface PlanQuota {
   allowsApiAccess: boolean
   overagePriceCents: number
   analysisPriority: number
+  maxDetectorsPerAnalysis: number
+  maxFramesPerVideo: number
+  allowsReanalysis: boolean
+  maxStorageGb: number
+  maxBatchUploadSize: number
+  frameRetentionDays: number
+  allowsCustomRuleset: boolean
+  allowsWhiteLabelReport: boolean
+  allowsWebhooks: boolean
+  quotaOverageGraceVerifications: number
   createdAt: string
   updatedAt: string
 }

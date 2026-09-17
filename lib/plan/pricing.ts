@@ -110,12 +110,25 @@ export function getQuotaFeatures(quota: PlanQuota): string[] {
     `${formatCount(quota.maxClientMembers)} members`,
     `${formatCount(quota.maxConcurrentAnalyses)} concurrent analyses`,
     `Files up to ${formatCount(quota.maxFileSizeMb)} MB`,
+    `${formatCount(quota.maxStorageGb)} GB storage`,
+    `Batch upload up to ${formatCount(quota.maxBatchUploadSize)} files`,
+    `${formatCount(quota.maxDetectorsPerAnalysis)} detectors / analysis`,
+    `${formatCount(quota.maxFramesPerVideo)} frames / video`,
     `${quota.reportRetentionDays} days report retention`,
+    `${quota.frameRetentionDays} days frame retention`,
     quota.allowsVideoAnalysis ? "Video analysis" : "Images only",
+    quota.allowsReanalysis ? "Reanalysis" : "No reanalysis",
     quota.allowsPdfExport ? "PDF export" : "No PDF export",
     quota.allowsCsvExport ? "CSV export" : "No CSV export",
+    quota.allowsApiAccess ? "API access" : "No API access",
+    quota.allowsCustomRuleset ? "Custom ruleset" : "No custom ruleset",
+    quota.allowsWhiteLabelReport ? "White-label reports" : "No white-label",
+    quota.allowsWebhooks ? "Webhooks" : "No webhooks",
     quota.overagePriceCents > 0
       ? "Verification overage allowed"
       : "Hard verification limit",
+    quota.quotaOverageGraceVerifications > 0
+      ? `${formatCount(quota.quotaOverageGraceVerifications)} overage grace verifications`
+      : "No overage grace",
   ]
 }

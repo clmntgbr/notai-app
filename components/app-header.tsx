@@ -10,6 +10,7 @@ import { cn } from "cn"
 import { CreditCardIcon } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { ButtonGroup } from "./ui/button-group"
 
 function NavLink({
   href,
@@ -81,9 +82,7 @@ export function AppHeader({
         <NavLink href="/">Home</NavLink>
         <NavLink href="/pricing">Pricing</NavLink>
         <div
-          className={cn(
-            !showSubscription && "invisible pointer-events-none"
-          )}
+          className={cn(!showSubscription && "pointer-events-none invisible")}
           aria-hidden={!showSubscription}
         >
           <Button
@@ -100,12 +99,14 @@ export function AppHeader({
         <div
           className={cn(
             "flex items-center gap-2",
-            !showWorkspaceActions && "invisible pointer-events-none"
+            !showWorkspaceActions && "pointer-events-none invisible"
           )}
           aria-hidden={!showWorkspaceActions}
         >
-          <ImageUploadButton />
-          <CreateCampaignButton />
+          <ButtonGroup>
+            <ImageUploadButton />
+            <CreateCampaignButton />
+          </ButtonGroup>
         </div>
       </div>
     </header>

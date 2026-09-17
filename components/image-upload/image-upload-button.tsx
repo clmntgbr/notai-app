@@ -284,6 +284,7 @@ export interface ImageUploadButtonProps {
   campaignId?: string | null
   disabled?: boolean
   title?: string
+  size?: "default" | "sm" | "lg" | "xs"
 }
 
 export function ImageUploadButton({
@@ -291,6 +292,7 @@ export function ImageUploadButton({
   campaignId = null,
   disabled,
   title,
+  size = "sm",
 }: ImageUploadButtonProps) {
   const inputRef = React.useRef<HTMLInputElement>(null)
   const { data: quota } = useQuota()
@@ -368,19 +370,11 @@ export function ImageUploadButton({
 
   return (
     <>
-      <input
-        ref={inputRef}
-        type="file"
-        accept={accept}
-        multiple
-        className="hidden"
-        onChange={handleFilesSelected}
-      />
       <HoverCard openDelay={10} closeDelay={100}>
         <HoverCardTrigger asChild>
           <Button
             type="button"
-            size="sm"
+            size={size}
             variant="outline"
             className={className}
             onClick={handlePick}
@@ -405,6 +399,16 @@ export function ImageUploadButton({
           ) : null}
         </HoverCardContent>
       </HoverCard>
+      {/* After the trigger so ButtonGroup first/last radius targets the buttons. */}
+      <input
+        ref={inputRef}
+        type="file"
+        accept={accept}
+        multiple
+        className="pointer-events-none absolute size-0 overflow-hidden opacity-0"
+        tabIndex={-1}
+        onChange={handleFilesSelected}
+      />
       <ImageUploadDrawer
         open={open}
         onOpenChange={setOpen}

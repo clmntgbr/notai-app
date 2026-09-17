@@ -10,14 +10,25 @@ import {
 import { PlusIcon } from "lucide-react"
 import * as React from "react"
 
-export function CreateCampaignButton() {
+export function CreateCampaignButton({
+  className,
+  size = "sm",
+}: {
+  className?: string
+  size?: "default" | "sm" | "lg" | "xs"
+}) {
   const [open, setOpen] = React.useState(false)
 
   return (
     <>
       <HoverCard openDelay={10} closeDelay={100}>
         <HoverCardTrigger asChild>
-          <Button type="button" size="sm" onClick={() => setOpen(true)}>
+          <Button
+            type="button"
+            size={size}
+            className={className}
+            onClick={() => setOpen(true)}
+          >
             <PlusIcon className="size-4" />
             New campaign
           </Button>

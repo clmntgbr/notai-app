@@ -1,6 +1,6 @@
 "use client"
 
-import { ImageUploadButton } from "@/components/image-upload/image-upload-button"
+import { CampaignHeader } from "@/components/campaign/campaign-header"
 import { CampaignMediaList } from "@/components/media/campaign-media-list"
 import { MediaStatsSection } from "@/components/media/media-stats-section"
 import { StatsDateRangePicker } from "@/components/media/stats-date-range-picker"
@@ -39,22 +39,20 @@ export function CampaignDetail() {
 
   return (
     <div className="flex flex-col gap-4 md:gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-3 px-4 lg:px-6">
-        <div className="flex min-w-0 flex-wrap items-center gap-3">
-          <h1 className="text-xl font-semibold">{campaign.name}</h1>
-          {dateReady ? (
-            <StatsDateRangePicker
-              value={range}
-              onChange={onRangeChange}
-              clearable={userControlled}
-            />
-          ) : (
-            <Skeleton className="h-8 w-64 rounded-lg" />
-          )}
-        </div>
-        <ImageUploadButton
-          campaignId={campaign.id}
-          title="Upload media for this campaign"
+      <div className="px-4 lg:px-6">
+        <CampaignHeader
+          campaign={campaign}
+          dateRangePicker={
+            dateReady ? (
+              <StatsDateRangePicker
+                value={range}
+                onChange={onRangeChange}
+                clearable={userControlled}
+              />
+            ) : (
+              <Skeleton className="h-8 w-64 rounded-lg" />
+            )
+          }
         />
       </div>
       <MediaStatsSection

@@ -8,15 +8,24 @@ export interface MediaStatsChartProps {
   campaignId?: string | null
   from?: string | null
   to?: string | null
+  /**
+   * When true (default), monthly controls fetch without from/to (all-time trend).
+   * When false, reuse the same ranged stats query (e.g. campaign createdAt→today).
+   */
+  unscopedMonthly?: boolean
 }
 
 export function MediaStatsChart({
   campaignId,
   from,
   to,
+  unscopedMonthly = true,
 }: MediaStatsChartProps) {
-  // Monthly trend is always unscoped — date range only affects KPIs / breakdown.
-  const monthlyStats = useMediaStats({ campaignId })
+  const monthlyStats = useMediaStats({
+    campaignId,
+    from: unscopedMonthly ? null : from,
+    to: unscopedMonthly ? null : to,
+  })
   const rangedStats = useMediaStats({ campaignId, from, to })
 
   // Unscoped key only changes on campaign/client switch — hide keepPreviousData bleed.

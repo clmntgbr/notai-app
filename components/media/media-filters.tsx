@@ -2,10 +2,12 @@
 
 import { CampaignMultiSelect } from "@/components/campaign/campaign-multi-select"
 import { StatsDateRangePicker } from "@/components/media/stats-date-range-picker"
+import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { MEDIA_FILTER_OPTIONS, MediaFilterKey } from "@/lib/media/filters"
 import { cn } from "cn"
+import { XIcon } from "lucide-react"
 import type { DateRange } from "react-day-picker"
 
 export interface MediaFiltersValue {
@@ -83,19 +85,30 @@ export function MediaFilters({ value, onChange }: MediaFiltersProps) {
         />
       </div>
 
-      <Input
-        type="search"
-        value={value.search}
-        onChange={(event) =>
-          onChange({ ...value, search: event.target.value })
-        }
-        onSearch={(event) =>
-          onChange({ ...value, search: event.currentTarget.value })
-        }
-        placeholder="Search by filename"
-        aria-label="Search by filename"
-        className="w-full"
-      />
+      <div className="flex min-w-0 items-center gap-2">
+        <Input
+          type="text"
+          value={value.search}
+          onChange={(event) =>
+            onChange({ ...value, search: event.target.value })
+          }
+          placeholder="Search by filename"
+          aria-label="Search by filename"
+          className="min-w-0 flex-1"
+        />
+        {value.search ? (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="shrink-0"
+            aria-label="Clear search"
+            onClick={() => onChange({ ...value, search: "" })}
+          >
+            <XIcon className="size-4" />
+          </Button>
+        ) : null}
+      </div>
     </div>
   )
 }

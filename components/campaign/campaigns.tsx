@@ -10,7 +10,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { EmptyErrorState, EmptyLoadingState, EmptyState } from "@/components/ui/empty-state"
+import {
+  EmptyErrorState,
+  EmptyLoadingState,
+  EmptyState,
+} from "@/components/ui/empty-state"
 import { useCampaigns } from "@/lib/campaign/hooks"
 import { ArrowRightIcon, FileExclamationPoint } from "lucide-react"
 import Link from "next/link"
@@ -35,7 +39,7 @@ export function Campaigns({ showAllLink = true }: CampaignsProps) {
     >
       {!hideHeader ? (
         <CardHeader className="px-0">
-          <CardTitle>Campaigns</CardTitle>
+          <CardTitle className="hidden">Campaigns</CardTitle>
           {showAllLink ? (
             <CardAction>
               <Button variant="ghost" size="sm" asChild>

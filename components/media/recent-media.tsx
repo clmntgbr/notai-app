@@ -50,7 +50,7 @@ export function RecentMedia({ limit = 5 }: RecentMediaProps) {
       >
         {!hideHeader ? (
           <CardHeader className="px-0">
-            <CardTitle>Last media</CardTitle>
+            <CardTitle className="hidden">Last media</CardTitle>
             <CardAction>
               <Button
                 variant="ghost"

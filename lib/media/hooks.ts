@@ -3,6 +3,7 @@
 import { queryKeys } from "@/lib/query/keys"
 import { useUser } from "@/lib/user/hooks"
 import {
+  keepPreviousData,
   useInfiniteQuery,
   useMutation,
   useQuery,
@@ -81,23 +82,34 @@ export function useInfiniteMedia(options?: {
   enabled?: boolean
   limit?: number
   campaignId?: string | null
+  search?: string | null
+  statuses?: string[]
+  verdicts?: string[]
 }) {
   const { currentClientId } = useUser()
   const limit = options?.limit ?? 20
   const enabled = options?.enabled ?? true
   const campaignId = options?.campaignId?.trim() || undefined
+  const search = options?.search?.trim() || undefined
+  const statuses = options?.statuses?.length ? options.statuses : undefined
+  const verdicts = options?.verdicts?.length ? options.verdicts : undefined
 
   return useInfiniteQuery({
-    queryKey: queryKeys.media.infinite(
-      currentClientId ?? "none",
+    queryKey: queryKeys.media.infinite(currentClientId ?? "none", {
       limit,
-      campaignId
-    ),
+      campaignId,
+      search,
+      statuses,
+      verdicts,
+    }),
     queryFn: ({ pageParam }) =>
       listMedia({
         page: pageParam,
         limit,
         campaignId,
+        search,
+        statuses,
+        verdicts,
         sortBy: "created_at",
         orderBy: "desc",
       }),
@@ -105,6 +117,7 @@ export function useInfiniteMedia(options?: {
     getNextPageParam: (lastPage) =>
       lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined,
     enabled: Boolean(currentClientId) && enabled,
+    placeholderData: keepPreviousData,
   })
 }
 

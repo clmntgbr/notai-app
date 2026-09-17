@@ -34,11 +34,30 @@ export const queryKeys = {
     ) => [...queryKeys.media.lists(clientId), params ?? {}] as const,
     detail: (clientId: string, mediaId: string) =>
       [...queryKeys.media.all(clientId), mediaId] as const,
-    infinite: (clientId: string, limit = 20, campaignId?: string | null) =>
+    infinite: (
+      clientId: string,
+      filters: {
+        limit?: number
+        campaignId?: string | null
+        search?: string | null
+        statuses?: string[]
+        verdicts?: string[]
+      } = {}
+    ) =>
       [
         ...queryKeys.media.all(clientId),
         "infinite",
-        { limit, campaignId: campaignId?.trim() || null },
+        {
+          limit: filters.limit ?? 20,
+          campaignId: filters.campaignId?.trim() || null,
+          search: filters.search?.trim() || null,
+          statuses: filters.statuses?.length
+            ? [...filters.statuses].sort()
+            : [],
+          verdicts: filters.verdicts?.length
+            ? [...filters.verdicts].sort()
+            : [],
+        },
       ] as const,
     stats: (clientId: string, campaignId?: string | null) =>
       [

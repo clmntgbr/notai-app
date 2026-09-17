@@ -49,7 +49,7 @@ export function ActivityFeed({
       >
         {!hideHeader ? (
           <CardHeader className="px-0">
-            <CardTitle>Activity feed</CardTitle>
+            <CardTitle className="hidden">Activity feed</CardTitle>
             {showAllLink ? (
               <CardAction>
                 <Button

@@ -33,12 +33,13 @@ function formatSignedPoints(value: number) {
 
 function changeFooter(
   value: number | null,
+  comparisonLabel: string,
   format: "percent" | "points" = "percent"
 ) {
   if (value == null) return ""
   const label =
     format === "points" ? formatSignedPoints(value) : formatSignedPercent(value)
-  return `${label} vs last month`
+  return `${label} ${comparisonLabel}`
 }
 
 function TrendBadge({
@@ -86,28 +87,24 @@ function KpiCard({
   footerSecondary?: string
 }) {
   return (
-    <Card className="@container/card">
+    <Card className="@container/card h-full">
       <CardHeader>
         <CardDescription>{description}</CardDescription>
-        <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+        <CardTitle className="min-h-[1.2em] text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
           {title}
         </CardTitle>
-        {trend != null ? (
-          <CardAction>
-            <TrendBadge
-              value={trend}
-              format={trendFormat}
-              higherIsBetter={higherIsBetter}
-            />
-          </CardAction>
-        ) : null}
+        <CardAction className={trend == null ? "invisible" : undefined}>
+          <TrendBadge
+            value={trend ?? 0}
+            format={trendFormat}
+            higherIsBetter={higherIsBetter}
+          />
+        </CardAction>
       </CardHeader>
-      <CardFooter className="flex-col items-start gap-1.5 text-sm">
-        {footerPrimary ? (
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            {footerPrimary}
-          </div>
-        ) : null}
+      <CardFooter className="mt-auto flex-col items-start gap-1.5 text-sm">
+        <div className="line-clamp-1 min-h-5 font-medium">
+          {footerPrimary || "\u00a0"}
+        </div>
         {footerSecondary ? (
           <div className="text-muted-foreground">{footerSecondary}</div>
         ) : null}
@@ -120,7 +117,7 @@ function KpiCardsSkeleton() {
   return (
     <>
       {Array.from({ length: 4 }).map((_, index) => (
-        <Card key={index} className="@container/card">
+        <Card key={index} className="@container/card h-full">
           <CardHeader>
             <div className="h-4 w-28 animate-pulse rounded bg-muted" />
             <div className="mt-2 h-8 w-20 animate-pulse rounded bg-muted" />
@@ -135,16 +132,29 @@ function KpiCardsSkeleton() {
   )
 }
 
-function MediaKpiCards({ kpis }: { kpis: MediaKpis }) {
+function MediaKpiCards({
+  kpis,
+  customRange,
+}: {
+  kpis: MediaKpis
+  customRange: boolean
+}) {
   const hasVerifications = kpis.verifications > 0
+  const comparisonLabel = customRange ? "vs previous period" : "vs last month"
+  const verificationsLabel = customRange
+    ? "Verifications"
+    : "Verifications this month"
 
   return (
     <>
       <KpiCard
-        description="Verifications this month"
+        description={verificationsLabel}
         title={formatCount(kpis.verifications)}
         trend={kpis.verificationsChangePercent}
-        footerPrimary={changeFooter(kpis.verificationsChangePercent)}
+        footerPrimary={changeFooter(
+          kpis.verificationsChangePercent,
+          comparisonLabel
+        )}
       />
       <KpiCard
         description="Authenticity rate"
@@ -156,7 +166,7 @@ function MediaKpiCards({ kpis }: { kpis: MediaKpis }) {
         footerPrimary={
           hasVerifications
             ? `${formatCount(kpis.validatedCount)} classified human`
-            : ""
+            : "\u00a0"
         }
       />
       <KpiCard
@@ -167,7 +177,7 @@ function MediaKpiCards({ kpis }: { kpis: MediaKpis }) {
         footerPrimary={
           hasVerifications
             ? `${formatCount(kpis.aiGeneratedCount)} classified AI`
-            : ""
+            : "\u00a0"
         }
       />
       <KpiCard
@@ -175,7 +185,10 @@ function MediaKpiCards({ kpis }: { kpis: MediaKpis }) {
         title={formatCount(kpis.toReviewCount)}
         trend={kpis.toReviewChangePercent}
         higherIsBetter={false}
-        footerPrimary={changeFooter(kpis.toReviewChangePercent)}
+        footerPrimary={changeFooter(
+          kpis.toReviewChangePercent,
+          comparisonLabel
+        )}
       />
     </>
   )
@@ -183,17 +196,25 @@ function MediaKpiCards({ kpis }: { kpis: MediaKpis }) {
 
 export interface SectionCardsProps {
   campaignId?: string | null
+  from?: string | null
+  to?: string | null
 }
 
-export function SectionCards({ campaignId }: SectionCardsProps) {
-  const { data, isPending, isError } = useMediaStats(campaignId)
+export function SectionCards({ campaignId, from, to }: SectionCardsProps) {
+  const { data, isLoading, isError } = useMediaStats({
+    campaignId,
+    from,
+    to,
+  })
   const kpis = data?.kpis
+  const customRange = Boolean(from)
+  const isInitialLoading = isLoading && !data
 
   return (
     <div className="grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-linear-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4 dark:*:data-[slot=card]:bg-card">
-      {isPending ? (
+      {isInitialLoading ? (
         <KpiCardsSkeleton />
-      ) : isError || !kpis ? (
+      ) : isError && !kpis ? (
         <Card className="@container/card @5xl/main:col-span-4">
           <CardHeader>
             <CardDescription>Media KPIs</CardDescription>
@@ -205,9 +226,9 @@ export function SectionCards({ campaignId }: SectionCardsProps) {
             Something went wrong while loading your media stats.
           </CardFooter>
         </Card>
-      ) : (
-        <MediaKpiCards kpis={kpis} />
-      )}
+      ) : kpis ? (
+        <MediaKpiCards kpis={kpis} customRange={customRange} />
+      ) : null}
     </div>
   )
 }

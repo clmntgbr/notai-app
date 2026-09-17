@@ -61,12 +61,30 @@ export const getMedia = async (id: string): Promise<MediaDetail> => {
   return response.json()
 }
 
-export const getMediaStats = async (
+export interface GetMediaStatsParams {
   campaignId?: string | null
+  /** YYYY-MM-DD or RFC3339. Alone = [from, now). */
+  from?: string | null
+  /** YYYY-MM-DD or RFC3339. Requires `from`. */
+  to?: string | null
+}
+
+export const getMediaStats = async (
+  params?: GetMediaStatsParams | string | null
 ): Promise<MediaStats> => {
+  const normalized: GetMediaStatsParams =
+    typeof params === "string" || params == null
+      ? { campaignId: params }
+      : params
+
   const searchParams = new URLSearchParams()
-  const trimmed = campaignId?.trim()
-  if (trimmed) searchParams.set("campaignId", trimmed)
+  const campaignId = normalized.campaignId?.trim()
+  const from = normalized.from?.trim()
+  const to = normalized.to?.trim()
+
+  if (campaignId) searchParams.set("campaignId", campaignId)
+  if (from) searchParams.set("from", from)
+  if (from && to) searchParams.set("to", to)
 
   const query = searchParams.toString()
   const response = await fetch(

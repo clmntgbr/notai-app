@@ -133,14 +133,37 @@ export function useMediaDetail(mediaId: string | null | undefined) {
   })
 }
 
-export function useMediaStats(campaignId?: string | null) {
+export function useMediaStats(options?: {
+  campaignId?: string | null
+  from?: string | null
+  to?: string | null
+  enabled?: boolean
+}) {
   const { currentClientId } = useUser()
-  const trimmed = campaignId?.trim() || null
+  const campaignId = options?.campaignId?.trim() || null
+  const from = options?.from?.trim() || null
+  const to = options?.to?.trim() || null
+  // API rejects `to` without `from`.
+  const rangeValid = !(to && !from)
+  const enabled =
+    Boolean(currentClientId) &&
+    rangeValid &&
+    (options?.enabled ?? true)
 
   return useQuery({
-    queryKey: queryKeys.media.stats(currentClientId ?? "none", trimmed),
-    queryFn: () => getMediaStats(trimmed),
-    enabled: Boolean(currentClientId),
+    queryKey: queryKeys.media.stats(currentClientId ?? "none", {
+      campaignId,
+      from,
+      to: from ? to : null,
+    }),
+    queryFn: () =>
+      getMediaStats({
+        campaignId,
+        from,
+        to: from ? to : null,
+      }),
+    enabled,
+    placeholderData: keepPreviousData,
   })
 }
 

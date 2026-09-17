@@ -87,6 +87,10 @@ export interface MediaKpis {
 }
 
 export interface MediaStats extends MediaStatsCounts {
+  /** Resolved range start (ISO / date string from API). */
+  from?: string
+  /** Resolved range end (ISO / date string from API). */
+  to?: string
   monthlyControls: MediaMonthlyControls[]
   kpis: MediaKpis
 }

@@ -11,8 +11,21 @@ export async function GET(request: Request) {
 
     const { searchParams } = new URL(request.url)
     const campaignId = searchParams.get("campaignId")?.trim()
+    const from = searchParams.get("from")?.trim()
+    const to = searchParams.get("to")?.trim()
+
+    // Backend returns 400 when `to` is set without `from`.
+    if (to && !from) {
+      return NextResponse.json(
+        { message: "from is required when to is provided" },
+        { status: 400 }
+      )
+    }
+
     const query = new URLSearchParams()
     if (campaignId) query.set("campaignId", campaignId)
+    if (from) query.set("from", from)
+    if (from && to) query.set("to", to)
     const suffix = query.toString() ? `?${query}` : ""
 
     const response = await fetch(`${BACKEND_API_URL}/api/medias/stats${suffix}`, {

@@ -61,11 +61,22 @@ export const queryKeys = {
             : [],
         },
       ] as const,
-    stats: (clientId: string, campaignId?: string | null) =>
+    stats: (
+      clientId: string,
+      filters: {
+        campaignId?: string | null
+        from?: string | null
+        to?: string | null
+      } = {}
+    ) =>
       [
         ...queryKeys.media.all(clientId),
         "stats",
-        campaignId?.trim() || "all",
+        {
+          campaignId: filters.campaignId?.trim() || "all",
+          from: filters.from?.trim() || null,
+          to: filters.to?.trim() || null,
+        },
       ] as const,
   },
 

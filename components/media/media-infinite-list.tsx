@@ -16,6 +16,7 @@ import { useDebouncedCallback } from "@/lib/centrifugo/use-debounced-callback"
 import { splitMediaFilterKeys } from "@/lib/media/filters"
 import { useInfiniteMedia } from "@/lib/media/hooks"
 import { Media } from "@/lib/media/types"
+import { format } from "date-fns"
 import { ImageIcon } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 
@@ -27,6 +28,7 @@ const EMPTY_FILTERS: MediaFiltersValue = {
   statuses: [],
   search: "",
   campaignIds: [],
+  dateRange: undefined,
 }
 
 export function MediaInfiniteList({ enabled = true }: MediaInfiniteListProps) {
@@ -46,6 +48,13 @@ export function MediaInfiniteList({ enabled = true }: MediaInfiniteListProps) {
   }
 
   const { statuses, verdicts } = splitMediaFilterKeys(filters.statuses)
+  const from = filters.dateRange?.from
+    ? format(filters.dateRange.from, "yyyy-MM-dd")
+    : null
+  const to =
+    filters.dateRange?.from && filters.dateRange.to
+      ? format(filters.dateRange.to, "yyyy-MM-dd")
+      : null
 
   const {
     data,
@@ -61,6 +70,8 @@ export function MediaInfiniteList({ enabled = true }: MediaInfiniteListProps) {
     search: debouncedSearch,
     statuses,
     verdicts,
+    from,
+    to,
   })
 
   const scrollRef = useRef<HTMLDivElement>(null)

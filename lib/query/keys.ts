@@ -42,6 +42,8 @@ export const queryKeys = {
         search?: string | null
         statuses?: string[]
         verdicts?: string[]
+        from?: string | null
+        to?: string | null
       } = {}
     ) =>
       [
@@ -59,6 +61,8 @@ export const queryKeys = {
           verdicts: filters.verdicts?.length
             ? [...filters.verdicts].sort()
             : [],
+          from: filters.from?.trim() || null,
+          to: filters.from?.trim() ? filters.to?.trim() || null : null,
         },
       ] as const,
     stats: (

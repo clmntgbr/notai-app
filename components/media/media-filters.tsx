@@ -1,15 +1,18 @@
 "use client"
 
 import { CampaignMultiSelect } from "@/components/campaign/campaign-multi-select"
+import { StatsDateRangePicker } from "@/components/media/stats-date-range-picker"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { MEDIA_FILTER_OPTIONS, MediaFilterKey } from "@/lib/media/filters"
 import { cn } from "cn"
+import type { DateRange } from "react-day-picker"
 
 export interface MediaFiltersValue {
   statuses: MediaFilterKey[]
   search: string
   campaignIds: string[]
+  dateRange?: DateRange
 }
 
 export interface MediaFiltersProps {
@@ -66,23 +69,30 @@ export function MediaFilters({ value, onChange }: MediaFiltersProps) {
       </div>
 
       <div className="grid w-full gap-2 sm:grid-cols-2">
-        <Input
-          type="search"
-          value={value.search}
-          onChange={(event) =>
-            onChange({ ...value, search: event.target.value })
-          }
-          placeholder="Search by filename"
-          aria-label="Search by filename"
-          className="w-full"
-        />
         <CampaignMultiSelect
           value={value.campaignIds}
           onValueChange={(campaignIds) =>
             onChange({ ...value, campaignIds })
           }
         />
+        <StatsDateRangePicker
+          value={value.dateRange}
+          onChange={(dateRange) => onChange({ ...value, dateRange })}
+          placeholder=""
+          clearable
+        />
       </div>
+
+      <Input
+        type="search"
+        value={value.search}
+        onChange={(event) =>
+          onChange({ ...value, search: event.target.value })
+        }
+        placeholder="Search by filename"
+        aria-label="Search by filename"
+        className="w-full"
+      />
     </div>
   )
 }

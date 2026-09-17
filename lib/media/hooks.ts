@@ -85,6 +85,8 @@ export function useInfiniteMedia(options?: {
   search?: string | null
   statuses?: string[]
   verdicts?: string[]
+  from?: string | null
+  to?: string | null
 }) {
   const { currentClientId } = useUser()
   const limit = options?.limit ?? 20
@@ -95,6 +97,10 @@ export function useInfiniteMedia(options?: {
   const search = options?.search?.trim() || undefined
   const statuses = options?.statuses?.length ? options.statuses : undefined
   const verdicts = options?.verdicts?.length ? options.verdicts : undefined
+  const from = options?.from?.trim() || null
+  const to = from ? options?.to?.trim() || null : null
+  // API rejects `to` without `from`.
+  const rangeValid = !(options?.to?.trim() && !from)
 
   return useInfiniteQuery({
     queryKey: queryKeys.media.infinite(currentClientId ?? "none", {
@@ -103,6 +109,8 @@ export function useInfiniteMedia(options?: {
       search,
       statuses,
       verdicts,
+      from,
+      to,
     }),
     queryFn: ({ pageParam }) =>
       listMedia({
@@ -112,13 +120,15 @@ export function useInfiniteMedia(options?: {
         search,
         statuses,
         verdicts,
+        from,
+        to,
         sortBy: "created_at",
         orderBy: "desc",
       }),
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>
       lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined,
-    enabled: Boolean(currentClientId) && enabled,
+    enabled: Boolean(currentClientId) && enabled && rangeValid,
     placeholderData: keepPreviousData,
   })
 }

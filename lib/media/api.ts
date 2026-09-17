@@ -16,6 +16,10 @@ export interface ListMediaParams extends PaginateParams {
   statuses?: string[]
   /** Verdict labels (`human`, `uncertain`, `ai_generated`). */
   verdicts?: string[]
+  /** YYYY-MM-DD or RFC3339. Alone = [from, now). */
+  from?: string | null
+  /** YYYY-MM-DD or RFC3339. Requires `from`. */
+  to?: string | null
 }
 
 export const listMedia = async (
@@ -38,6 +42,10 @@ export const listMedia = async (
   if (params?.verdicts?.length) {
     searchParams.set("verdict", params.verdicts.join(","))
   }
+  const from = params?.from?.trim()
+  const to = params?.to?.trim()
+  if (from) searchParams.set("from", from)
+  if (from && to) searchParams.set("to", to)
 
   const query = searchParams.toString()
   const response = await fetch(`/api/medias${query ? `?${query}` : ""}`, {

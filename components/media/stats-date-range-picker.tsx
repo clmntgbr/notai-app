@@ -17,6 +17,8 @@ export interface StatsDateRangePickerProps {
   value?: DateRange
   onChange: (range: DateRange | undefined) => void
   className?: string
+  /** Button label when no range is selected. Empty string = icon only. */
+  placeholder?: string
   /** Show clear control (e.g. only after the user overrides the default). */
   clearable?: boolean
 }
@@ -25,30 +27,31 @@ export function StatsDateRangePicker({
   value,
   onChange,
   className,
+  placeholder = "Date range",
   clearable = true,
 }: StatsDateRangePickerProps) {
   const [open, setOpen] = useState(false)
 
   const label = (() => {
-    if (!value?.from) return "Date range"
+    if (!value?.from) return placeholder
     if (!value.to) return format(value.from, "LLL d, y")
     return `${format(value.from, "LLL d, y")} – ${format(value.to, "LLL d, y")}`
   })()
 
   return (
-    <div className={cn("flex items-center gap-2", className)}>
+    <div className={cn("flex min-w-0 items-center gap-2", className)}>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             type="button"
             variant="outline"
             className={cn(
-              "justify-start gap-2 font-normal",
+              "min-w-0 flex-1 justify-start gap-2 font-normal",
               !value?.from && "text-muted-foreground"
             )}
           >
-            <CalendarIcon className="size-4 opacity-70" />
-            <span className="truncate">{label}</span>
+            <CalendarIcon className="size-4 shrink-0 opacity-70" />
+            {label ? <span className="truncate">{label}</span> : null}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
@@ -66,6 +69,7 @@ export function StatsDateRangePicker({
           type="button"
           variant="ghost"
           size="icon"
+          className="shrink-0"
           aria-label="Clear date range"
           onClick={() => onChange(undefined)}
         >

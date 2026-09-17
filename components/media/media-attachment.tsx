@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/attachment"
 import { Spinner } from "@/components/ui/spinner"
 import { Media, mediaHasThumbnail } from "@/lib/media/types"
+import { cn } from "cn"
+import { format } from "date-fns"
 import {
   CheckIcon,
   ClockIcon,
@@ -60,6 +62,11 @@ export interface MediaAttachmentProps {
 export function MediaAttachment({ media, onSelect }: MediaAttachmentProps) {
   const state = toAttachmentState(media.status)
   const showThumbnail = mediaHasThumbnail(media)
+  const createdAt = media.createdAt ? new Date(media.createdAt) : null
+  const dateLabel =
+    createdAt && !Number.isNaN(createdAt.getTime())
+      ? format(createdAt, "MMM d, yyyy")
+      : null
 
   return (
     <Attachment
@@ -86,8 +93,19 @@ export function MediaAttachment({ media, onSelect }: MediaAttachmentProps) {
             media.campaign?.name}
         </AttachmentDescription>
       </AttachmentContent>
-      <AttachmentActions className="ms-auto self-center pe-1">
+      <AttachmentActions className="ms-auto flex items-center gap-1.5 self-center pe-1">
         <MediaStatusBadge media={media} />
+        {dateLabel ? (
+          <span
+            className={cn(
+              "inline-flex h-5 w-22 shrink-0 items-center justify-center rounded-full border px-1.5 text-[10px] font-medium tabular-nums",
+              "border-border bg-muted text-muted-foreground"
+            )}
+            title={dateLabel}
+          >
+            {dateLabel}
+          </span>
+        ) : null}
       </AttachmentActions>
     </Attachment>
   )

@@ -4,6 +4,7 @@ import { CampaignMultiSelect } from "@/components/campaign/campaign-multi-select
 import { StatsDateRangePicker } from "@/components/media/stats-date-range-picker"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { cn } from "cn"
 import { XIcon } from "lucide-react"
 import type { DateRange } from "react-day-picker"
 
@@ -16,18 +17,31 @@ export interface ActivityFiltersValue {
 export interface ActivityFiltersProps {
   value: ActivityFiltersValue
   onChange: (value: ActivityFiltersValue) => void
+  /** Hide campaign multi-select (e.g. when scoped to one campaign). */
+  hideCampaignFilter?: boolean
 }
 
-export function ActivityFilters({ value, onChange }: ActivityFiltersProps) {
+export function ActivityFilters({
+  value,
+  onChange,
+  hideCampaignFilter = false,
+}: ActivityFiltersProps) {
   return (
     <div className="flex w-full flex-col gap-3 border-b px-4 py-3">
-      <div className="grid w-full gap-2 sm:grid-cols-2">
-        <CampaignMultiSelect
-          value={value.campaignIds}
-          onValueChange={(campaignIds) =>
-            onChange({ ...value, campaignIds })
-          }
-        />
+      <div
+        className={cn(
+          "grid w-full gap-2",
+          hideCampaignFilter ? "grid-cols-1" : "sm:grid-cols-2"
+        )}
+      >
+        {hideCampaignFilter ? null : (
+          <CampaignMultiSelect
+            value={value.campaignIds}
+            onValueChange={(campaignIds) =>
+              onChange({ ...value, campaignIds })
+            }
+          />
+        )}
         <StatsDateRangePicker
           value={value.dateRange}
           onChange={(dateRange) => onChange({ ...value, dateRange })}

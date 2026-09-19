@@ -1,9 +1,23 @@
+"use client"
+
+import { ImageUploadButton } from "@/components/image-upload/image-upload-button"
+import { Button } from "@/components/ui/button"
+import { ButtonGroup } from "@/components/ui/button-group"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { Campaign } from "@/lib/campaign/types"
-import { FileIcon } from "lucide-react"
+import {
+  DownloadIcon,
+  FileSpreadsheetIcon,
+  FileTextIcon,
+  SheetIcon,
+} from "lucide-react"
 import type { ReactNode } from "react"
-import { ImageUploadButton } from "../image-upload/image-upload-button"
-import { Button } from "../ui/button"
-import { ButtonGroup } from "../ui/button-group"
 
 export interface CampaignSubheaderProps {
   children?: ReactNode
@@ -27,12 +41,30 @@ export function CampaignSubheader({
       {campaign ? (
         <div className="ml-auto">
           <ButtonGroup>
-            <Button variant="outline" size="sm">
-              <FileIcon className="size-4" /> Export as PDF
-            </Button>
-            <Button variant="outline" size="sm">
-              <FileIcon className="size-4" /> Export as CSV
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" aria-label="Export options">
+                  <DownloadIcon className="size-4" />
+                  Export
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-40">
+                <DropdownMenuGroup>
+                  <DropdownMenuItem>
+                    <FileTextIcon />
+                    export as pdf
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <SheetIcon />
+                    export as csv
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <FileSpreadsheetIcon />
+                    export as xls
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <ImageUploadButton
               campaignId={campaign.id}
               title="Upload media"

@@ -20,9 +20,15 @@ export interface MediaFiltersValue {
 export interface MediaFiltersProps {
   value: MediaFiltersValue
   onChange: (value: MediaFiltersValue) => void
+  /** Hide campaign multi-select (e.g. when scoped to one campaign). */
+  hideCampaignFilter?: boolean
 }
 
-export function MediaFilters({ value, onChange }: MediaFiltersProps) {
+export function MediaFilters({
+  value,
+  onChange,
+  hideCampaignFilter = false,
+}: MediaFiltersProps) {
   function setStatus(key: MediaFilterKey, checked: boolean) {
     const has = value.statuses.includes(key)
     if (checked && !has) {
@@ -70,13 +76,20 @@ export function MediaFilters({ value, onChange }: MediaFiltersProps) {
         })}
       </div>
 
-      <div className="grid w-full gap-2 sm:grid-cols-2">
-        <CampaignMultiSelect
-          value={value.campaignIds}
-          onValueChange={(campaignIds) =>
-            onChange({ ...value, campaignIds })
-          }
-        />
+      <div
+        className={cn(
+          "grid w-full gap-2",
+          hideCampaignFilter ? "grid-cols-1" : "sm:grid-cols-2"
+        )}
+      >
+        {hideCampaignFilter ? null : (
+          <CampaignMultiSelect
+            value={value.campaignIds}
+            onValueChange={(campaignIds) =>
+              onChange({ ...value, campaignIds })
+            }
+          />
+        )}
         <StatsDateRangePicker
           value={value.dateRange}
           onChange={(dateRange) => onChange({ ...value, dateRange })}

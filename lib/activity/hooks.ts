@@ -12,6 +12,7 @@ export function useActivity(params?: ListActivityParams) {
     queryKey: queryKeys.activity.list(currentClientId ?? "none", params),
     queryFn: () => listActivity(params),
     enabled: Boolean(currentClientId),
+    placeholderData: keepPreviousData,
   })
 }
 

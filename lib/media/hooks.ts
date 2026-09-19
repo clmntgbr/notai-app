@@ -89,6 +89,7 @@ export function useMedia(params?: ListMediaParams) {
     queryKey: queryKeys.media.list(currentClientId ?? "none", listParams),
     queryFn: () => listMedia(listParams),
     enabled: Boolean(currentClientId),
+    placeholderData: keepPreviousData,
   })
 }
 

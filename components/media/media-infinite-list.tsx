@@ -18,37 +18,57 @@ import { useInfiniteMedia } from "@/lib/media/hooks"
 import { Media } from "@/lib/media/types"
 import { format } from "date-fns"
 import { ImageIcon } from "lucide-react"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 
 export interface MediaInfiniteListProps {
   enabled?: boolean
+  /** Lock queries to this campaign and hide the campaign filter. */
+  campaignId?: string
+  /** Nest media detail drawer (e.g. when already inside a drawer). */
+  nested?: boolean
 }
 
-const EMPTY_FILTERS: MediaFiltersValue = {
-  statuses: [],
-  search: "",
-  campaignIds: [],
-  dateRange: undefined,
+function emptyFilters(campaignId?: string): MediaFiltersValue {
+  return {
+    statuses: [],
+    search: "",
+    campaignIds: campaignId ? [campaignId] : [],
+    dateRange: undefined,
+  }
 }
 
-export function MediaInfiniteList({ enabled = true }: MediaInfiniteListProps) {
+export function MediaInfiniteList({
+  enabled = true,
+  campaignId,
+  nested = false,
+}: MediaInfiniteListProps) {
   const [selected, setSelected] = useState<Media | null>(null)
-  const [filters, setFilters] = useState<MediaFiltersValue>(EMPTY_FILTERS)
+  const [filters, setFilters] = useState<MediaFiltersValue>(() =>
+    emptyFilters(campaignId)
+  )
   const [debouncedSearch, setDebouncedSearch] = useState("")
+
+  useEffect(() => {
+    setFilters(emptyFilters(campaignId))
+    setDebouncedSearch("")
+  }, [campaignId])
 
   const updateSearch = useDebouncedCallback((search: string) => {
     setDebouncedSearch(search)
   }, 300)
 
   function handleFiltersChange(next: MediaFiltersValue) {
-    setFilters(next)
-    if (next.search === filters.search) return
+    const locked = campaignId
+      ? { ...next, campaignIds: [campaignId] }
+      : next
+    setFilters(locked)
+    if (locked.search === filters.search) return
     // Flush immediately on clear so the native search ✕ updates the query.
-    if (!next.search.trim()) {
+    if (!locked.search.trim()) {
       setDebouncedSearch("")
       return
     }
-    updateSearch(next.search)
+    updateSearch(locked.search)
   }
 
   const { statuses, verdicts } = splitMediaFilterKeys(filters.statuses)
@@ -60,6 +80,11 @@ export function MediaInfiniteList({ enabled = true }: MediaInfiniteListProps) {
       ? format(filters.dateRange.to, "yyyy-MM-dd")
       : null
 
+  const campaignIds = useMemo(
+    () => (campaignId ? [campaignId] : filters.campaignIds),
+    [campaignId, filters.campaignIds]
+  )
+
   const {
     data,
     isLoading,
@@ -70,7 +95,7 @@ export function MediaInfiniteList({ enabled = true }: MediaInfiniteListProps) {
     isFetchNextPageError,
   } = useInfiniteMedia({
     enabled,
-    campaignIds: filters.campaignIds,
+    campaignIds,
     search: debouncedSearch,
     statuses,
     verdicts,
@@ -119,8 +144,12 @@ export function MediaInfiniteList({ enabled = true }: MediaInfiniteListProps) {
   ])
 
   return (
-    <>
-      <MediaFilters value={filters} onChange={handleFiltersChange} />
+    <div className="flex min-h-0 flex-1 flex-col">
+      <MediaFilters
+        value={filters}
+        onChange={handleFiltersChange}
+        hideCampaignFilter={Boolean(campaignId)}
+      />
 
       {isInitialLoading ? (
         <div className="flex flex-1 items-center justify-center p-6">
@@ -174,13 +203,13 @@ export function MediaInfiniteList({ enabled = true }: MediaInfiniteListProps) {
       )}
 
       <MediaDetailDrawer
-        nested
+        nested={nested}
         mediaId={selected?.id ?? null}
         open={Boolean(selected)}
         onOpenChange={(open) => {
           if (!open) setSelected(null)
         }}
       />
-    </>
+    </div>
   )
 }

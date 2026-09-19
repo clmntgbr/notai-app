@@ -25,7 +25,7 @@ export function RecentMediaDrawer({
           <DrawerTitle>All media</DrawerTitle>
           <DrawerDescription>Most recent uploads</DrawerDescription>
         </DrawerHeader>
-        <MediaInfiniteList enabled={open} />
+        <MediaInfiniteList enabled={open} nested />
       </DrawerContent>
     </Drawer>
   )

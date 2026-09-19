@@ -1,8 +1,8 @@
 "use client"
 
 import { CampaignDetailSkeleton } from "@/components/campaign/campaign-detail-skeleton"
+import { CampaignFeeds } from "@/components/campaign/campaign-feeds"
 import { CampaignSubheader } from "@/components/campaign/campaign-subheader"
-import { CampaignMediaList } from "@/components/media/campaign-media-list"
 import { MediaStatsSection } from "@/components/media/media-stats-section"
 import { StatsDateRangePicker } from "@/components/media/stats-date-range-picker"
 import { useMediaStatsDateRange } from "@/components/media/use-media-stats-date-range"
@@ -54,9 +54,7 @@ export function CampaignDetail() {
       </CampaignSubheader>
       <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
         <MediaStatsSection campaignId={campaign.id} from={from} to={to} />
-        <div className="px-4 lg:px-6">
-          <CampaignMediaList campaignId={campaign.id} />
-        </div>
+        <CampaignFeeds campaignId={campaign.id} />
       </div>
     </div>
   )

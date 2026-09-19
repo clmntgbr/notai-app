@@ -10,31 +10,31 @@ import {
   EmptyLoadingState,
   EmptyState,
 } from "@/components/ui/empty-state"
-import { Spinner } from "@/components/ui/spinner"
-import { useInfiniteActivity } from "@/lib/activity/hooks"
+import { ListPagination } from "@/components/ui/list-pagination"
+import { useActivity } from "@/lib/activity/hooks"
 import { useDebouncedCallback } from "@/lib/centrifugo/use-debounced-callback"
 import { format } from "date-fns"
 import { ActivityIcon } from "lucide-react"
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 
-export interface ActivityFeedInfiniteListProps {
-  enabled?: boolean
-  /** Lock queries to this campaign and hide the campaign filter. */
-  campaignId?: string
+const PAGE_LIMIT = 10
+
+export interface CampaignActivityPanelProps {
+  campaignId: string
 }
 
-function emptyFilters(campaignId?: string): ActivityFiltersValue {
+function emptyFilters(campaignId: string): ActivityFiltersValue {
   return {
     search: "",
-    campaignIds: campaignId ? [campaignId] : [],
+    campaignIds: [campaignId],
     dateRange: undefined,
   }
 }
 
-export function ActivityFeedInfiniteList({
-  enabled = true,
+export function CampaignActivityPanel({
   campaignId,
-}: ActivityFeedInfiniteListProps) {
+}: CampaignActivityPanelProps) {
+  const [page, setPage] = useState(1)
   const [filters, setFilters] = useState<ActivityFiltersValue>(() =>
     emptyFilters(campaignId)
   )
@@ -43,21 +43,29 @@ export function ActivityFeedInfiniteList({
   useEffect(() => {
     setFilters(emptyFilters(campaignId))
     setDebouncedSearch("")
+    setPage(1)
   }, [campaignId])
 
   const updateSearch = useDebouncedCallback((search: string) => {
     setDebouncedSearch(search)
+    setPage(1)
   }, 300)
 
   function handleFiltersChange(next: ActivityFiltersValue) {
-    const locked = campaignId
-      ? { ...next, campaignIds: [campaignId] }
-      : next
+    const locked = { ...next, campaignIds: [campaignId] }
     setFilters(locked)
+
+    const dateChanged =
+      locked.dateRange?.from?.getTime() !== filters.dateRange?.from?.getTime() ||
+      locked.dateRange?.to?.getTime() !== filters.dateRange?.to?.getTime()
+
+    if (dateChanged) setPage(1)
+
     if (locked.search === filters.search) return
     // Flush immediately on clear so the native search ✕ updates the query.
     if (!locked.search.trim()) {
       setDebouncedSearch("")
+      setPage(1)
       return
     }
     updateSearch(locked.search)
@@ -71,72 +79,49 @@ export function ActivityFeedInfiniteList({
       ? format(filters.dateRange.to, "yyyy-MM-dd")
       : null
 
-  const campaignIds = useMemo(
-    () => (campaignId ? [campaignId] : filters.campaignIds),
-    [campaignId, filters.campaignIds]
-  )
-
-  const {
-    data,
-    isLoading,
-    isError,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  } = useInfiniteActivity({
-    enabled,
-    campaignIds,
-    search: debouncedSearch,
+  const { data, isLoading, isError, isFetching } = useActivity({
+    page,
+    limit: PAGE_LIMIT,
+    campaignIds: [campaignId],
+    search: debouncedSearch || undefined,
     from,
     to,
+    sortBy: "occurred_at",
+    orderBy: "desc",
   })
 
-  const scrollRef = useRef<HTMLDivElement>(null)
-  const sentinelRef = useRef<HTMLDivElement>(null)
-
-  const items = data?.pages.flatMap((page) => page.members) ?? []
+  const items = data?.members ?? []
+  const total = data?.total ?? 0
+  const totalPages =
+    data?.totalPages && data.totalPages > 0
+      ? data.totalPages
+      : total > 0
+        ? Math.ceil(total / PAGE_LIMIT)
+        : 0
   const isInitialLoading = isLoading && !data
   const isEmpty = !isInitialLoading && !isError && items.length === 0
 
-  useEffect(() => {
-    const root = scrollRef.current
-    const sentinel = sentinelRef.current
-    if (!root || !sentinel || !enabled) return
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting && hasNextPage && !isFetchingNextPage) {
-          void fetchNextPage()
-        }
-      },
-      { root, rootMargin: "120px", threshold: 0 }
-    )
-
-    observer.observe(sentinel)
-    return () => observer.disconnect()
-  }, [enabled, fetchNextPage, hasNextPage, isFetchingNextPage, items.length])
-
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
+    <>
       <ActivityFilters
         value={filters}
         onChange={handleFiltersChange}
-        hideCampaignFilter={Boolean(campaignId)}
+        hideCampaignFilter
       />
 
       {isInitialLoading ? (
-        <div className="flex flex-1 items-center justify-center p-6">
+        <div className="flex items-center justify-center p-6">
           <EmptyLoadingState />
         </div>
       ) : isError && !data ? (
-        <div className="flex flex-1 items-center justify-center p-6">
+        <div className="flex items-center justify-center p-6">
           <EmptyErrorState
             title="Failed to load activity"
             description="Something went wrong while loading the activity feed. Please try again later."
           />
         </div>
       ) : isEmpty ? (
-        <div className="flex flex-1 items-center justify-center p-6">
+        <div className="flex items-center justify-center p-6">
           <EmptyState
             icon={<ActivityIcon />}
             title="No activity found"
@@ -144,23 +129,20 @@ export function ActivityFeedInfiniteList({
           />
         </div>
       ) : (
-        <div
-          ref={scrollRef}
-          className="min-h-0 flex-1 overflow-y-auto px-4 py-4"
-        >
-          <div className="flex flex-col gap-2">
+        <>
+          <div className="flex flex-col gap-2 px-4 py-4">
             {items.map((item) => (
               <ActivityFeedItem key={item.id} item={item} wrap />
             ))}
           </div>
-          <div
-            ref={sentinelRef}
-            className="flex h-8 items-center justify-center"
-          >
-            {isFetchingNextPage ? <Spinner /> : null}
-          </div>
-        </div>
+          <ListPagination
+            page={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+            disabled={isFetching}
+          />
+        </>
       )}
-    </div>
+    </>
   )
 }

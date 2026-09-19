@@ -1,6 +1,5 @@
 "use client"
 
-import { CampaignHeader } from "@/components/campaign/campaign-header"
 import { CampaignSubheader } from "@/components/campaign/campaign-subheader"
 import { CampaignMediaList } from "@/components/media/campaign-media-list"
 import { MediaStatsSection } from "@/components/media/media-stats-section"
@@ -14,20 +13,23 @@ import { useParams } from "next/navigation"
 export function CampaignDetail() {
   const params = useParams<{ id: string }>()
   const campaignId = params.id
-  const { data: campaign, isLoading, isError } = useCampaignDetail(campaignId)
-  const { range, from, to, dateReady, onRangeChange } =
-    useMediaStatsDateRange(campaignId, {
-      defaultFrom: campaign?.createdAt,
-      enabled: Boolean(campaign?.createdAt),
-    })
+  const { data: campaign, isPending, isError } = useCampaignDetail(campaignId)
+  const { range, from, to, dateReady, onRangeChange } = useMediaStatsDateRange(
+    campaignId,
+    {
+      defaultFrom: campaign?.startAt ?? campaign?.createdAt,
+      defaultTo: campaign?.endAt,
+      enabled: Boolean(campaign?.startAt ?? campaign?.createdAt),
+    }
+  )
 
-  if (isLoading) {
+  if (isPending) {
     return (
       <div className="flex flex-1 flex-col">
-        <CampaignSubheader>
+        <CampaignSubheader campaign={campaign}>
           <Skeleton className="h-8 w-64 rounded-lg" />
         </CampaignSubheader>
-        <div className="flex items-center gap-2 px-4 py-4 text-sm text-muted-foreground lg:px-6 md:py-6">
+        <div className="flex items-center gap-2 px-4 py-4 text-sm text-muted-foreground md:py-6 lg:px-6">
           <Loader2Icon className="size-4 animate-spin" />
           Loading campaign…
         </div>
@@ -39,7 +41,7 @@ export function CampaignDetail() {
     return (
       <div className="flex flex-1 flex-col">
         <CampaignSubheader />
-        <p className="px-4 py-4 text-sm text-destructive lg:px-6 md:py-6">
+        <p className="px-4 py-4 text-sm text-destructive md:py-6 lg:px-6">
           Failed to load campaign.
         </p>
       </div>
@@ -48,7 +50,7 @@ export function CampaignDetail() {
 
   return (
     <div className="flex flex-1 flex-col">
-      <CampaignSubheader>
+      <CampaignSubheader campaign={campaign}>
         {dateReady ? (
           <StatsDateRangePicker
             value={range}
@@ -61,9 +63,6 @@ export function CampaignDetail() {
         )}
       </CampaignSubheader>
       <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-        <div className="px-4 lg:px-6">
-          <CampaignHeader campaign={campaign} />
-        </div>
         <MediaStatsSection campaignId={campaign.id} from={from} to={to} />
         <div className="px-4 lg:px-6">
           <CampaignMediaList campaignId={campaign.id} />

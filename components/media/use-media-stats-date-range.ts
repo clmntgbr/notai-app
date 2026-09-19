@@ -7,9 +7,15 @@ import type { DateRange } from "react-day-picker"
 
 /** Parse API ISO / date string as a local calendar day (avoid TZ day-shift). */
 function parseApiDate(value: string): Date {
-  const day = value.slice(0, 10)
-  const [year, month, date] = day.split("-").map(Number)
-  return new Date(year, month - 1, date)
+  const trimmed = value.trim()
+  // Date-only: keep the calendar day as written (no UTC reinterpretation).
+  if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+    const [year, month, date] = trimmed.split("-").map(Number)
+    return new Date(year, month - 1, date)
+  }
+  // Full ISO: use the viewer's local calendar day (e.g. 22:00Z → next day in Paris).
+  const parsed = new Date(trimmed)
+  return new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate())
 }
 
 function todayLocal(): Date {
@@ -18,8 +24,10 @@ function todayLocal(): Date {
 }
 
 export interface UseMediaStatsDateRangeOptions {
-  /** Seed [defaultFrom, today] and always send that range until the user overrides. */
+  /** Seed range start (ISO or yyyy-MM-dd). With defaultTo omitted, end is today. */
   defaultFrom?: string | null
+  /** Seed range end (ISO or yyyy-MM-dd). */
+  defaultTo?: string | null
   /** When false, the underlying stats query stays disabled. */
   enabled?: boolean
 }
@@ -29,6 +37,7 @@ export function useMediaStatsDateRange(
   options?: UseMediaStatsDateRangeOptions
 ) {
   const defaultFrom = options?.defaultFrom?.trim() || null
+  const defaultTo = options?.defaultTo?.trim() || null
   const queryEnabled = options?.enabled ?? true
 
   const [range, setRange] = useState<DateRange | undefined>()
@@ -38,9 +47,9 @@ export function useMediaStatsDateRange(
     if (!defaultFrom) return undefined
     return {
       from: parseApiDate(defaultFrom),
-      to: todayLocal(),
+      to: defaultTo ? parseApiDate(defaultTo) : todayLocal(),
     }
-  }, [defaultFrom])
+  }, [defaultFrom, defaultTo])
 
   const displayRange = userControlled ? range : (range ?? seededRange)
 

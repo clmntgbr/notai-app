@@ -31,10 +31,6 @@ function parseOptionalDate(value?: string | null): Date | undefined {
   return Number.isNaN(date.getTime()) ? undefined : date
 }
 
-function toIsoOrNull(value?: Date): string | null {
-  return value ? value.toISOString() : null
-}
-
 function sameInstant(left?: string | null, right?: string | null): boolean {
   if (!left && !right) return true
   if (!left || !right) return false
@@ -133,13 +129,18 @@ export function CampaignDrawer({
     const trimmed = name.trim()
     if (!trimmed || isSaving) return
 
-    if (startAt && endAt && endAt.getTime() < startAt.getTime()) {
-      setError("End must be after start")
+    if (!startAt || !endAt) {
+      setError("Start and end dates are required")
       return
     }
 
-    const startAtIso = toIsoOrNull(startAt)
-    const endAtIso = toIsoOrNull(endAt)
+    if (startAt.getTime() > endAt.getTime()) {
+      setError("Start must be before or equal to end")
+      return
+    }
+
+    const startAtIso = startAt.toISOString()
+    const endAtIso = endAt.toISOString()
 
     try {
       setError(null)
@@ -288,23 +289,35 @@ export function CampaignDrawer({
 
                     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                       <div className="space-y-2">
-                        <Label>Campaign start date</Label>
+                        <Label>
+                          Campaign start date
+                          <span className="ml-1 text-destructive">*</span>
+                        </Label>
                         <DateTimePicker
                           dateId="campaign-start-date"
                           timeId="campaign-start-time"
                           value={startAt}
-                          onChange={setStartAt}
+                          onChange={(next) => {
+                            setError(null)
+                            setStartAt(next)
+                          }}
                           disabled={isSaving}
                         />
                       </div>
 
                       <div className="space-y-2">
-                        <Label>Campaign end date</Label>
+                        <Label>
+                          Campaign end date
+                          <span className="ml-1 text-destructive">*</span>
+                        </Label>
                         <DateTimePicker
                           dateId="campaign-end-date"
                           timeId="campaign-end-time"
                           value={endAt}
-                          onChange={setEndAt}
+                          onChange={(next) => {
+                            setError(null)
+                            setEndAt(next)
+                          }}
                           disabled={isSaving}
                         />
                       </div>
@@ -368,7 +381,9 @@ export function CampaignDrawer({
                     <Button
                       type="submit"
                       className="w-full sm:w-auto"
-                      disabled={isSaving || !name.trim()}
+                      disabled={
+                        isSaving || !name.trim() || !startAt || !endAt
+                      }
                     >
                       {isEdit ? "Update" : "Create"}
                       {isSaving && !deleteCampaign.isPending ? (

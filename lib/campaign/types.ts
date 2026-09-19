@@ -33,8 +33,8 @@ export interface Campaign {
 
 export interface CampaignInput {
   name: string
-  startAt?: string | null
-  endAt?: string | null
+  startAt: string
+  endAt: string
 }
 
 export interface PresignBackgroundInput {

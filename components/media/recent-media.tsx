@@ -42,22 +42,24 @@ export function RecentMedia({ limit = 5 }: RecentMediaProps) {
   return (
     <>
       <Card className="@container/card h-full min-h-55 gap-4 px-4">
-        <CardHeader className="px-0">
-          <CardTitle>Last media</CardTitle>
-          <CardDescription>Most recent uploads</CardDescription>
-          {!isLoading && !isError && !isEmpty ? (
-            <CardAction className="self-center">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setDrawerOpen(true)}
-              >
-                Show all
-                <ArrowRightIcon data-icon="inline-end" />
-              </Button>
-            </CardAction>
-          ) : null}
-        </CardHeader>
+        {!isEmpty ? (
+          <CardHeader className="px-0">
+            <CardTitle>Last media</CardTitle>
+            <CardDescription>Most recent uploads</CardDescription>
+            {!isLoading && !isError ? (
+              <CardAction className="self-center">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setDrawerOpen(true)}
+                >
+                  Show all
+                  <ArrowRightIcon data-icon="inline-end" />
+                </Button>
+              </CardAction>
+            ) : null}
+          </CardHeader>
+        ) : null}
         <CardContent
           className={
             isLoading || isError || isEmpty

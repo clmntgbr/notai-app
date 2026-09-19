@@ -99,7 +99,7 @@ export function shouldRefreshCampaignBackground(event: UserStreamEvent): boolean
 }
 
 /**
- * Media channel — only four moments:
+ * Media channel:
  * - media.created (presign / pending_upload)
  * - media.status_changed uploaded
  * - media.status_changed processing
@@ -112,6 +112,25 @@ export function shouldRefreshMedia(event: UserStreamEvent): boolean {
     eventTypeEquals(event, "media.created") ||
     eventTypeEquals(event, "media.status_changed") ||
     eventTypeEquals(event, "media.verdict_rendered")
+  )
+}
+
+/**
+ * Campaign removed — refresh campaign lists and media (cascade deletes medias
+ * without publishing media.deleted on Centrifugo).
+ */
+export function shouldRefreshCampaignDeleted(event: UserStreamEvent): boolean {
+  return (
+    eventTypeEquals(event, "campaign.deleted") &&
+    typeof event.clientId === "string"
+  )
+}
+
+/** Standalone media delete (cascade deletes are not published). */
+export function shouldRefreshMediaDeleted(event: UserStreamEvent): boolean {
+  return (
+    eventTypeEquals(event, "media.deleted") &&
+    typeof event.clientId === "string"
   )
 }
 

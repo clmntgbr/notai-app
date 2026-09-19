@@ -47,6 +47,37 @@ async function invalidateMediaQueries(
   await Promise.all(tasks)
 }
 
+/**
+ * After a standalone media delete (HTTP or Centrifugo). Evicts detail without
+ * refetching it; refreshes lists, stats, and campaign lists.
+ */
+export async function invalidateAfterMediaDeleted(
+  queryClient: ReturnType<typeof useQueryClient>,
+  clientId: string,
+  mediaId?: string
+) {
+  if (mediaId) {
+    queryClient.removeQueries({
+      queryKey: queryKeys.media.detail(clientId, mediaId),
+    })
+  }
+
+  await Promise.all([
+    queryClient.invalidateQueries({
+      queryKey: queryKeys.media.lists(clientId),
+    }),
+    queryClient.invalidateQueries({
+      queryKey: [...queryKeys.media.all(clientId), "infinite"],
+    }),
+    queryClient.invalidateQueries({
+      queryKey: [...queryKeys.media.all(clientId), "stats"],
+    }),
+    queryClient.invalidateQueries({
+      queryKey: [...queryKeys.campaigns.all(clientId), "list"],
+    }),
+  ])
+}
+
 export function useMedia(params?: ListMediaParams) {
   const { currentClientId } = useUser()
   const listParams = {

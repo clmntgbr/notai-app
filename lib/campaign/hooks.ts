@@ -3,7 +3,12 @@
 import { PaginateParams } from "@/lib/paginate"
 import { queryKeys } from "@/lib/query/keys"
 import { useUser } from "@/lib/user/hooks"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import {
+  type QueryClient,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query"
 import {
   createCampaign,
   deleteCampaign,
@@ -16,7 +21,7 @@ import {
 import { CampaignInput } from "./types"
 
 async function invalidateCampaignQueries(
-  queryClient: ReturnType<typeof useQueryClient>,
+  queryClient: QueryClient,
   clientId: string | null | undefined,
   campaignId?: string
 ) {
@@ -37,6 +42,40 @@ async function invalidateCampaignQueries(
   }
 
   await Promise.all(tasks)
+}
+
+/**
+ * After a campaign delete (HTTP or Centrifugo). Evicts detail without refetching it;
+ * refreshes lists, medias (cascade), stats, and activity.
+ */
+export async function invalidateAfterCampaignDeleted(
+  queryClient: QueryClient,
+  clientId: string,
+  campaignId?: string
+) {
+  if (campaignId) {
+    queryClient.removeQueries({
+      queryKey: queryKeys.campaigns.detail(clientId, campaignId),
+    })
+  }
+
+  await Promise.all([
+    queryClient.invalidateQueries({
+      queryKey: [...queryKeys.campaigns.all(clientId), "list"],
+    }),
+    queryClient.invalidateQueries({
+      queryKey: queryKeys.media.lists(clientId),
+    }),
+    queryClient.invalidateQueries({
+      queryKey: [...queryKeys.media.all(clientId), "infinite"],
+    }),
+    queryClient.invalidateQueries({
+      queryKey: [...queryKeys.media.all(clientId), "stats"],
+    }),
+    queryClient.invalidateQueries({
+      queryKey: queryKeys.activity.all(clientId),
+    }),
+  ])
 }
 
 export function useCampaigns(params?: PaginateParams) {
@@ -102,12 +141,12 @@ export function useDeleteCampaign() {
   return useMutation({
     mutationFn: deleteCampaign,
     onSuccess: async (_void, campaignId) => {
-      if (currentClientId) {
-        queryClient.removeQueries({
-          queryKey: queryKeys.campaigns.detail(currentClientId, campaignId),
-        })
-      }
-      await invalidateCampaignQueries(queryClient, currentClientId)
+      if (!currentClientId) return
+      await invalidateAfterCampaignDeleted(
+        queryClient,
+        currentClientId,
+        campaignId
+      )
     },
   })
 }

@@ -1,5 +1,7 @@
 "use client"
 
+import { invalidateAfterCampaignDeleted } from "@/lib/campaign/hooks"
+import { invalidateAfterMediaDeleted } from "@/lib/media/hooks"
 import { queryKeys } from "@/lib/query/keys"
 import { useUser } from "@/lib/user/hooks"
 import { useQueryClient } from "@tanstack/react-query"
@@ -10,7 +12,9 @@ import {
   shouldDebounceMediaRefresh,
   shouldRefreshActivity,
   shouldRefreshCampaignBackground,
+  shouldRefreshCampaignDeleted,
   shouldRefreshMedia,
+  shouldRefreshMediaDeleted,
   shouldRefreshMediaDetail,
   shouldRefreshSubscription,
 } from "./types"
@@ -32,8 +36,9 @@ function emptyPendingMediaRefresh(): PendingMediaRefresh {
  * Subscribes to user Centrifugo interest channels (account / media / content / activity).
  * Realtime only syncs cache — local mutations already refetch via React Query.
  *
- * Media channel contract (4 moments):
- * created → status_changed(uploaded) → status_changed(processing) → verdict_rendered
+ * Media channel:
+ * created → status_changed → verdict_rendered | deleted (standalone)
+ * Campaign delete: campaign.deleted (cascade medias → no media.deleted publish)
  *
  * Safety nets:
  * - dedupe by `eventId`
@@ -144,6 +149,28 @@ export function UserCentrifugeListener() {
         void queryClient.invalidateQueries({
           queryKey: queryKeys.campaigns.detail(clientId, campaignId),
         })
+      }
+
+      if (shouldRefreshCampaignDeleted(data)) {
+        const clientId = data.clientId!
+        const campaignId =
+          typeof data.campaignId === "string" ? data.campaignId : undefined
+        console.log(
+          "[Centrifugo] campaign deleted — invalidate campaigns + media",
+          { clientId, campaignId }
+        )
+        void invalidateAfterCampaignDeleted(queryClient, clientId, campaignId)
+      }
+
+      if (shouldRefreshMediaDeleted(data)) {
+        const clientId = data.clientId!
+        const mediaId =
+          typeof data.mediaId === "string" ? data.mediaId : undefined
+        console.log("[Centrifugo] media deleted — invalidate media + campaigns", {
+          clientId,
+          mediaId,
+        })
+        void invalidateAfterMediaDeleted(queryClient, clientId, mediaId)
       }
 
       if (shouldRefreshMedia(data)) {

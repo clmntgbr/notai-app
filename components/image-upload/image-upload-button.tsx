@@ -173,7 +173,7 @@ export function ImageUploadDrawer({
                   No files selected.
                 </p>
               ) : (
-                <div className="grid w-full grid-cols-[repeat(auto-fill,minmax(9rem,1fr))] gap-4">
+                <div className="grid w-full justify-center gap-4 [grid-template-columns:repeat(auto-fit,9rem)]">
                   {images.map((image, index) => {
                     const progress = fileProgress[index]
                     const state =

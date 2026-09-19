@@ -36,8 +36,8 @@ export function DeleteCampaignDialog({
           <AlertDialogDescription>
             Delete{" "}
             <span className="font-medium text-foreground">{campaignName}</span>?
-            It will be removed from your campaign list. The default campaign
-            cannot be deleted.
+            It will be removed from your campaign list. Media & Insights data
+            associated with this campaign will also be deleted.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

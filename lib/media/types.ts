@@ -68,8 +68,8 @@ export interface MediaStatsCounts {
   uncertain: number
 }
 
-export interface MediaMonthlyControls extends MediaStatsCounts {
-  month: string
+export interface MediaDailyControls extends MediaStatsCounts {
+  day: string
 }
 
 export interface MediaKpis {
@@ -91,7 +91,7 @@ export interface MediaStats extends MediaStatsCounts {
   from?: string
   /** Resolved range end (ISO / date string from API). */
   to?: string
-  monthlyControls: MediaMonthlyControls[]
+  dailyControls: MediaDailyControls[]
   kpis: MediaKpis
 }
 

@@ -21,6 +21,8 @@ export interface StatsDateRangePickerProps {
   placeholder?: string
   /** Show clear control (e.g. only after the user overrides the default). */
   clearable?: boolean
+  /** Read-only display — no calendar / clear. */
+  disabled?: boolean
 }
 
 export function StatsDateRangePicker({
@@ -29,6 +31,7 @@ export function StatsDateRangePicker({
   className,
   placeholder = "Date range",
   clearable = true,
+  disabled = false,
 }: StatsDateRangePickerProps) {
   const [open, setOpen] = useState(false)
 
@@ -37,6 +40,25 @@ export function StatsDateRangePicker({
     if (!value.to) return format(value.from, "LLL d, y")
     return `${format(value.from, "LLL d, y")} – ${format(value.to, "LLL d, y")}`
   })()
+
+  if (disabled) {
+    return (
+      <div className={cn("flex min-w-0 items-center gap-2", className)}>
+        <Button
+          type="button"
+          variant="outline"
+          disabled
+          className={cn(
+            "min-w-0 flex-1 justify-start gap-2 font-normal",
+            !value?.from && "text-muted-foreground"
+          )}
+        >
+          <CalendarIcon className="size-4 shrink-0 opacity-70" />
+          {label ? <span className="truncate">{label}</span> : null}
+        </Button>
+      </div>
+    )
+  }
 
   return (
     <div className={cn("flex min-w-0 items-center gap-2", className)}>

@@ -7,26 +7,18 @@ export interface MediaStatsSectionProps {
   campaignId?: string | null
   from?: string | null
   to?: string | null
-  /** See MediaStatsChart — false on campaign (createdAt→today covers full history). */
-  unscopedMonthly?: boolean
 }
 
 export function MediaStatsSection({
   campaignId,
   from = null,
   to = null,
-  unscopedMonthly = true,
 }: MediaStatsSectionProps) {
   return (
     <>
       <SectionCards campaignId={campaignId} from={from} to={to} />
       <div className="px-4 lg:px-6">
-        <MediaStatsChart
-          campaignId={campaignId}
-          from={from}
-          to={to}
-          unscopedMonthly={unscopedMonthly}
-        />
+        <MediaStatsChart campaignId={campaignId} from={from} to={to} />
       </div>
     </>
   )

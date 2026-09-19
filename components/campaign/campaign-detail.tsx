@@ -14,7 +14,7 @@ export function CampaignDetail() {
   const params = useParams<{ id: string }>()
   const campaignId = params.id
   const { data: campaign, isLoading, isError } = useCampaignDetail(campaignId)
-  const { range, from, to, dateReady, userControlled, onRangeChange } =
+  const { range, from, to, dateReady, onRangeChange } =
     useMediaStatsDateRange(campaignId, {
       defaultFrom: campaign?.createdAt,
       enabled: Boolean(campaign?.createdAt),
@@ -47,7 +47,8 @@ export function CampaignDetail() {
               <StatsDateRangePicker
                 value={range}
                 onChange={onRangeChange}
-                clearable={userControlled}
+                clearable={false}
+                disabled
               />
             ) : (
               <Skeleton className="h-8 w-64 rounded-lg" />
@@ -59,7 +60,6 @@ export function CampaignDetail() {
         campaignId={campaign.id}
         from={from}
         to={to}
-        unscopedMonthly={false}
       />
       <div className="px-4 lg:px-6">
         <CampaignMediaList campaignId={campaign.id} />

@@ -1,10 +1,11 @@
 "use client"
 
 import {
-  formatControlMonth,
-  MEDIA_MONTHLY_SERIES_KEYS,
+  fillDailyControlsToRange,
+  formatControlDay,
+  MEDIA_CONTROLS_SERIES_KEYS,
   MEDIA_RESULT_KEYS,
-  mediaMonthTotal,
+  mediaControlsTotal,
   mediaResultChartConfig,
 } from "@/components/media/media-result-chart-config"
 import {
@@ -26,24 +27,29 @@ import {
   EmptyLoadingState,
   EmptyState,
 } from "@/components/ui/empty-state"
-import { MediaMonthlyControls } from "@/lib/media/types"
+import { MediaDailyControls } from "@/lib/media/types"
 import { ChartLineIcon } from "lucide-react"
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
 
-export interface MediaMonthlyControlsChartProps {
-  months?: MediaMonthlyControls[] | null
+export interface MediaDailyControlsChartProps {
+  days?: MediaDailyControls[] | null
+  from?: string | null
+  to?: string | null
   isLoading?: boolean
   isError?: boolean
 }
 
-export function MediaMonthlyControlsChart({
-  months,
+export function MediaDailyControlsChart({
+  days,
+  from,
+  to,
   isLoading,
   isError,
-}: MediaMonthlyControlsChartProps) {
-  const chartData = (months ?? []).map((entry) => ({
-    month: formatControlMonth(entry.month),
-    total: mediaMonthTotal(entry),
+}: MediaDailyControlsChartProps) {
+  const filled = fillDailyControlsToRange(days, from, to)
+  const chartData = filled.map((entry) => ({
+    day: formatControlDay(entry.day),
+    total: mediaControlsTotal(entry),
     human: entry.human,
     uncertain: entry.uncertain,
     aiGenerated: entry.aiGenerated,
@@ -58,22 +64,22 @@ export function MediaMonthlyControlsChart({
   return (
     <Card className="@container/card h-full gap-4 px-4">
       <CardHeader className="px-0">
-        <CardTitle>Monthly controls</CardTitle>
-        <CardDescription>Trend by month</CardDescription>
+        <CardTitle>Daily controls</CardTitle>
+        <CardDescription>Trend by day</CardDescription>
       </CardHeader>
       <CardContent className="flex min-h-55 flex-1 flex-col items-center justify-center px-0">
         {isLoading ? (
           <EmptyLoadingState />
         ) : isError ? (
           <EmptyErrorState
-            title="Failed to load monthly controls"
-            description="Something went wrong while loading monthly controls. Please try again later."
+            title="Failed to load daily controls"
+            description="Something went wrong while loading daily controls. Please try again later."
           />
         ) : !hasData ? (
           <EmptyState
             icon={<ChartLineIcon />}
-            title="No monthly controls yet"
-            description="Analyzed media will appear here by month."
+            title="No daily controls yet"
+            description="Analyzed media will appear here by day."
           />
         ) : (
           <ChartContainer
@@ -82,7 +88,7 @@ export function MediaMonthlyControlsChart({
           >
             <AreaChart data={chartData} margin={{ left: 0, right: 8, top: 8 }}>
               <defs>
-                {MEDIA_MONTHLY_SERIES_KEYS.map((key) => (
+                {MEDIA_CONTROLS_SERIES_KEYS.map((key) => (
                   <linearGradient
                     key={key}
                     id={`fill-${key}`}
@@ -106,7 +112,7 @@ export function MediaMonthlyControlsChart({
               </defs>
               <CartesianGrid vertical={false} strokeDasharray="3 3" />
               <XAxis
-                dataKey="month"
+                dataKey="day"
                 tickLine={false}
                 axisLine={false}
                 tickMargin={8}
@@ -125,10 +131,10 @@ export function MediaMonthlyControlsChart({
                 content={<ChartLegendContent />}
                 verticalAlign="bottom"
               />
-              {MEDIA_MONTHLY_SERIES_KEYS.map((key) => (
+              {MEDIA_CONTROLS_SERIES_KEYS.map((key) => (
                 <Area
                   key={key}
-                  type="linear"
+                  type="monotone"
                   dataKey={key}
                   stroke={`var(--color-${key})`}
                   strokeWidth={key === "total" ? 2.5 : 2}

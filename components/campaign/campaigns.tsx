@@ -32,20 +32,22 @@ export function Campaigns({ showAllLink = true }: CampaignsProps) {
 
   return (
     <Card className="@container/card min-h-55 gap-4 px-4">
-      <CardHeader className="px-0">
-        <CardTitle>Campaigns</CardTitle>
-        <CardDescription>Organize your media</CardDescription>
-        {showAll ? (
-          <CardAction className="self-center">
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/campaigns">
-                Show all
-                <ArrowRightIcon data-icon="inline-end" />
-              </Link>
-            </Button>
-          </CardAction>
-        ) : null}
-      </CardHeader>
+      {!isEmpty ? (
+        <CardHeader className="px-0">
+          <CardTitle>Campaigns</CardTitle>
+          <CardDescription>Organize your media</CardDescription>
+          {showAll ? (
+            <CardAction className="self-center">
+              <Button variant="ghost" size="sm" asChild>
+                <Link href="/campaigns">
+                  Show all
+                  <ArrowRightIcon data-icon="inline-end" />
+                </Link>
+              </Button>
+            </CardAction>
+          ) : null}
+        </CardHeader>
+      ) : null}
       <CardContent
         className={
           isLoading || isError || isEmpty

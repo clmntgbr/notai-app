@@ -10,8 +10,7 @@ export function CampaignDetailSkeleton() {
           <Skeleton className="h-8 w-64 rounded-lg" />
         </div>
         <div className="ml-auto flex gap-2">
-          <Skeleton className="h-8 w-28 rounded-lg" />
-          <Skeleton className="h-8 w-28 rounded-lg" />
+          <Skeleton className="h-8 w-8 rounded-lg" />
           <Skeleton className="h-8 w-32 rounded-lg" />
         </div>
       </div>
@@ -55,17 +54,14 @@ export function CampaignDetailSkeleton() {
           {Array.from({ length: 2 }).map((_, column) => (
             <Card
               key={column}
-              className="flex flex-col gap-0 overflow-hidden py-0"
+              className="@container/card min-h-55 gap-4 px-4"
             >
-              <div className="flex flex-col gap-3 border-b px-4 py-3">
-                {column === 0 ? (
-                  <Skeleton className="h-8 w-full rounded-lg" />
-                ) : null}
-                <Skeleton className="h-8 w-full rounded-lg" />
-                <Skeleton className="h-9 w-full rounded-lg" />
-              </div>
-              <div className="flex flex-col gap-2 p-4">
-                {Array.from({ length: 10 }).map((_, index) => (
+              <CardHeader className="px-0">
+                <Skeleton className="h-5 w-28" />
+                <Skeleton className="h-4 w-36" />
+              </CardHeader>
+              <div className="flex flex-col gap-2">
+                {Array.from({ length: 5 }).map((_, index) => (
                   <div
                     key={index}
                     className="flex items-center gap-3 rounded-xl border p-2"

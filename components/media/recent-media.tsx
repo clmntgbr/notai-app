@@ -24,9 +24,11 @@ import { useState } from "react"
 
 export interface RecentMediaProps {
   limit?: number
+  /** When set, only show media for this campaign. */
+  campaignId?: string
 }
 
-export function RecentMedia({ limit = 5 }: RecentMediaProps) {
+export function RecentMedia({ limit = 5, campaignId }: RecentMediaProps) {
   const [selected, setSelected] = useState<Media | null>(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const { data, isLoading, isError } = useMedia({
@@ -34,6 +36,7 @@ export function RecentMedia({ limit = 5 }: RecentMediaProps) {
     limit,
     sortBy: "created_at",
     orderBy: "desc",
+    campaignIds: campaignId ? [campaignId] : undefined,
   })
 
   const items = data?.members ?? []
@@ -78,7 +81,11 @@ export function RecentMedia({ limit = 5 }: RecentMediaProps) {
             <EmptyState
               icon={<ImageIcon />}
               title="No media yet"
-              description="You haven't uploaded any media yet. Get started by uploading your first file."
+              description={
+                campaignId
+                  ? "Upload images or videos to this campaign to get started."
+                  : "You haven't uploaded any media yet. Get started by uploading your first file."
+              }
             />
           ) : (
             <div className="flex w-full flex-col gap-2">
@@ -102,7 +109,11 @@ export function RecentMedia({ limit = 5 }: RecentMediaProps) {
         }}
       />
 
-      <RecentMediaDrawer open={drawerOpen} onOpenChange={setDrawerOpen} />
+      <RecentMediaDrawer
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+        campaignId={campaignId}
+      />
     </>
   )
 }

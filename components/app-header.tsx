@@ -59,6 +59,10 @@ export function AppHeader({
   showSubscription = true,
   showBorder = true,
 }: AppHeaderProps) {
+  const pathname = usePathname()
+  const hideUploadMedia =
+    pathname.startsWith("/campaign/") && !pathname.startsWith("/campaigns")
+
   return (
     <header
       className={cn(
@@ -104,7 +108,12 @@ export function AppHeader({
           aria-hidden={!showWorkspaceActions}
         >
           <ButtonGroup>
-            <ImageUploadButton />
+            <ImageUploadButton
+              className={cn(
+                hideUploadMedia && "pointer-events-none invisible"
+              )}
+              disabled={hideUploadMedia}
+            />
             <CreateCampaignButton />
           </ButtonGroup>
         </div>

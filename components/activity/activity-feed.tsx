@@ -23,16 +23,20 @@ import { useState } from "react"
 export interface ActivityFeedProps {
   limit?: number
   showAllLink?: boolean
+  /** When set, only show activity for this campaign. */
+  campaignId?: string
 }
 
 export function ActivityFeed({
   limit = 5,
   showAllLink = true,
+  campaignId,
 }: ActivityFeedProps) {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const { data, isLoading, isError } = useActivity({
     page: 1,
     limit,
+    campaignIds: campaignId ? [campaignId] : undefined,
   })
 
   const items = data?.members ?? []
@@ -41,22 +45,24 @@ export function ActivityFeed({
   return (
     <>
       <Card className="@container/card h-full min-h-55 gap-4 px-4">
-        <CardHeader className="px-0">
-          <CardTitle>Activity feed</CardTitle>
-          <CardDescription>Latest events</CardDescription>
-          {showAllLink && !isLoading && !isError && !isEmpty ? (
-            <CardAction className="self-center">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setDrawerOpen(true)}
-              >
-                Show all
-                <ArrowRightIcon data-icon="inline-end" />
-              </Button>
-            </CardAction>
-          ) : null}
-        </CardHeader>
+        {!isEmpty ? (
+          <CardHeader className="px-0">
+            <CardTitle>Activity feed</CardTitle>
+            <CardDescription>Latest events</CardDescription>
+            {showAllLink && !isLoading && !isError ? (
+              <CardAction className="self-center">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setDrawerOpen(true)}
+                >
+                  Show all
+                  <ArrowRightIcon data-icon="inline-end" />
+                </Button>
+              </CardAction>
+            ) : null}
+          </CardHeader>
+        ) : null}
         <CardContent
           className={
             isLoading || isError || isEmpty
@@ -75,7 +81,11 @@ export function ActivityFeed({
             <EmptyState
               icon={<ActivityIcon />}
               title="No activity yet"
-              description="Recent events will appear here as your team uploads and reviews contents."
+              description={
+                campaignId
+                  ? "Events for this campaign will appear here as media is uploaded and reviewed."
+                  : "Recent events will appear here as your team uploads and reviews contents."
+              }
             />
           ) : (
             <div className="flex w-full flex-col gap-2">
@@ -87,7 +97,11 @@ export function ActivityFeed({
         </CardContent>
       </Card>
 
-      <ActivityFeedDrawer open={drawerOpen} onOpenChange={setDrawerOpen} />
+      <ActivityFeedDrawer
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+        campaignId={campaignId}
+      />
     </>
   )
 }

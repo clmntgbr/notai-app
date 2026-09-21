@@ -2,15 +2,12 @@
 
 import { openSubscriptionDrawer } from "@/components/billing/subscription-drawer-host"
 import { CreateCampaignButton } from "@/components/campaign/create-campaign-button"
-import { ImageUploadButton } from "@/components/image-upload/image-upload-button"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { cn } from "cn"
-import { CreditCardIcon } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { ButtonGroup } from "./ui/button-group"
 
 function NavLink({
   href,
@@ -59,10 +56,6 @@ export function AppHeader({
   showSubscription = true,
   showBorder = true,
 }: AppHeaderProps) {
-  const pathname = usePathname()
-  const hideUploadMedia =
-    pathname.startsWith("/campaign/") && !pathname.startsWith("/campaigns")
-
   return (
     <header
       className={cn(
@@ -96,7 +89,6 @@ export function AppHeader({
             onClick={() => openSubscriptionDrawer()}
             tabIndex={showSubscription ? undefined : -1}
           >
-            <CreditCardIcon className="size-4" />
             Subscription
           </Button>
         </div>
@@ -107,15 +99,7 @@ export function AppHeader({
           )}
           aria-hidden={!showWorkspaceActions}
         >
-          <ButtonGroup>
-            <ImageUploadButton
-              className={cn(
-                hideUploadMedia && "pointer-events-none invisible"
-              )}
-              disabled={hideUploadMedia}
-            />
-            <CreateCampaignButton />
-          </ButtonGroup>
+          <CreateCampaignButton />
         </div>
       </div>
     </header>
